@@ -18,41 +18,41 @@ Course Link: <https://www.youtube.com/playlist?list=PL4cUxeGkcC9gQeDH6xYhmO-db2m
 
 ## Targeting (指定目標)
 
-- by tags
+### by tags
 
-    ``` css
-    div {
-        color: red;
-    }
-    ```
+``` css
+div {
+    color: red;
+}
+```
 
-    ``` html
-    <div id="mydiv">Hello World</div>
-    ```
+``` html
+<div id="mydiv">Hello World</div>
+```
 
-- by IDs
+### by IDs
 
-    ``` css
-    #mydiv {
-        color: red;
-    }
-    ```
+``` css
+#mydiv {
+    color: red;
+}
+```
 
-    ``` html
-    <div id="mydiv">Hello World</div>
-    ```
+``` html
+<div id="mydiv">Hello World</div>
+```
 
-- by Classes
+### by Classes
 
-    ``` css
-    .myclass {
-        color: red;
-    }
-    ```
+``` css
+.myclass {
+    color: red;
+}
+```
 
-    ``` html
-    <div class="myclass">Hello World</div>
-    ```
+``` html
+<div class="myclass">Hello World</div>
+```
 
 ## Targeting Multiple Elements (指定多個目標)
 
@@ -163,6 +163,165 @@ a[href$="pdf"] {
 </div>
 ```
 
+## Pseudo Selectors (虛擬選擇器)
+
+### Behavioral (行為相關)
+
+#### hover
+
+``` css
+a:hover {
+    color: red;
+}
+```
+
+#### active
+
+``` css
+a:active {
+    color: blue;
+}
+```
+
+#### visited
+
+``` css
+a:visited {
+    color: green;
+}
+```
+
+### Structural (結構相關)
+
+#### First & Last Child
+
+※ child 指的是所有子元素
+
+``` css
+/* 選擇 div 元素的後代中，第一個子元素 */
+div p:first-child {
+    color: red;
+}
+
+/* 選擇 div 元素的後代中，最後一個子元素 */
+div p:last-child {
+    color: blue;
+}
+```
+
+``` html
+<div>
+    <p>I'll be red</p>
+    <p>2nd</p>
+    <p>3rd</p>
+    <p>I'll be blue</p>
+</div>
+```
+
+#### First & Last of Type
+
+※ 若後代由多種元素組成，用 child 有可能會指不到目標元素，需改用 type 的方式
+
+``` css
+/* 用這個寫法不會生效，因為 div 元素的第一個子元素不是 p 元素
+div p:first-child {
+    color: red;
+}
+*/
+
+/* 選擇 div 元素的後代中，第一個 p 元素 */
+div p:first-of-type {
+    color: red;
+}
+
+/* 選擇 div 元素的後代中，最後一個 p 元素 */
+div p:last-of-type {
+    color: blue;
+}
+```
+
+``` html
+<div>
+    <h1>I'm first child now</h1>
+    <p>I'll be red</p>
+    <p>2nd</p>
+    <p>3rd</p>
+    <p>I'll be blue</p>
+    <h1>I'm last child now</h1>
+</div>
+```
+
+#### nth Child
+
+※ nth 的起始值為 1
+
+``` css
+/* 選擇第三個 li 元素 */
+li:nth-child(3) {
+    color: red;
+}
+
+/* 選擇所有奇數的 li 元素 */
+li:nth-child(odd) {
+    color: blue;
+}
+
+/* 選擇所有奇數的 li 元素 */
+li:nth-child(2n+1) {
+    color: blue;
+}
+
+/* 選擇所有偶數的 li 元素 */
+li:nth-child(even) {
+    color: green;
+}
+
+/* 選擇所有偶數的 li 元素 */
+li:nth-child(2n) {
+    color: green;
+}
+```
+
+``` html
+<ul>
+    <li>item 1</li>
+    <li>item 2</li>
+    <li>item 3</li>
+    <li>item 4</li>
+</ul>
+```
+
+#### nth of Type
+
+※ nth 的起始值為 1
+
+## Combining Selectors (選擇器合併使用)
+
+``` css
+div.myclass {
+    color: red;
+}
+```
+
+``` html
+<!-- 僅「Hello」會被影響 -->
+<div>
+    <div class="myclass">Hello</div>
+    <div>World</div>
+</div>
+```
+
+## The Universal Selector
+
+※ 連瀏覽器預設樣式也會覆蓋
+
+``` css
+/* 超連結的顏色也會變紅色 */
+* {
+    color: red;
+}
+```
+
 ## Conflicts & the Cascade (衝突)
 
 一般情況下，CSS有衝突時
@@ -204,7 +363,7 @@ a[href$="pdf"] {
 
 ## The Important Declaration
 
-「!important」修飾詞會是最強的，但是若濫用會造成未來難以 debug
+「!important」修飾詞會是最強的，但是濫用會造成未來難以 debug
 
 以下例子，有「!important」修飾的樣式獲勝
 
