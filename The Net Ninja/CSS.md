@@ -56,9 +56,8 @@ div {
 
 ## Targeting Multiple Elements (指定多個目標)
 
-以下例子，選擇所有 h1 和 h2 元素
-
 ``` css
+/* 選擇所有 h1 和 h2 元素 */
 h1, h2 {
     color: red;
 }
@@ -66,9 +65,8 @@ h1, h2 {
 
 ## Descendant Selectors (後代選擇器)
 
-以下例子，選擇 div 後代的所有 p 元素
-
 ``` css
+/* 選擇 div 後代的所有 p 元素 */
 div p {
     color: red;
 }
@@ -86,9 +84,8 @@ div p {
 
 ## Child Selectors (子代選擇器)
 
-以下例子，選擇 div 直接子代的 p 元素
-
 ``` css
+/* 選擇 div 直接子代的 p 元素 */
 div > p {
     color: red;
 }
@@ -106,9 +103,8 @@ div > p {
 
 ## Adjacent Selectors (相鄰兄弟選擇器)
 
-以下例子，選擇緊接在 span 之後的 p 元素
-
 ``` css
+/* 選擇緊接在 span 之後的 p 元素 */
 span + p {
     color: red;
 }
@@ -137,17 +133,22 @@ div[class="myclass"] {
     color: red;
 }
 
-/* 選擇 title 屬性值含「title2」字串的 a 元素 */
-a[title~="title2"] {
+/* 選擇 title 屬性值含「od」的 a 元素 */
+a[title*="od"] {
     color: red;
 }
 
-/* 選擇 href 屬性值開頭為「https」字串的 a 元素 */
+/* 選擇 title 屬性值含完整「good」字串的 a 元素 */
+a[title~="good"] {
+    color: red;
+}
+
+/* 選擇 href 屬性值開頭為「https」的 a 元素 */
 a[href^="https"] {
     color: red;
 }
 
-/* 選擇 href 屬性值結尾為「pdf」字串的 a 元素 */
+/* 選擇 href 屬性值結尾為「pdf」的 a 元素 */
 a[href$="pdf"] {
     color: red;
 }
@@ -156,7 +157,7 @@ a[href$="pdf"] {
 ``` html
 <div id="mydiv">
     <div class="myclass">
-        <a title="title1 title2">Hello</a>
+        <a title="good title">Hello</a>
         <a href="https://www.google.com">Click</a>
         <a href="note.pdf">Click</a>
     </div>
@@ -311,12 +312,12 @@ div.myclass {
 </div>
 ```
 
-## The Universal Selector
+## The Universal Selector (通用選擇器)
 
-※ 連瀏覽器預設樣式也會覆蓋
+※ 瀏覽器預設樣式也會被覆蓋
 
 ``` css
-/* 超連結的顏色也會變紅色 */
+/* 超連結文字在瀏覽器預設樣式為深藍色，但通用選擇器會覆蓋，所以顏色也會改成紅色 */
 * {
     color: red;
 }
@@ -343,29 +344,39 @@ div.myclass {
 |  Classes  |   10   |
 |    IDs    |  100   |
 
-以下例子，前者有 101 分，後者僅有 10 分，所以前者獲勝
+``` css
+/* 原本 color 應該會被後寫的覆蓋，但因為這個選擇器有 101 分，所以會獲勝 */
+#mydiv p {
+    color: red;
+}
+
+/* 這個選擇器僅有 10 分 */
+.myclass {
+    color: blue;
+}
+```
 
 ``` html
 <div id="mydiv">
     <p class="myclass">Hello World</p>
 </div>
-```
-
-``` css
-#mydiv p {
-    color: red;
-}
-
-.myclass {
-    color: blue;
-}
 ```
 
 ## The Important Declaration
 
 「!important」修飾詞會是最強的，但是濫用會造成未來難以 debug
 
-以下例子，有「!important」修飾的樣式獲勝
+``` css
+/* 這個選擇器有 101 分 */
+#mydiv p {
+    color: red;
+}
+
+/* 這個選擇器僅有 10 分，但有「!important」修飾的樣式最強，所以會獲勝 */
+.myclass {
+    color: blue !important;
+}
+```
 
 ``` html
 <div id="mydiv">
@@ -373,12 +384,139 @@ div.myclass {
 </div>
 ```
 
-``` css
-#mydiv p {
-    color: red;
-}
+## Font Size (字體大小)
 
-.myclass {
-    color: blue !important;
+### Absolute
+
+#### Pixels (px)
+
+``` css
+div {
+    font-size: 48px;
 }
 ```
+
+### Relative
+
+#### Em's (em) & Percentage (%)
+
+em 和 % 都代表 inherit 後的字體大小乘以 N 倍
+
+``` css
+div {
+    font-size: 16px;
+}
+
+div p {
+    font-size: 3em;
+}
+
+div span {
+    font-size: 50%;
+}
+```
+
+``` html
+<!-- Hello 的字體大小會是 16px -->
+<!-- World 的字體大小會是 48px -->
+<!-- Today 的字體大小會是 8px -->
+<div>
+    Hello
+    <p>World</p>
+    <span>Today</span>
+</div>
+```
+
+## Font Family (字體)
+
+依宣告順序使用字體，如果 client 端都沒有這些字體，就會使用瀏覽器預設樣式
+
+``` css
+p {
+    font-family: 'arial', 'calibri';
+}
+```
+
+## Text Decoration (文字修飾樣式)
+
+底線、刪除線 .. 等等用法參考 [w3schools](https://www.w3schools.com/cssref/pr_text_text-decoration.asp)
+
+``` css
+p {
+    text-decoration: underline;
+}
+```
+
+## Font Weight (文字粗體)
+
+粗體用法參考 [w3schools](https://www.w3schools.com/cssref/pr_font_weight.asp)
+
+``` css
+p {
+    font-weight: bold;
+}
+```
+
+## Text Transform (文字轉換大小寫)
+
+首字大寫、全大寫、全小寫 .. 等等用法參考 [w3schools](https://www.w3schools.com/cssref/pr_text_text-transform.asp)
+
+``` css
+p {
+    text-transform: capitalize;
+}
+```
+
+## Text Color (文字顏色)
+
+分為文字顏色和底色，值可以寫顏色名稱或色碼
+
+``` css
+p {
+    color: red;
+    background-color: black;
+}
+
+span {
+    color: #112233;
+    background-color: #332211;
+}
+```
+
+## Letter Spacing & Line Height (字母間距和文字行高)
+
+``` css
+/* 字母間距 */
+p {
+    letter-spacing: 3px;
+}
+
+/* 單字間距 */
+p {
+    word-spacing: 6px;
+}
+
+/* 文字行高會和文字大小有關係，以下樣式的文字行高會是 24px */
+p {
+    font-size: 12px;
+    line-height: 2em;
+}
+```
+
+## The Box Model
+
+![The Box Model](img/20190407_175022.png)
+
+``` css
+div {
+    margin: 10px;
+    padding: 5px;
+    border: 1px solid #000000;
+    width: 100px;
+    height: 50px;
+}
+```
+
+Result:
+
+![Box Model Sample](img/20190407_175449.png)
