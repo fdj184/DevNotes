@@ -439,7 +439,7 @@ p {
 
 ## Text Decoration (文字修飾樣式)
 
-底線、刪除線 .. 等等用法參考 [w3schools](https://www.w3schools.com/cssref/pr_text_text-decoration.asp)
+底線、刪除線 .. 等等用法，自行參考 [w3schools](https://www.w3schools.com/cssref/pr_text_text-decoration.asp)
 
 ``` css
 p {
@@ -449,7 +449,7 @@ p {
 
 ## Font Weight (文字粗體)
 
-粗體用法參考 [w3schools](https://www.w3schools.com/cssref/pr_font_weight.asp)
+粗體用法，自行參考 [w3schools](https://www.w3schools.com/cssref/pr_font_weight.asp)
 
 ``` css
 p {
@@ -459,7 +459,7 @@ p {
 
 ## Text Transform (文字轉換大小寫)
 
-首字大寫、全大寫、全小寫 .. 等等用法參考 [w3schools](https://www.w3schools.com/cssref/pr_text_text-transform.asp)
+首字大寫、全大寫、全小寫 .. 等等用法，自行參考 [w3schools](https://www.w3schools.com/cssref/pr_text_text-transform.asp)
 
 ``` css
 p {
@@ -520,3 +520,184 @@ div {
 Result:
 
 ![Box Model Sample](img/20190407_175449.png)
+
+## Margin (外距)
+
+``` css
+/* 四邊外距都是 5px */
+div {
+    margin: 5px;
+}
+
+/* 上、右、下、左的外距分別為 5px、10px、15px、20px */
+div {
+    margin: 5px 10px 15px 20px;
+}
+
+/* 上、下的外距為 5px，左右的外距為 10px */
+div {
+    margin: 5px 10px;
+}
+
+/* 分別指定上、右、下、左的外距 */
+div {
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+```
+
+### Vertical Margin Collapse
+
+垂直相鄰的兩個元素若都有 margin，其中間的空隙只會顯示數值較大的那方的 margin，以下為例子
+
+``` css
+#div1 {
+    width: 100px;
+    margin: 15px;
+    border: 1px solid #000;
+}
+
+#div2 {
+    width: 100px;
+    margin: 30px;
+    border: 1px solid #000;
+}
+```
+
+``` html
+<div id="div1">Hello</div>
+<div id="div2">World</div>
+```
+
+兩個 div 元素中間的間距不會是 15px + 30px，而是只有 30px
+
+![Vertical Margin Collapse](img/20190408_214523.png)
+
+### Horizontally Center the Element (水平置中)
+
+將左右 margin 設為 auto
+
+``` css
+div {
+    margin: 5px auto;
+}
+```
+
+## Padding (內距)
+
+``` css
+/* 四邊內距都是 5px */
+div {
+    padding: 5px;
+}
+
+/* 上、右、下、左的內距分別為 5px、10px、15px、20px */
+div {
+    padding: 5px 10px 15px 20px;
+}
+
+/* 上、下的內距為 5px，左右的內距為 10px */
+div {
+    padding: 5px 10px;
+}
+
+/* 分別指定上、右、下、左的內距 */
+div {
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
+```
+
+## Border (框線)
+
+不同的框線樣式用法，自行參考 [w3schools](https://www.w3schools.com/cssref/pr_border-style.asp)
+
+``` css
+div {
+    border: 1px solid #000;
+}
+```
+
+## Block-level Elements & Inline Elements
+
+html 元素天生分為兩類，詳細的元素分類可參考 [w3schools](https://www.w3schools.com/html/html_blocks.asp)
+
+### Block-level Elements
+
+每個元素總是從新的一行開始繪製，會占用所有可用的寬度，以 \<div> 元素為代表
+
+### Inline Elements
+
+每個元素不以新的一行開始繪製，僅占用所需的寬度，而且會忽略上、下邊的 margin，以 \<span> 元素為代表
+
+``` css
+.myclass {
+    border: 1px solid #000;
+    padding: 10px;
+    margin: 20px;
+    width: 100px;
+    height: 50px;
+}
+```
+
+``` html
+<h2>Block-level Elements</h2>
+<div class="myclass">Hello</div>
+<div class="myclass">Hello</div>
+<div class="myclass">Hello</div>
+<h2>Inline Elements</h2>
+<span class="myclass">World</span>
+<span class="myclass">World</span>
+<span class="myclass">World</span>
+```
+
+| Block-level Elements             | Inline Elements                              |
+|----------------------------------|----------------------------------------------|
+| 完整套用 Box Model 樣式          | height、width 和上、下邊的 margin 都會被忽略 |
+| ![Block-level Elements][BLE_img] | ![Inline Elements][IE_img]|                  |
+
+[BLE_img]: img/20190408_223756.png
+[IE_img]: img/20190408_223351.png
+
+## Display
+
+``` css
+/* 以 Block-level 的方式顯示元素 (如同 <div> 元素) */
+.myclass {
+    display: block;
+}
+
+/* 以 Inline-level 的方式顯示元素 (如同 <span> 元素) */
+.myclass {
+    display: inline;
+}
+
+/* 以 Inline-level 的方式顯示元素，
+但是可以套用 height、width、margin-top 和 margin-bottom */
+.myclass {
+    display: inline-block;
+}
+```
+
+其它 display 方式，自行參考 [w3schools](https://www.w3schools.com/cssref/pr_class_display.asp)
+
+## Width & Height (寬度和高度)
+
+``` css
+/* 固定值寬度或高度 */
+div {
+    width: 300px;
+    height: 300px;
+}
+
+/* 根據父元素寬度或高度，乘以 N % */
+/* 此寫法會因當下頁面寬度或高度變化而變化 (即 RWD 寫法) */
+div {
+    width: 50%;
+    height: 30%;
+}
+```
