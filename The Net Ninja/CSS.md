@@ -701,3 +701,157 @@ div {
     height: 30%;
 }
 ```
+
+## Rounded Corners (圓角)
+
+``` css
+/* 四個角都是 5px 的圓角 */
+div {
+    border-radius: 5px;
+}
+
+/* 左上、右上、右下、左下的圓角分別為 5px、10px、15px、20px */
+div {
+    border-radius: 5px 10px 15px 20px;
+}
+
+/* 左上、右下的圓角為 5px，右上、左下的圓角為 10px */
+div {
+    border-radius: 5px 10px;
+}
+```
+
+## Backgrounds (背景)
+
+``` css
+div {
+    /* 背景色 */
+    background-color: #000000;
+    /* 背景圖片 */
+    background-image: url(http://www.xxx.com/aaa.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100px;
+    /* 背景圖片屬性的簡寫 */
+    background: url(http://www.xxx.com/aaa.jpg) no-repeat center;
+}
+```
+
+其它 background 用法，自行參考 [w3schools](https://www.w3schools.com/css/css_background.asp)
+
+## Multiple Backgrounds (多個背景)
+
+``` css
+div {
+    /* 背景圖片 */
+    background-image: url(http://www.xxx.com/aaa.jpg), url(http://www.xxx.com/bbb.jpg);
+    background-repeat: no-repeat, no-repeat;
+}
+```
+
+## Color (顏色)
+
+顏色寫法有三種
+
+### 色碼
+
+``` css
+div {
+    color: #000000;
+}
+```
+
+### RGB
+
+``` css
+div {
+    color: rgb(255, 255, 255);
+}
+```
+
+### 名稱
+
+``` css
+div {
+    color: white;
+}
+```
+
+## Opacity (透明度)
+
+值為 0 時 100% 透明；值為 1 時 0% 透明
+
+``` css
+div {
+    /* opacity 屬性會同時影響文字和背景 */
+    opacity: 0.7;
+    /* rgba 僅會影響背景顏色 */
+    background: rgba(255, 255, 255, 0.8);
+}
+```
+
+## Gradients (漸層色)
+
+### Linear-Gradients (線性漸層)
+
+linear-gradient(方向, 起點1顏色 (起點1距離), ..., 終點顏色 (終點距離))
+
+``` css
+div {
+    /* -moz 前綴是為了讓 Mozilla 瀏覽器能夠使用漸層 */
+    /* -webkit 前綴是為了讓 Chrome 瀏覽器能夠使用漸層 */
+    /* 建議要使用漸層時，如下四行寫法，可保證在無法使用漸層的瀏覽器也有背景色 */
+    background: #ffc0cb;
+    background: -moz-linear-gradient(top, #ffc0cb 0%, #03498d 100%);
+    background: -webkit-linear-gradient(top, #ffc0cb 0%, #03498d 100%);
+    background: linear-gradient(top, #ffc0cb 0%, #03498d 100%);
+}
+```
+
+其它 Gradients 用法，自行參考 [w3schools](https://www.w3schools.com/css/css3_gradients.asp)
+
+### Radial-Gradients (放射性漸層)
+
+radial-gradient(形狀, 起點1顏色 (起點1距離), ..., 終點顏色 (終點距離))
+
+``` css
+div {
+    /* -moz 前綴是為了讓 Mozilla 瀏覽器能夠使用漸層 */
+    /* -webkit 前綴是為了讓 Chrome 瀏覽器能夠使用漸層 */
+    /* 建議要使用漸層時，如下四行寫法，可保證在無法使用漸層的瀏覽器也有背景色 */
+    background: #ffc0cb;
+    background: -moz-radial-gradient(center, #ffc0cb 0%, #03498d 100%);
+    background: -webkit-radial-gradient(center, #ffc0cb 0%, #03498d 100%);
+    background: radial-gradient(center, #ffc0cb 0%, #03498d 100%);
+}
+```
+
+## Box Shadow (陰影)
+
+``` css
+div {
+    box-shadow: 10px 10px 5px grey;
+}
+```
+
+其它 Shadow 用法，自行參考 [w3schools](https://www.w3schools.com/css/css3_shadows.asp)
+
+## Browser Support (瀏覽器支援度)
+
+各種瀏覽器對 CSS 的支援度並不相同，可以在 [Can I Use](https://caniuse.com/) 查看，以下有幾種對應方式
+
+### Fallback Options (備案)
+
+``` css
+div {
+    /* 在無法使用漸層的瀏覽器也有背景色 */
+    background: red;
+    background: linear-gradient(red, white);
+}
+```
+
+### Vender Prefixes (供應商前綴)
+
+透過 [Autoprefixer](https://autoprefixer.github.io/) 等網站產生對應的供應商前綴
+
+![Autoprefixer](img/20190411_180317.png)
