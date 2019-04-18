@@ -215,17 +215,17 @@ console.log(typeof (a + b));
 
 ### String Methods (常見的字串方法)
 
-| Methods      | Description      |
-| :---: | :---: |
-| length      | 字串長度      |
-| toUpperCase()      | 轉大寫字母      |
-| toLowerCase()      | 轉小寫字母      |
-| trim()      | 移除字串前後的空格      |
-| replace(xxx, ooo)      | 將字串中，第一個 xxx 取代為 ooo      |
-| replace(/xxx/g, ooo)      | 將字串中，所有 xxx 取代為 ooo      |
-| indexOf()      | 第一個出現在字串中的目標之位置索引      |
-| slice(start, end)      | 擷取部分字串      |
-| split()      | 將字串轉換為陣列      |
+|         Methods          |             Description             |
+|:------------------------:|:-----------------------------------:|
+|          length          |              字串長度               |
+|      toUpperCase()       |             轉大寫字母              |
+|      toLowerCase()       |             轉小寫字母              |
+|          trim()          |         移除字串前後的空格          |
+|  replace(_xxx_, _ooo_)   | 將字串中，第一個 _xxx_ 取代為 _ooo_ |
+| replace(/_xxx_/g, _ooo_) |  將字串中，所有 _xxx_ 取代為 _ooo_  |
+|        indexOf()         | 第一個出現在字串中的目標之位置索引  |
+|  slice(_start_, _end_)   |            擷取部分字串             |
+|         split()          |          將字串轉換為陣列           |
 
 ``` javascript
 var a = " Hello world1 & world2 ";
@@ -347,6 +347,62 @@ console.log(newFruits);
 // output:
 // ["lemon", "banana"]
 ```
+
+其它 Array 方法，自行參考 [w3schools](https://www.w3schools.com/js/js_array_methods.asp)
+
+### Date Object (日期物件)
+
+``` javascript
+var myDate1 = new Date();
+console.log(myDate1);
+
+var myDate2 = new Date(2019, 4, 18, 12, 34, 56);
+console.log(myDate2);
+
+// output:
+// Thu Apr 18 2019 16:48:24 GMT+0800 (台北標準時間)
+// Sat May 18 2019 12:34:56 GMT+0800 (台北標準時間)
+```
+
+### Date Methods (常見的日期方法)
+
+|    Methods    |                   Description                   |
+|:-------------:|:-----------------------------------------------:|
+| getFullYear() |                 取得年份 (yyyy)                 |
+|  getMonth()   |                 取得月份 (0~11)                 |
+|   getDate()   |                 取得日期 (1~31)                 |
+|  getHours()   |                  取得時 (0-23)                  |
+| getMinutes()  |                  取得分 (0~59)                  |
+| getSeconds()  |                  取得秒 (0~59)                  |
+|   getDay()    |                取得禮拜幾 (0~6)                 |
+|   getTime()   | 1970/01/01以來，經過的毫秒數 (用來比較兩個時間) |
+
+``` javascript
+var myDate = new Date(2019, 4, 18, 12, 34, 56);
+console.log(myDate.getFullYear());
+console.log(myDate.getMonth());
+console.log(myDate.getDate());
+console.log(myDate.getHours());
+console.log(myDate.getMinutes());
+console.log(myDate.getSeconds());
+console.log(myDate.getDay());
+
+var birthday = new Date(1990, 0, 1, 12, 34, 56);
+console.log(birthday.getTime() > myDate.getTime());
+
+/* output:
+2019
+4
+18
+12
+34
+56
+6
+false
+*/
+```
+
+其它 Date 方法，自行參考 [w3schools](https://www.w3schools.com/js/js_date_methods.asp)
 
 ## Objects (物件)
 
@@ -554,8 +610,8 @@ you are over 10.*/
 
 | Keyword  |          Description           |
 |:--------:|:------------------------------:|
-|  Break   |          中斷整個迴圈          |
-| Continue | 略過本次迴圈，直接進入下次迴圈 |
+|  break   |          中斷整個迴圈          |
+| continue | 略過本次迴圈，直接進入下次迴圈 |
 
 ``` javascript
 for (var myAge = 5; myAge < 10; myAge++) {
@@ -620,4 +676,95 @@ console.log(myVar2);
 2
 1
 Error: myVar2 is not defined */
+```
+
+## DOM (Document Object Model)
+
+### Finding HTML Elements
+
+|                Syntax                 |          Description          |
+|:-------------------------------------:|:-----------------------------:|
+|      document.getElementById(_id_)      |    透過 id 取得 html 元素     |
+| document.getElementsByClassName(_name_) | 透過 class 取得 html 元素集合(陣列) |
+|  document.getElementsByTagName(_name_)  |  透過 tag 取得 html 元素集合(陣列)  |
+
+``` html
+<div>
+    <div id="myDiv" title="fruit">apple</div>
+    <div class="colorful">banana</div>
+</div>
+```
+
+``` javascript
+var myEle = document.getElementsByClassName("innerClass");
+console.log(myEle);
+```
+
+### Adding & Deleting HTML Elements
+
+|                              Syntax                               |            Description             |
+|:-----------------------------------------------------------------:|:----------------------------------:|
+|                 document.createElement(_element_)                 |         建立一個 html 元素         |
+|             _targetElement_.appendChild(_newElement_)             |   在子元素最後附加一個 html 元素   |
+| _targetElement_.insertBefore(_newElement_, _specifyChildElement_) | 在指定子元素之前新增一個 html 元素 |
+|        _targetElement_.removeChild(_specifyChildElement_)         |           移除指定子元素           |
+
+``` html
+<div id="myList">
+    <ul>
+        <li>apple</li>
+        <li>banana</li>
+        <li>cherry</li>
+    </ul>
+</div>
+```
+
+``` javascript
+// create a new li element
+var newEle = document.createElement("li");
+newEle.setAttribute("id", "4th");
+newEle.innerHTML = "durian";
+
+// find the target
+var myList = document.getElementById("myList").getElementsByTagName("ul")[0];
+
+// append the new element to the target
+myList.appendChild(newEle);
+
+// create another li element
+var firstEle = document.createElement("li");
+firstEle.innerHTML = "avocado";
+
+// insert the element to be the first child
+myList.insertBefore(firstEle, myList.getElementsByTagName("li")[0]);
+
+// find the element which will be removed
+var uselessEle = myList.getElementsByTagName("li")[2];
+
+// remove the element
+myList.removeChild(uselessEle);
+```
+
+### Changing HTML Elements
+
+|      Syntax       |      Description       |
+|:-----------------:|:----------------------:|
+| _element_.innerHTML | 取得或設定元素內的文字 |
+| _element_._attribute_ | 取得或設定元素的屬性 |
+| _element_.getAttribute(_attribute_) | 取得元素的屬性(原始值) |
+| _element_.setAttribute(_attribute_, _value_) | 設定元素的屬性(原始值) |
+| _element_.style._property_ | 取得或設定元素 style 中的屬性 |
+
+``` html
+<div>
+    <div id="myDiv" title="fruit" style="color: red;">apple</div>
+    <div class="colorful">banana</div>
+</div>
+```
+
+``` javascript
+var myEle = document.getElementById("myDiv");
+myEle.innerHTML = "Avocado";
+myEle.getAttribute("title");
+myEle.style.fontSize = "20px";
 ```
