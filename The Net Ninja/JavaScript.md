@@ -266,6 +266,151 @@ worl
 
 其它 String 方法，自行參考 [w3schools](https://www.w3schools.com/js/js_string_methods.asp)
 
+### Arrays (陣列)
+
+``` javascript
+var myArray = [];
+myArray[0] = 10;
+myArray[1] = "Hello";
+console.log(myArray);
+
+// output
+// [10, "Hello"]
+```
+
+### Array Methods (常見的陣列方法)
+
+|  Methods  |               Description                |
+|:---------:|:----------------------------------------:|
+|  length   |                 陣列長度                 |
+|  sort()   |             排序陣列中的元素             |
+| reverse() |             反轉陣列中的元素             |
+|   pop()   |      移除最後一個元素，並回傳該元素      |
+|  push()   | 增加一個元素在陣列最後，並回傳新陣列長度 |
+|  shift()  |       移除第一個元素，並回傳該元素       |
+| unshift() | 增加一個元素在陣列開頭，並回傳新陣列長度 |
+| splice()  |       在陣列中增加或移除 N 個元素        |
+|  slice()  |           在陣列中擷取部分元素           |
+
+``` javascript
+var myArray = ["apple", "banana", "cherry"];
+console.log(myArray.length);
+
+// output:
+// 3
+
+// pop()
+console.log(myArray.pop());
+console.log(myArray);
+
+// push()
+console.log(myArray.push("coconut"));
+console.log(myArray);
+
+// output:
+// "cherry"
+// ["apple", "banana"]
+// 3
+// ["apple", "banana", "coconut"]
+
+// shift()
+console.log(myArray.shift());
+console.log(myArray);
+
+// unshift()
+console.log(myArray.unshift("avocado"));
+console.log(myArray);
+
+// output:
+// "apple"
+// ["banana", "coconut"]
+// 3
+// ["avocado", "banana", "coconut"]
+```
+
+``` javascript
+var myArray = ["apple", "banana", "cherry"];
+
+// Array.splice(start, remove count, element 1, .., element N)
+myArray.splice(1, 0, "lemon", "mango");
+console.log(myArray);
+myArray.splice(2, 1);
+console.log(myArray);
+
+// output:
+// ["apple", "lemon", "mango", "banana", "cherry"]
+// ["apple", "lemon", "banana", "cherry"]
+
+var newFruits = myArray.slice(1, 3);
+console.log(newFruits);
+
+// output:
+// ["lemon", "banana"]
+```
+
+## Objects (物件)
+
+- 物件有屬性(properties)和方法(methods)
+- String, Number, Boolean .. 都屬於物件的一種
+
+``` javascript
+var myCar = {
+    maxSpeed: 100,
+    drive: function(driver) {
+        return driver + " is driving.";
+    }
+}
+console.log(myCar.maxSpeed);
+console.log(myCar.drive("Wayne"));
+
+// output:
+// 100
+// Wayne is driving.
+```
+
+### THIS Keyword
+
+在物件的方法(Methods)中，「this」指向其擁有者物件，其它「this」的指向情況，可參考 [w3schools](https://www.w3schools.com/js/js_this.asp)
+
+``` javascript
+var myCar = {
+    maxSpeed: 100,
+    driver: "Wayne",
+    drive: function() {
+        // 這裡的 this 等同於 myCar
+        return this.driver + " drives at " + this.maxSpeed + " mph.";
+    }
+}
+console.log(myCar.drive());
+
+// output:
+// Wayne drives at 100 mph.
+```
+
+### Constructor Functions (函式建構式)
+
+- 有了「函式建構式」便可以用 new 的方式來建立物件
+- 命名首字建議使用大寫
+
+``` javascript
+var Car = function(driver, maxSpeed) {
+    this.driver = driver;
+    this.maxSpeed = maxSpeed;
+    this.drive = function() {
+        return this.driver + " drives at " + this.maxSpeed + " mph.";
+    };
+}
+
+var myCar1 = new Car("Wayne", 100);
+var myCar2 = new Car("Bruce", 50);
+console.log(myCar1.drive());
+console.log(myCar2.drive());
+
+// output:
+// Wayne drives at 100 mph.
+// Bruce drives at 50 mph.
+```
+
 ## Basic Mathematical Operators (基本數學運算子)
 
 | Operators | Description |
@@ -341,7 +486,7 @@ else {
 ※ 判斷式如果有「等於」的概念，因為「=」代表指派，所以應該用「==」或是「===」
 
 ``` javascript
-if (5 == 7) {
+if (5 === 7) {
     ...
 }
 ```
@@ -476,4 +621,3 @@ console.log(myVar2);
 1
 Error: myVar2 is not defined */
 ```
-
