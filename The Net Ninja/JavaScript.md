@@ -747,13 +747,13 @@ myList.removeChild(uselessEle);
 
 ### Changing HTML Elements
 
-|      Syntax       |      Description       |
-|:-----------------:|:----------------------:|
-| _element_.innerHTML | 取得或設定元素內的文字 |
-| _element_._attribute_ | 取得或設定元素的屬性 |
-| _element_.getAttribute(_attribute_) | 取得元素的屬性(原始值) |
-| _element_.setAttribute(_attribute_, _value_) | 設定元素的屬性(原始值) |
-| _element_.style._property_ | 取得或設定元素 style 中的屬性 |
+|                    Syntax                    |          Description          |
+|:--------------------------------------------:|:-----------------------------:|
+|             _element_.innerHTML              |    取得或設定元素內的文字     |
+|            _element_._attribute_             |     取得或設定元素的屬性      |
+|     _element_.getAttribute(_attribute_)      |    取得元素的屬性(原始值)     |
+| _element_.setAttribute(_attribute_, _value_) |    設定元素的屬性(原始值)     |
+|          _element_.style._property_          | 取得或設定元素 style 中的屬性 |
 
 ``` html
 <div>
@@ -812,12 +812,12 @@ window.onload = function() {
 
 ## Timer (計時器)
 
-| Syntax      | Description      |
-| :---: | :---: |
-| setTimeout(_function_, _milliseconds_)      | N 秒後觸發函式 (一次性)     |
-| setInterval(_function_, _milliseconds_)      | 每過 N 秒就觸發函式一次      |
-| clearTimeout(_timerObject_)      | 停止 setTimeout() 所綁定的 timer      |
-| clearInterval(_timerObject_)      | 停止 setInterval() 所綁定的 timer      |
+|                 Syntax                  |            Description            |
+|:---------------------------------------:|:---------------------------------:|
+| setTimeout(_function_, _milliseconds_)  |      N 秒後觸發函式 (一次性)      |
+| setInterval(_function_, _milliseconds_) |      每過 N 秒就觸發函式一次      |
+|       clearTimeout(_timerObject_)       | 停止 setTimeout() 所綁定的 timer  |
+|      clearInterval(_timerObject_)       | 停止 setInterval() 所綁定的 timer |
 
 ``` html
 <div>
