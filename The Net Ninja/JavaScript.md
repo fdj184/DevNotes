@@ -768,3 +768,135 @@ myEle.innerHTML = "Avocado";
 myEle.getAttribute("title");
 myEle.style.fontSize = "20px";
 ```
+
+## Events (事件)
+
+### onclick()
+
+``` html
+<div>
+    <div id="fruit1">apple</div>
+    <div id="fruit2">banana</div>
+</div>
+```
+
+``` javascript
+var apple = document.getElementById("fruit1");
+apple.onclick = function() {
+    console.log("I'm an apple.");
+};
+```
+
+### onload()
+
+可以確保所有 html 元素已載入
+
+``` html
+<div>
+    <div id="fruit1">apple</div>
+    <div id="fruit2">banana</div>
+</div>
+```
+
+``` javascript
+function setUpEvents() {
+    console.log("full loaded.");
+};
+
+window.onload = function() {
+    setUpEvents();
+};
+```
+
+其它 DOM Event，自行參考 [w3schools](https://www.w3schools.com/jsref/dom_obj_event.asp)
+
+## Timer (計時器)
+
+| Syntax      | Description      |
+| :---: | :---: |
+| setTimeout(_function_, _milliseconds_)      | N 秒後觸發函式 (一次性)     |
+| setInterval(_function_, _milliseconds_)      | 每過 N 秒就觸發函式一次      |
+| clearTimeout(_timerObject_)      | 停止 setTimeout() 所綁定的 timer      |
+| clearInterval(_timerObject_)      | 停止 setInterval() 所綁定的 timer      |
+
+``` html
+<div>
+    <div id="fruit1">apple</div>
+    <div id="fruit2">banana</div>
+    <button type="button" id="btn">Stop</button>
+</div>
+```
+
+``` javascript
+// setTimeout()
+var apple = document.getElementById("fruit1");
+function hideApple() {
+    apple.style.display = "none";
+};
+setTimeout(hideApple, 3000);
+
+// setInterval()
+var banana = document.getElementById("fruit2");
+var colorList = ["red", "yellow", "blue", "green"];
+var counter = 0;
+function changeColor() {
+    banana.style.background = colorList[counter%4];
+    counter++;
+}
+var myTimer = setInterval(changeColor, 3000);
+
+// clearInterval()
+var myBtn = document.getElementById("btn");
+myBtn.onclick = function() {
+    clearInterval(myTimer);
+};
+```
+
+## Form (表單)
+
+form 中的元素可以透過 name 屬性來存取
+
+``` html
+<form name="myForm">
+    <label for="name">Name: </label>
+    <input type="text" name="name" value="Wayne" /><br>
+    <label for="color">Fav. Color: </label>
+    <select name="color">
+        <option>Red</option>
+        <option>Blue</option>
+        <option>Green</option>
+    </select>
+    <input type="submit" name="submit" />
+</form>
+```
+
+``` javascript
+// finding elements
+var myForm = document.forms.myForm;
+console.log(myForm.name.value);
+
+// binding events
+myForm.name.onfocus = function() {
+    myForm.name.style.border = "3px solid pink";
+};
+myForm.name.onblur = function() {
+    myForm.name.style.border = "none";
+};
+```
+
+## Libraries (函式庫)
+
+可以透過兩種方式使用
+
+1. 下載函式庫，在本機引用
+2. 透過 CDN 引用
+
+最熱門的是 [jQuery](https://jquery.com/)
+
+## What to Study Next
+
+- Libraries like jQuery
+- AJAX & JSON
+- Regular expressions & advanced validation
+- OOP
+- Animation
