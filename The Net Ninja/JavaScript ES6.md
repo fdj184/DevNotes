@@ -241,3 +241,137 @@ console.log(str.includes("guy"));
 // true
 // true
 ```
+
+## Arrow Functions (箭頭函式)
+
+宣告函式：
+
+``` javascript
+// ES5 寫法
+var greeting = function(name) {
+    console.log("Hi" + name);
+};
+
+// ES6 箭頭函式寫法
+var greeting = (name) => {
+    console.log("Hi" + name);
+};
+
+// 如果函式只有一個參數，連小括號也可以省略
+var greeting = name => {
+    console.log("Hi" + name);
+};
+```
+
+宣告物件中的方法：
+
+``` javascript
+// ES5 寫法
+var person = {
+    name: "Wayne",
+    jump: function(x) {
+        var _this = this;
+        window.setInterval(function() {
+            if (x > 0) {
+                // 這裡若用 this 會指向 function()，所以取不到 name
+                // console.log(this.name + " jumped");
+                console.log(_this.name + " jumped");
+                x--;
+            }
+        }, 1000);
+    }
+};
+person.jump(5);
+
+// ES6 寫法
+const person = {
+    name: "Wayne",
+    // ES6 較簡潔的物件宣告方式
+    jump(x) {
+        // 改採箭頭函式
+        window.setInterval(() => {
+            if (x > 0) {
+                // 若用箭頭函式，this 會指向物件本身(即person)
+                console.log(this.name + " jumped");
+                x--;
+            }
+        }, 1000);
+    }
+};
+person.jump(5);
+```
+
+## Sets
+
+- 新的資料型態
+- 不會有重複的值，重複的會自動被忽略
+
+|      Methods      |   Description    |
+|:-----------------:|:----------------:|
+|       size        |  回傳 set 長度   |
+|  add(_element_)   |     添加成員     |
+| delete(_element_) |     刪除成員     |
+|      clear()      |  |刪除所有成員   |
+|  has(_element_)   | 檢查是否含有成員 |
+
+``` javascript
+const fruits = new Set();
+fruits.add("apple").add("banana").add("apple");
+console.log(fruits);
+
+// output:
+// {"apple", "banana"}
+```
+
+## Generator
+
+- 在「function」關鍵字後面加上「*」
+- 類似 function 但是每次僅執行一個步驟 (yield)
+
+example 1:
+
+``` javascript
+function* gen() {
+    yield "apple";
+    yield "banana";
+    return "all done";
+}
+
+// 首次呼叫 generator 不會執行
+const myGen = gen();
+// 每次使用 next()，就會執行下一個 yield 中的內容
+console.log(myGen.next());
+console.log(myGen.next());
+console.log(myGen.next());
+console.log(myGen.next());
+
+// output:
+// Object {value: "apple", done: false}
+// Object {value: "banana", done: false}
+// Object {value: "all done", done: true}
+// Object {value: undefined, done: true}
+```
+
+example 2:
+
+``` javascript
+// 傳遞參數至 generator 中
+function* gen() {
+    const x = yield "apple";
+    const y = yield "banana";
+    return x + y;
+}
+
+const myGen = gen();
+// 第一次使用 next() 前，還沒辦法傳 x 進去
+console.log(myGen.next());
+// x 已經產生，故可以傳遞第一個參數
+console.log(myGen.next(10));
+// y 已經產生，故可以傳遞第二個參數
+console.log(myGen.next(5));
+
+// output:
+// Object {value: "apple", done: false}
+// Object {value: "banana", done: false}
+// Object {value: 15, done: true}
+```
