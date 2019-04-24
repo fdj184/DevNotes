@@ -58,7 +58,7 @@ document.write(myVar);
 console.log(myVar);
 ```
 
-## Variable Types & Methods (變數型別和方法)
+## Variable Types & Methods (變數型態和方法)
 
 ### Booleans (布林)
 
