@@ -50,3 +50,268 @@ Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
 - 「Main」區塊是程式進入點
 - 「黃色區塊」放函式回傳值，這裡的 void 代表不回傳值
 - 「綠色區塊」放函式傳入值
+
+## Primitive Types and Expressions
+
+### 變數與常數宣告
+
+|                |                  描述                  |
+|:--------------:|:--------------------------------------:|
+| 變數(Variable) |      在記憶體中的儲存位置給予命名      |
+| 常數(Constant) | 在應用程式中不會被更動的值，例如圓周率 |
+
+- 命名首字不能是數字
+- 命名中間不能有空格
+- 命名不能是關鍵字，例如「int」
+- 命名要用有意義的名稱，例如使用「firstName」而不用「fn」
+- 命名慣例
+  - 駝峰式(Camel Case)，例如「firstName」
+  - 帕斯卡命名法(Pascal Case)，例如「FirstName」
+  - 匈牙利命名法(Hungarian Notation)，例如「strFirstName」
+
+``` C#
+// 變數宣告，可選擇是否給予初始值
+int num1;
+int num2 = 10;
+// 常數宣告，必須給予值
+const float pi = 3.14f;
+```
+
+### 資料型態(Data Type)
+
+![20190428_091938](img/20190428_091938.png)
+
+(不用硬背範圍)
+
+``` C#
+// 宣告小數時，預設會是採用 double
+double a = 1.5;
+// 欲宣告 float 時，必須在數字後面加上「f」
+float b = 1.5f;
+// 欲宣告 decimal 時，必須在數字後面加上「m」
+decimal c = 1.5m;
+```
+
+### 溢位(Overflow)
+
+超出範圍時會產生溢位，實際應用上，會用較大的資料型態去宣告以避免溢位
+
+### 變數有效範圍(Scope)
+
+變數只有在自己的大括號以內才能被存取
+
+![20190428_093513](img/20190428_093513.png)
+
+### 型態轉換
+
+|                                                      |                                               描述                                               |                    範例                     |
+|:----------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:-------------------------------------------:|
+|      隱含型態轉換<br>(Implicit Type Convention)      | 編譯器確定目標型態可轉換且資料不會遺失(原型態 range 小於目標型態)才轉換，否則會有 compiler error | ![20190428_095756](img/20190428_095756.png) |
+| 明確型態轉換<br>(Explicit Type Convention = Casting) |                                     明確指定指定欲轉換的型態                                     | ![20190428_100125](img/20190428_100125.png) |
+|                 Non-compatible Type                  |                    當兩個型態不相容時，需使用 Convert 或 Parse 關鍵字來作轉換                    | ![20190428_100827](img/20190428_100827.png) |
+
+### 運算子(Operator)
+
+#### 數學運算
+
+![20190428_101912](img/20190428_101912.png)
+
+要小心「++」這種寫法在前綴或後綴的不同
+
+``` C#
+// 後綴寫法：先指派，再運算
+int a = 1;
+int b = a++;
+// a = 2, b = 1
+
+// 後綴寫法：先運算，再指派
+int a = 1;
+int b = ++a;
+// a = 2, b = 2
+```
+
+#### 比較運算
+
+![20190428_102713](img/20190428_102713.png)
+
+#### 指派運算
+
+![20190428_102752](img/20190428_102752.png)
+
+#### 邏輯運算
+
+![20190428_103002](img/20190428_103002.png)
+
+#### 位元運算
+
+![20190428_103135](img/20190428_103135.png)
+
+### 註解(Comment)
+
+- 增加程式可讀性、易維護性
+- 盡量用來解釋 why & how，而不是說明 what
+
+``` C#
+// 單行註解用「//」
+// int a = 1;
+
+// 多行註解用「/* ... */」
+/*
+int a = 1;
+int b = 2;
+*/
+```
+
+## Non-Primitive Types and Expressions
+
+### Class
+
+- 有自己的屬性(Attribute/Field)和方法(Method)
+- 物件(Object)是從類別(Class)建立出來的實體(Instance)
+- 不同 Class 最好寫在獨立的 .cs 檔
+
+![20190428_105344](img/20190428_105344.png)
+
+``` C#
+// 宣告 Class
+public class Person
+{
+    public string Name;
+    public void Talk()
+    {
+        Console.WriteLine("Hello");
+    }
+}
+
+// 建立物件
+Person son = new Person();
+
+// 使用物件中的屬性和方法
+son.name = "John";
+son.Talk();
+```
+
+### Static 修飾詞
+
+``` C#
+public class Person
+{
+    // 沒有使用 Static
+    public void Talk()
+    {
+        Console.WriteLine("Hello");
+    }
+
+    // 使用 Static
+    public static void Walk()
+    {
+        Console.WriteLine("go");
+    }
+}
+```
+
+| Class 中的方法，例如 Add() |              建立多個物件時              |                   示意圖                    |
+|:--------------------------:|:----------------------------------------:|:-------------------------------------------:|
+|    不使用 Static 修飾詞    | Add() 會在不同實體中各占有一個記憶體空間 | ![20190428_110859](img/20190428_110859.png) |
+|     使用 Static 修飾詞     |    Add() 僅在 Class 占一個記憶體空間     | ![20190428_111319](img/20190428_111319.png) |
+
+### Struct
+
+類似 Class，但實際案例上 9 成都會用 Class
+
+``` C#
+public struct RgbColor
+{
+    public string Red;
+    public string Green;
+    public string Blue;
+}
+```
+
+### Array
+
+- 用來儲存若干個相同型態的變數
+- 宣告後不能改變 size
+- 索引起始值為 0
+
+``` C#
+// Declaration
+int[] numbers = new int[3];
+
+// Accessing the array
+number[0] = 1;
+number[1] = 2;
+number[2] = 3;
+```
+
+### String
+
+``` C#
+// Declaration
+string name = "Wayne";
+
+// Template string
+name = string.Format("I am {0}", name);
+```
+
+#### 跳脫字元
+
+![20190428_134953](img/20190428_134953.png)
+
+#### 逐字字串
+
+在字串前面加上「@」
+
+![20190428_135118](img/20190428_135118.png)
+
+### Enum
+
+列舉中為遞增的值，常用來表示狀態
+
+``` C#
+public enum Day
+{
+    Sun, // 0
+    Mon, // 1
+    Tue  // 2
+}
+
+public enum Fruit
+{
+    apple = 1, // 1
+    banana,    // 2
+    cherry     // 3
+}
+```
+
+### Value Types and Reference Types
+
+#### Value Types
+
+- 以 Structure 方式建立
+- Primitive types 和 custom structures 屬於此類
+- 宣告時會自動分配記憶體空間
+- 在有效範圍外就會立刻被釋放資源
+
+![20190428_154610](img/20190428_154610.png)
+
+|                 程式碼範例                  |                 資料示意圖                  |
+|:-------------------------------------------:|:-------------------------------------------:|
+| ![20190428_161146](img/20190428_161146.png) | ![20190428_161331](img/20190428_161331.png) |
+
+#### Reference Types
+
+- 以 Class 方式建立
+- Non-primitive types 和 custom classes 屬於此類
+- 宣告時需手動分配記憶體空間
+- 會由 GC 機制決定何時釋放資源
+
+![20190428_154830](img/20190428_154830.png)
+
+|                 程式碼範例                  |                 資料示意圖                  |
+|:-------------------------------------------:|:-------------------------------------------:|
+| ![20190428_163205](img/20190428_163205.png) | ![20190428_163323](img/20190428_163323.png) |
+
+#### Value Types vs. Reference Types
+
+![20190428_165136](img/20190428_165136.png)
