@@ -315,3 +315,129 @@ public enum Fruit
 #### Value Types vs. Reference Types
 
 ![20190428_165136](img/20190428_165136.png)
+
+## Control Flow
+
+### Condition Statements
+
+#### if / else
+
+若只是判斷真偽後給值，可以用判斷運算子寫法「(條件) ? a : b」
+
+``` C#
+bool isVIP = true;
+int price;
+if (isVIP)
+{
+    price = 10;
+}
+else
+{
+    price = 20;
+}
+```
+
+``` C#
+// 等同於上一段 code
+bool isVIP = true;
+int price = (isVIP) ? 10 : 20;
+```
+
+#### switch / case
+
+``` C#
+public enum Season
+{
+    Spring,
+    Summer,
+    Autumn,
+    Winter
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var season = Season.Autumn;
+        switch (season)
+        {
+            case Season.Spring:
+                Console.WriteLine("It's Spring.");
+                break;
+            case Season.Autumn:
+                Console.WriteLine("It's Autumn.");
+                break;
+            // 同樣內容的 case 可以放在一起，避免撰寫重複的 code
+            case Season.Summer:
+            case Season.Winter:
+                Console.WriteLine("We've got promotion!");
+                break;
+            default:
+                Console.WriteLine("Not a season.");
+                break;
+        }
+    }
+}
+```
+
+### Iteration Statements
+
+#### For Loop
+
+``` C#
+// 給予一個初始變數 i = 0，
+// 在 i < 10 前會一直執行，
+// 每一次執行後 i++
+for (int i = 0; i < 10; i++)
+{
+    ...
+}
+```
+
+#### Foreach Loop
+
+``` C#
+int[] numbers = new int[5];
+foreach (int number in numbers)
+{
+    ...
+}
+```
+
+#### While Loop
+
+``` C#
+while (i < 10)
+{
+    ...
+    i++;
+}
+```
+
+#### Do-While Loop
+
+和 While Loop 的差別在於迴圈至少會執行一次
+
+``` C#
+do
+{
+    ...
+    i++;
+} while (i < 10);
+```
+
+#### Break & Continue
+
+| 迴圈中的關鍵字 |        描述        |
+|:--------------:|:------------------:|
+|     break      | 離開迴圈(不再執行) |
+|    continue    |    跳至下次迴圈    |
+
+## Random
+
+用來產生亂數
+
+``` C#
+Random random = new Random();
+random.Next();
+```
