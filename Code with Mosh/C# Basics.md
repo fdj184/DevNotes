@@ -26,7 +26,7 @@ Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
 
 |                       |                        描述                        |                  概念                   |
 |:---------------------:|:--------------------------------------------------:|:---------------------------------------:|
-|      類別(Class)      | 每個 Class 都有自己的屬性(Attribute)和方法(Method) |    ![Class](img/20190427_232513.png)    |
+|      類別(Class)      | 每個 Class 都有自己的屬性(Property)和方法(Method) |    ![Class](img/20190427_232513.png)    |
 |  命名空間(Namespace)  |       相似的 Class 會放在同一個 Namespace 中       |  ![Namespace](img/20190427_232918.png)  |
 |    組件(Assembly)     |     相似的 Namespace 會放在同一個 Assembly 中      |  ![Assembly](img/20190427_233207.png)   |
 | 應用程式(Application) |               由很多的 Assembly 組成               | ![Application](img/20190427_233938.png) |
@@ -166,7 +166,7 @@ int b = 2;
 
 ### Class
 
-- 有自己的屬性(Attribute/Field)和方法(Method)
+- 有自己的屬性(Property/Field)和方法(Method)
 - 物件(Object)是從類別(Class)建立出來的實體(Instance)
 - 不同 Class 最好寫在獨立的 .cs 檔
 
