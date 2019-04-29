@@ -441,3 +441,179 @@ do
 Random random = new Random();
 random.Next();
 ```
+
+## Arrays
+
+宣告後便不能改變 size
+
+### 一維陣列
+
+``` csharp
+var numbers = new int[3]{ 1, 2, 3 };
+```
+
+### 多維陣列
+
+``` csharp
+// Rectangular Array
+var numbers = new int[3, 5]
+{
+    { 1, 2, 3, 4, 5 },
+    { 6, 7, 8, 9, 10 },
+    { 11, 12, 13, 14, 15 }
+};
+
+// Jagged Array
+var arrays = new int[3][];
+arrays[0] = new int[4] { 1, 2, 3, 4 };
+arrays[1] = new int[5] { 5, 6, 7, 8, 9 };
+arrays[2] = new int[3] { 10, 11, 12 };
+```
+
+### Array 常用的屬性和方法
+
+``` csharp
+var numbers = new int[5]{ 10, 2, 8, 5, 7 };
+
+// Length
+Console.WriteLine(numbers.Length);
+
+// Array.IndexOf()
+var index = Array.IndexOf(numbers, 8);
+Console.WriteLine(index);
+
+// Array.Clear()
+Array.Clear(numbers, 0, 2);
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+/* output:
+ * 5
+ * 2
+ * 0 0 8 5 7 */
+
+// Array.Sort()
+Array.Sort(numbers);
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+// output:
+// 0 0 5 7 8
+```
+
+## Lists
+
+類似 Array，但宣告後仍然可以改變 size
+
+``` csharp
+var numbers = new List<int>() { 1, 2, 3 };
+```
+
+### List 常用的屬性和方法
+
+``` csharp
+var numbers = new List<int>() { 1, 2, 3 };
+
+// Count
+Console.WriteLine(numbers.Count);
+
+// Add()
+numbers.Add(1);
+
+// AddRange()
+numbers.AddRange(new int[2] { 5, 6 });
+
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+// output:
+// 3
+// 1 2 3 1 5 6
+
+// IndexOf()
+Console.WriteLine(numbers.IndexOf(1));
+// LastIndexOf()
+Console.WriteLine(numbers.LastIndexOf(1));
+
+// output:
+// 0
+// 3
+
+// Remove()
+numbers.Remove(1);
+
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+// output:
+// 2 3 1 5 6
+
+// Clear()
+numbers.Clear();
+Console.WriteLine(numbers.Count);
+
+// output:
+// 0
+```
+
+## DateTime
+
+- DateTime 是 immutable
+- 自訂時間格式字串可參考[官方文件](https://docs.microsoft.com/zh-tw/dotnet/standard/base-types/custom-date-and-time-format-strings)
+
+``` csharp
+var now = DateTime.Now;
+
+// some properties
+Console.WriteLine(now.Day);
+Console.WriteLine(now.Hour);
+
+// some methods
+now.AddYears(1);
+now.AddDays(1);
+
+// ToString()
+Console.WriteLine(now.ToLongDateString());
+Console.WriteLine(now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+// Parse()
+DateTime.Parse("2019-01-01");
+```
+
+## TimeSpan
+
+- 用來記錄一段時間
+- TimeSpan 是 immutable
+
+``` csharp
+// 3 ways to declaration
+var timeSpan1 = new TimeSpan(1, 2, 3);
+
+var timeSpan2 = TimeSpan.FromHours(2);
+
+var start = DateTime.Now;
+var end = DateTime.Now.AddMinutes(5);
+var timeSpan3 = end - start;
+
+// some properties
+Console.WriteLine(timeSpan1.Minutes);
+Console.WriteLine(timeSpan1.TotalMinutes);
+
+// some methods
+Console.WriteLine(timeSpan1.Add(TimeSpan.FromHours(2)));
+Console.WriteLine(timeSpan1.Subtract(TimeSpan.FromSeconds(1)));
+
+// ToString()
+Console.WriteLine(timeSpan1.ToString());
+
+// Parse()
+TimeSpan.Parse("01:02:03");
+```
