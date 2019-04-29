@@ -69,7 +69,7 @@ Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
   - 帕斯卡命名法(Pascal Case)，例如「FirstName」
   - 匈牙利命名法(Hungarian Notation)，例如「strFirstName」
 
-``` C#
+``` csharp
 // 變數宣告，可選擇是否給予初始值
 int num1;
 int num2 = 10;
@@ -83,7 +83,7 @@ const float pi = 3.14f;
 
 (不用硬背範圍)
 
-``` C#
+``` csharp
 // 宣告小數時，預設會是採用 double
 double a = 1.5;
 // 欲宣告 float 時，必須在數字後面加上「f」
@@ -118,7 +118,7 @@ decimal c = 1.5m;
 
 要小心「++」這種寫法在前綴或後綴的不同
 
-``` C#
+``` csharp
 // 後綴寫法：先指派，再運算
 int a = 1;
 int b = a++;
@@ -151,7 +151,7 @@ int b = ++a;
 - 增加程式可讀性、易維護性
 - 盡量用來解釋 why & how，而不是說明 what
 
-``` C#
+``` csharp
 // 單行註解用「//」
 // int a = 1;
 
@@ -172,7 +172,7 @@ int b = 2;
 
 ![20190428_105344](img/20190428_105344.png)
 
-``` C#
+``` csharp
 // 宣告 Class
 public class Person
 {
@@ -193,7 +193,7 @@ son.Talk();
 
 ### Static 修飾詞
 
-``` C#
+``` csharp
 public class Person
 {
     // 沒有使用 Static
@@ -219,7 +219,7 @@ public class Person
 
 類似 Class，但實際案例上 9 成都會用 Class
 
-``` C#
+``` csharp
 public struct RgbColor
 {
     public string Red;
@@ -234,7 +234,7 @@ public struct RgbColor
 - 宣告後不能改變 size
 - 索引起始值為 0
 
-``` C#
+``` csharp
 // Declaration
 int[] numbers = new int[3];
 
@@ -246,7 +246,7 @@ number[2] = 3;
 
 ### String
 
-``` C#
+``` csharp
 // Declaration
 string name = "Wayne";
 
@@ -268,7 +268,7 @@ name = string.Format("I am {0}", name);
 
 列舉中為遞增的值，常用來表示狀態
 
-``` C#
+``` csharp
 public enum Day
 {
     Sun, // 0
@@ -324,7 +324,7 @@ public enum Fruit
 
 若只是判斷真偽後給值，可以用判斷運算子寫法「(條件) ? a : b」
 
-``` C#
+``` csharp
 bool isVIP = true;
 int price;
 if (isVIP)
@@ -337,7 +337,7 @@ else
 }
 ```
 
-``` C#
+``` csharp
 // 等同於上一段 code
 bool isVIP = true;
 int price = (isVIP) ? 10 : 20;
@@ -345,7 +345,7 @@ int price = (isVIP) ? 10 : 20;
 
 #### switch / case
 
-``` C#
+``` csharp
 public enum Season
 {
     Spring,
@@ -384,7 +384,7 @@ class Program
 
 #### For Loop
 
-``` C#
+``` csharp
 // 給予一個初始變數 i = 0，
 // 在 i < 10 前會一直執行，
 // 每一次執行後 i++
@@ -396,7 +396,7 @@ for (int i = 0; i < 10; i++)
 
 #### Foreach Loop
 
-``` C#
+``` csharp
 int[] numbers = new int[5];
 foreach (int number in numbers)
 {
@@ -406,7 +406,7 @@ foreach (int number in numbers)
 
 #### While Loop
 
-``` C#
+``` csharp
 while (i < 10)
 {
     ...
@@ -418,7 +418,7 @@ while (i < 10)
 
 和 While Loop 的差別在於迴圈至少會執行一次
 
-``` C#
+``` csharp
 do
 {
     ...
@@ -437,7 +437,7 @@ do
 
 用來產生亂數
 
-``` C#
+``` csharp
 Random random = new Random();
 random.Next();
 ```
