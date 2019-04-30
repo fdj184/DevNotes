@@ -73,6 +73,7 @@ Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
 // 變數宣告，可選擇是否給予初始值
 int num1;
 int num2 = 10;
+
 // 常數宣告，必須給予值
 const float pi = 3.14f;
 ```
@@ -234,17 +235,69 @@ public struct RgbColor
 - 宣告後不能改變 size
 - 索引起始值為 0
 
-``` csharp
-// Declaration
-int[] numbers = new int[3];
+#### 一維陣列
 
-// Accessing the array
-number[0] = 1;
-number[1] = 2;
-number[2] = 3;
+``` csharp
+var numbers = new int[3]{ 1, 2, 3 };
+```
+
+#### 多維陣列
+
+``` csharp
+// Rectangular Array
+var numbers = new int[3, 5]
+{
+    { 1, 2, 3, 4, 5 },
+    { 6, 7, 8, 9, 10 },
+    { 11, 12, 13, 14, 15 }
+};
+
+// Jagged Array
+var arrays = new int[3][];
+arrays[0] = new int[4] { 1, 2, 3, 4 };
+arrays[1] = new int[5] { 5, 6, 7, 8, 9 };
+arrays[2] = new int[3] { 10, 11, 12 };
+```
+
+#### Array 常用的屬性和方法
+
+``` csharp
+var numbers = new int[5]{ 10, 2, 8, 5, 7 };
+
+// Length
+Console.WriteLine(numbers.Length);
+
+// Array.IndexOf()
+var index = Array.IndexOf(numbers, 8);
+Console.WriteLine(index);
+
+// Array.Clear()
+Array.Clear(numbers, 0, 2);
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+/* output:
+ * 5
+ * 2
+ * 0 0 8 5 7 */
+
+// Array.Sort()
+Array.Sort(numbers);
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+// output:
+// 0 0 5 7 8
 ```
 
 ### String
+
+- String 是 immutable，每次都是賦予新的值，而不是修改原本的字串
+- 數值轉自訂格式字串可參考[官方文件](https://docs.microsoft.com/zh-tw/dotnet/standard/base-types/standard-numeric-format-strings)
 
 ``` csharp
 // Declaration
@@ -252,6 +305,70 @@ string name = "Wayne";
 
 // Template string
 name = string.Format("I am {0}", name);
+
+// String interpolation
+name = string.Format($"I am {name}");
+```
+
+#### String 常用的屬性和方法
+
+``` csharp
+var fullName = " Bruce Wayne ";
+
+// Trim()
+Console.WriteLine($"'{fullName.Trim()}'");
+fullName = fullName.Trim();
+// ToUpper()
+Console.WriteLine(fullName.ToUpper());
+// ToLower()
+Console.WriteLine(fullName.ToLower());
+// Replace()
+Console.WriteLine(fullName.Replace("Wayne", "Willis"));
+
+// output:
+// 'Bruce Wayne'
+// BRUCE WAYNE
+// bruce wayne
+// Bruce Willis
+
+// IndexOf()
+var index = fullName.IndexOf(' ');
+// SubString()
+var firstName = fullName.Substring(0, 5);
+var LastName = fullName.Substring(index + 1);
+Console.WriteLine(firstName);
+Console.WriteLine(LastName);
+
+// output:
+// Bruce
+// Wayne
+
+// Split()
+var names = fullName.Split(' ');
+Console.WriteLine(names[0]);
+Console.WriteLine(names[1]);
+
+// output:
+// Bruce
+// Wayne
+
+// String.IsNullOrEmpty()
+Console.WriteLine(String.IsNullOrEmpty(" "));
+// String.IsNullOrWhiteSpace()
+Console.WriteLine(String.IsNullOrWhiteSpace(" "));
+
+// output:
+// false
+// true
+
+// ToString()
+var price = 29.99f;
+Console.WriteLine(price.ToString("C"));
+Console.WriteLine(price.ToString("C0"));
+
+// output:
+// $29.99
+// $30
 ```
 
 #### 跳脫字元
@@ -315,6 +432,228 @@ public enum Fruit
 #### Value Types vs. Reference Types
 
 ![20190428_165136](img/20190428_165136.png)
+
+## Lists
+
+類似 Array，但宣告後仍然可以改變 size
+
+### List 常用的屬性和方法
+
+``` csharp
+var numbers = new List<int>() { 1, 2, 3 };
+
+// Count
+Console.WriteLine(numbers.Count);
+
+// Add()
+numbers.Add(1);
+
+// AddRange()
+numbers.AddRange(new int[2] { 5, 6 });
+
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+// output:
+// 3
+// 1 2 3 1 5 6
+
+// IndexOf()
+Console.WriteLine(numbers.IndexOf(1));
+// LastIndexOf()
+Console.WriteLine(numbers.LastIndexOf(1));
+
+// output:
+// 0
+// 3
+
+// Remove()
+numbers.Remove(1);
+
+foreach (var number in numbers)
+{
+    Console.Write(number + " ");
+}
+
+// output:
+// 2 3 1 5 6
+
+// Clear()
+numbers.Clear();
+Console.WriteLine(numbers.Count);
+
+// output:
+// 0
+```
+
+## DateTime
+
+- DateTime 是 non-primitive type，但屬於 value type
+- DateTime 是 immutable
+- 自訂時間格式字串可參考[官方文件](https://docs.microsoft.com/zh-tw/dotnet/standard/base-types/custom-date-and-time-format-strings)
+
+``` csharp
+var now = DateTime.Now;
+
+// some properties
+Console.WriteLine(now.Day);
+Console.WriteLine(now.Hour);
+
+// some methods
+now.AddYears(1);
+now.AddDays(1);
+
+// ToString()
+Console.WriteLine(now.ToLongDateString());
+Console.WriteLine(now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+// Parse()
+DateTime.Parse("2019-01-01");
+```
+
+## TimeSpan
+
+- 用來記錄一段時間
+- TimeSpan 是 immutable
+
+``` csharp
+// 3 ways to declaration
+var timeSpan1 = new TimeSpan(1, 2, 3);
+
+var timeSpan2 = TimeSpan.FromHours(2);
+
+var start = DateTime.Now;
+var end = DateTime.Now.AddMinutes(5);
+var timeSpan3 = end - start;
+
+// some properties
+Console.WriteLine(timeSpan1.Minutes);
+Console.WriteLine(timeSpan1.TotalMinutes);
+
+// some methods
+Console.WriteLine(timeSpan1.Add(TimeSpan.FromHours(2)));
+Console.WriteLine(timeSpan1.Subtract(TimeSpan.FromSeconds(1)));
+
+// ToString()
+Console.WriteLine(timeSpan1.ToString());
+
+// Parse()
+TimeSpan.Parse("01:02:03");
+```
+
+## Random
+
+用來產生亂數
+
+``` csharp
+Random random = new Random();
+random.Next();
+```
+
+## StringBuilder
+
+- 用來組合大量文字，會比 string + string 的方式節省資源，詳細可參考 [Stack Overflow](https://stackoverflow.com/questions/21644658/how-to-use-stringbuilder-wisely)
+- 沒有搜尋相關的 method，例如 IndexOf()
+
+``` csharp
+var builder = new StringBuilder("Hello World");
+
+builder
+    .Append('-', 10)
+    .AppendLine()
+    .Replace("-", "=")
+    .Remove(0, 5)
+    .Insert(0, new string('g', 10));
+```
+
+## File and FileInfo
+
+<table style="text-align: center;">
+    <tr>
+        <th></th>
+        <th>File</th>
+        <th>FileInfo</th>
+    </tr>
+    <tr>
+        <td>用途</td>
+        <td colspan="2">針對檔案作新建、開啟、移動、複製、刪除 ... 等動作</td>
+    </tr>
+    <tr>
+        <td>Methods</td>
+        <td>Provide static methods</td>
+        <td>Provide instance methods</td>
+    </tr>
+    <tr>
+        <td>OS security check</td>
+        <td>每次使用 File 的方法都會作使用者權限檢查</td>
+        <td>只有 FileInfo 物件建立時會作一次使用者權限檢查</td>
+    </tr>
+    <tr>
+        <td>適用情況</td>
+        <td>操作小量檔案，例如開啟某個檔案</td>
+        <td>操作大量檔案，例如複製資料夾中的所有檔案</td>
+    </tr>
+</table>
+
+### File 和 FileInfo 常見的方法
+
+- Create()
+- Copy()
+- Delete()
+- Exists()
+- GetAttributes()
+- Move()
+- ReadAllText()
+
+## Directory and DirectoryInfo
+
+<table style="text-align: center;">
+    <tr>
+        <th></th>
+        <th>Directory</th>
+        <th>DirectoryInfo</th>
+    </tr>
+    <tr>
+        <td>用途</td>
+        <td colspan="2">針對資料夾作新建、開啟、移動、複製、刪除 ... 等動作</td>
+    </tr>
+    <tr>
+        <td>Methods</td>
+        <td>Provide static methods</td>
+        <td>Provide instance methods</td>
+    </tr>
+    <tr>
+        <td>OS security check</td>
+        <td>每次使用 Directory 的方法都會作使用者權限檢查</td>
+        <td>只有 DirectoryInfo 物件建立時會作一次使用者權限檢查</td>
+    </tr>
+    <tr>
+        <td>適用情況</td>
+        <td>操作小量資料夾，例如開啟某個資料夾</td>
+        <td>操作大量資料夾，例如複製多個資料夾</td>
+    </tr>
+</table>
+
+### Directory 和 DirectoryInfo 常見的方法
+
+- CreateDirectory()
+- Copy()
+- Delete()
+- Exists()
+- GetFiles()
+- Move()
+
+## Path
+
+對資料夾路徑或檔案路徑作操作
+
+### Path 常見的方法
+
+- GetDirectoryName()
+- GetFileName()
+- GetExtension()
 
 ## Control Flow
 
@@ -433,187 +772,60 @@ do
 |     break      | 離開迴圈(不再執行) |
 |    continue    |    跳至下次迴圈    |
 
-## Random
+## Procedural Programming
 
-用來產生亂數
+- 一種程式設計方法
+- 將與本身無關的邏輯/計算獨立到其它 function 中
+- 承上，這些 function 在其它非 Console 的程式中(例如：Web App)也能直接運用
 
-``` csharp
-Random random = new Random();
-random.Next();
-```
+以下述程式碼為例，可分為三個部分
 
-## Arrays
-
-宣告後便不能改變 size
-
-### 一維陣列
+1. 要求使用者輸入
+2. 字串反轉運算
+3. 輸出結果
 
 ``` csharp
-var numbers = new int[3]{ 1, 2, 3 };
-```
-
-### 多維陣列
-
-``` csharp
-// Rectangular Array
-var numbers = new int[3, 5]
+static void Main(string[] args)
 {
-    { 1, 2, 3, 4, 5 },
-    { 6, 7, 8, 9, 10 },
-    { 11, 12, 13, 14, 15 }
-};
+    // part 1
+    Console.WriteLine("What's your name?");
+    var name = Console.ReadLine();
 
-// Jagged Array
-var arrays = new int[3][];
-arrays[0] = new int[4] { 1, 2, 3, 4 };
-arrays[1] = new int[5] { 5, 6, 7, 8, 9 };
-arrays[2] = new int[3] { 10, 11, 12 };
+    // part 2
+    var array = new char[name.Length];
+    for (var i = name.Length; i > 0; i--)
+        array[name.Length - 1] = name[i];
+    var reversedName = new string(array);
+
+    // part 3
+    Console.WriteLine($"Reversed name: {reversedName}");
+}
 ```
 
-### Array 常用的屬性和方法
+承上，依照 Procedural Programming，可改寫成
 
 ``` csharp
-var numbers = new int[5]{ 10, 2, 8, 5, 7 };
-
-// Length
-Console.WriteLine(numbers.Length);
-
-// Array.IndexOf()
-var index = Array.IndexOf(numbers, 8);
-Console.WriteLine(index);
-
-// Array.Clear()
-Array.Clear(numbers, 0, 2);
-foreach (var number in numbers)
+static void Main(string[] args)
 {
-    Console.Write(number + " ");
+    // 有和 Console 互動，故保留在 Main() 中
+    Console.WriteLine("What's your name?");
+    var name = Console.ReadLine();
+
+    // 改寫成呼叫 function 的方式
+    var reversedName = ReverseName(name);
+
+    // 有和 Console 互動，故保留在 Main() 中
+    Console.WriteLine($"Reversed name: {reversedName}");
 }
 
-/* output:
- * 5
- * 2
- * 0 0 8 5 7 */
-
-// Array.Sort()
-Array.Sort(numbers);
-foreach (var number in numbers)
+// 將與 Console 無關的運算獨立成自己的 function
+// 使用 static 修飾詞，否則身為 static 的 Main() 會無法呼叫
+public static string ReverseName(string name)
 {
-    Console.Write(number + " ");
+    var array = new char[name.Length];
+    for (var i = name.Length; i > 0; i--)
+        array[name.Length - 1] = name[i];
+
+    return new string(array);
 }
-
-// output:
-// 0 0 5 7 8
-```
-
-## Lists
-
-類似 Array，但宣告後仍然可以改變 size
-
-``` csharp
-var numbers = new List<int>() { 1, 2, 3 };
-```
-
-### List 常用的屬性和方法
-
-``` csharp
-var numbers = new List<int>() { 1, 2, 3 };
-
-// Count
-Console.WriteLine(numbers.Count);
-
-// Add()
-numbers.Add(1);
-
-// AddRange()
-numbers.AddRange(new int[2] { 5, 6 });
-
-foreach (var number in numbers)
-{
-    Console.Write(number + " ");
-}
-
-// output:
-// 3
-// 1 2 3 1 5 6
-
-// IndexOf()
-Console.WriteLine(numbers.IndexOf(1));
-// LastIndexOf()
-Console.WriteLine(numbers.LastIndexOf(1));
-
-// output:
-// 0
-// 3
-
-// Remove()
-numbers.Remove(1);
-
-foreach (var number in numbers)
-{
-    Console.Write(number + " ");
-}
-
-// output:
-// 2 3 1 5 6
-
-// Clear()
-numbers.Clear();
-Console.WriteLine(numbers.Count);
-
-// output:
-// 0
-```
-
-## DateTime
-
-- DateTime 是 immutable
-- 自訂時間格式字串可參考[官方文件](https://docs.microsoft.com/zh-tw/dotnet/standard/base-types/custom-date-and-time-format-strings)
-
-``` csharp
-var now = DateTime.Now;
-
-// some properties
-Console.WriteLine(now.Day);
-Console.WriteLine(now.Hour);
-
-// some methods
-now.AddYears(1);
-now.AddDays(1);
-
-// ToString()
-Console.WriteLine(now.ToLongDateString());
-Console.WriteLine(now.ToString("yyyy-MM-dd HH:mm:ss"));
-
-// Parse()
-DateTime.Parse("2019-01-01");
-```
-
-## TimeSpan
-
-- 用來記錄一段時間
-- TimeSpan 是 immutable
-
-``` csharp
-// 3 ways to declaration
-var timeSpan1 = new TimeSpan(1, 2, 3);
-
-var timeSpan2 = TimeSpan.FromHours(2);
-
-var start = DateTime.Now;
-var end = DateTime.Now.AddMinutes(5);
-var timeSpan3 = end - start;
-
-// some properties
-Console.WriteLine(timeSpan1.Minutes);
-Console.WriteLine(timeSpan1.TotalMinutes);
-
-// some methods
-Console.WriteLine(timeSpan1.Add(TimeSpan.FromHours(2)));
-Console.WriteLine(timeSpan1.Subtract(TimeSpan.FromSeconds(1)));
-
-// ToString()
-Console.WriteLine(timeSpan1.ToString());
-
-// Parse()
-TimeSpan.Parse("01:02:03");
 ```
