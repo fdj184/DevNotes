@@ -802,7 +802,7 @@ static void Main(string[] args)
 }
 ```
 
-承上，依照 Procedural Programming，可改寫成
+承上，依照 Procedural Programming，可改寫成下述程式碼
 
 ``` csharp
 static void Main(string[] args)
@@ -829,3 +829,134 @@ public static string ReverseName(string name)
     return new string(array);
 }
 ```
+
+## Debugging Applications
+
+### Debugging Tools in Visual Studio
+
+1. 在程式中設定一或多個中斷點
+2. 進入偵錯模式(Debug Mode)
+3. 偵錯模式執行到中斷點時會暫停，此時去檢查變數值是否與預期相符
+4. 偵錯時，開啟「偵錯(Debug) -> 視窗(Windows) -> 監看式(Watch)」，並自行輸入變數名稱，可以監看其值變化
+
+|   快捷鍵    |                 功能                 |
+|:-----------:|:------------------------------------:|
+|     F9      |              設定中斷點              |
+|     F5      |             進入偵錯模式             |
+|     F5      | 若已經進入偵錯模式，移至下一個中斷點 |
+|     F10     |        逐步進行，遇函式不進入        |
+|     F11     |         逐步進行，遇函式進入         |
+| Shift + F11 |             離開目前函式             |
+| Shift + F5  |             離開偵錯模式             |
+
+#### 設定中斷點、進入偵錯模式
+
+![20190430_203300](img\20190430_203300.gif)
+
+#### 逐步進行、查看變數值、回先前步驟、進入函式
+
+![20190430_203300](img\20190430_205100.gif)
+
+### Side Effect
+
+以下述程式碼為例，會產生 Side Effect
+
+``` csharp
+public static void Main(string[] args)
+{
+    var numbers = new List<int> { 1, 2, 3, 4, 5, 6 };
+    var targets = GetTargets(numbers, 3);
+
+    foreach (var number in targets)
+        Console.WriteLine(number);
+}
+
+public static List<int> GetTargets(List<int> list, int count)
+{
+    var targets = new List<int>();
+
+    while (targets.Count < count)
+    {
+        var min = GetSmallest(list);
+        targets.Add(min);
+        // 這一行會去異動到原本傳入的 List，而產生 side effect
+        list.Remove(min);
+    }
+
+    return targets;
+}
+
+public static int GetSmallest(List<int> list)
+{
+    ...
+}
+```
+
+應該改寫成下述程式碼
+
+``` csharp
+public static void Main(string[] args)
+{
+    var numbers = new List<int> { 1, 2, 3, 4, 5, 6 };
+    var targets = GetTargets(numbers, 3);
+
+    foreach (var number in targets)
+        Console.WriteLine(number);
+}
+
+public static List<int> GetTargets(List<int> list, int count)
+{
+    // 複製一個和原本 List 長得一樣的 List
+    var buffer = new List<int>(list);
+    var targets = new List<int>();
+
+    while (targets.Count < count)
+    {
+        // 後續程式只對複製出來的 List 去作操作
+        var min = GetSmallest(buffer);
+        targets.Add(min);
+        // 後續程式只對複製出來的 List 去作操作
+        buffer.Remove(min);
+    }
+
+    return targets;
+}
+
+public static int GetSmallest(List<int> list)
+{
+    ...
+}
+```
+
+### Defensive Programming
+
+考量各種情況，在 function 執行運算前，先判斷傳入的值或是欲運算的問題是否符合邏輯，並作例外處理，以下述程式碼為例
+
+``` csharp
+Console.WriteLine("enter a number that 100 divided by");
+var input = Console.ReadLine();
+var number = 0;
+
+// Defensive Programming
+// 考量輸入值若不為數字或為數字 0 都無法當作除數
+if (!Int32.TryParse(input, out number))
+    throw new FormatException("input must be a number.");
+if (number == 0)
+    throw new DivideByZeroException("input must not be 0.");
+
+Console.WriteLine(100 / number);
+```
+
+### Call Stack Window
+
+偵錯時，開啟「偵錯(Debug) -> 視窗(Windows) -> 呼叫堆疊(Call Stack)」，可以了解進入函式的歷程，每一行為一個函式進入點
+
+![20190430_215006](img/20190430_215006.png)
+
+### Autos Window
+
+偵錯時，開啟「偵錯(Debug) -> 視窗(Windows) -> 自動變數(Autos)」，可以看到所有經歷過的變數
+
+### Locals Window
+
+或是「偵錯(Debug) -> 視窗(Windows) -> 區域變數(Locals)」，可以看到目前 Scope 中的變數
