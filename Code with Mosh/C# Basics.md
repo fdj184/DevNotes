@@ -1,6 +1,6 @@
 # C# Basics for Beginners
 
-![C# Basics](img/20190427_224541.png)
+![C# Basics](img/20190427_224541.jpg)
 
 Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
 
