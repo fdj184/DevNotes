@@ -198,3 +198,186 @@ partial class Program
     }
 }
 ```
+
+### 方法(Methods)
+
+#### 方法簽章(Signature of Methods)
+
+用以區別不同方法的特徵，有以下兩點
+
+1. 方法名稱(Name)
+2. 傳入參數的型態(Type)和數量
+
+#### 多載(Overloading)
+
+Having a method with same name but different signatures.
+
+``` csharp
+public class Person
+{
+    public void Walk(int distance) { ... }
+    public void Walk(string location) { ... }
+    public void Walk(string location, int speed) { ... }
+}
+```
+
+#### Param 修飾詞
+
+- 知道傳入參數都是同樣型態，但不知道個數時可使用
+- 參數型態必須是一維陣列
+- 呼叫時，可以用陣列或逗號分隔的方式傳入值
+
+``` csharp
+public class Calculator
+{
+    // Add() 可以傳入任何數量的 integer
+    public int Add(param int[] numbers) { ... }
+}
+
+partial class Program
+{
+    static void Main(string[] args)
+    {
+        var calculator = new Calculator();
+        var result1 = calculator.Add(new int[] { 1, 2, 3, 4 });
+        var result2 = calculator.Add(5, 6, 7);
+    }
+}
+```
+
+#### Ref 修飾詞
+
+- It's a code smell in Mosh's opinion. **不建議使用**，知道有這個東西就好
+- 將 value type 當成 reference type 來使用 (可參考 [C# Basics.md](C%23%20Basics.md#Value-Types-and-Reference-Types))
+- 以下述程式碼為例
+
+    |        |                                                         沒有使用 ref 修飾詞                                                         |                                                           使用 ref 修飾詞                                                           |
+    |:------:|:-----------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------:|
+    | 程式碼 | MyClass.cs<br>![20190503_163555](img/20190503_163555.png)<br>Program.cs<br>![20190503_163620](img/20190503_163620.png)<br>output: 1 | MyClass.cs<br>![20190503_164514](img/20190503_164514.png)<br>Program.cs<br>![20190503_164737](img/20190503_164737.png)<br>output: 2 |
+    |  差異  |                                             因為 ```int``` 是 value type，所以 x 還是 1                                             |                                          因為 ```int``` 被當成 reference type，所以 x 是 2                                          |
+
+#### Out 修飾詞
+
+- It's a code smell in Mosh's opinion. **不建議使用**，知道有這個東西就好
+- 可以使方法回傳 1 個以上的值，不過較好的作法應該是把欲回傳的多個結果作成另一個 class 的欄位，並回傳該 class 即可
+- 以 C# 內建的 TryParse() 為例
+
+    ``` csharp
+    int number;
+    var result = Int32.TryParse("abc", out number);
+
+    if (result)
+        Console.WriteLine(number);
+    else
+        Console.WriteLine("Conversion failed.");
+    ```
+
+### 欄位(Fields)
+
+在類別中宣告的變數，用來存放類別的資料
+
+#### 欄位初始化(Initialization)
+
+- 可以寫在建構式中
+- 也可以在宣告時就定義，其好處是無論有多少個建構式，都能保證該欄位會被初始化
+
+    ``` csharp
+    // 在建構式中作欄位初始化
+    public class Person
+    {
+        public List<string> Orders;
+
+        public Person()
+        {
+            Orders = new List<string>();
+        }
+    }
+    ```
+
+    ``` csharp
+    // 在宣告時作欄位初始化
+    public class Person
+    {
+        public List<string> Orders = new List<string>();
+    }
+    ```
+
+#### 唯讀欄位(Read-Only Fields)
+
+- 用來避免欄位被重複初始化(會導致第一次初始化後存放的資料被清空)
+- 以下述程式碼來說明
+
+    1. 建立一個 Customer 類別，並給予 Order 欄位，且預先作好初始化，然後在 Main() 使用
+
+        ``` csharp
+        public class Customer
+        {
+            public List<string> Orders = new List<string>();
+        }
+
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                var customer = new Customer();
+                customer.Order.Add("apple");
+                customer.Order.Add("banana");
+
+                Console.WriteLine(customer.Order.Count);
+            }
+        }
+
+        // output:
+        // 2
+        ```
+
+    2. 如果 Customer 類別裡面有個方法，不小心又初始化了一次 Order 欄位，會發生原本存放的資料被清空
+
+        ``` csharp
+        public class Customer
+        {
+            public List<string> Orders = new List<string>();
+
+            public void Cashing()
+            {
+                // 不小心又初始化了一次 Order 欄位
+                Order = new List<string>();
+                ...
+            }
+        }
+
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                var customer = new Customer();
+                customer.Order.Add("apple");
+                customer.Order.Add("banana");
+
+                // 在這個呼叫後，原本 Order 的資料會被清空
+                customer.Cashing();
+
+                Console.WriteLine(customer.Order.Count);
+            }
+        }
+
+        // output:
+        // 0
+        ```
+
+    3. 如果 Order 欄位是使用唯讀欄位，在 compile 階段就報錯，禁止在一個以上的地方作欄位初始化
+
+        ``` csharp
+        public class Customer
+        {
+            // 使用 readonly 關鍵字
+            public readonly List<string> Orders = new List<string>();
+
+            public void Cashing()
+            {
+                // 這行會編譯失敗
+                Order = new List<string>();
+                ...
+            }
+        }
+        ```
