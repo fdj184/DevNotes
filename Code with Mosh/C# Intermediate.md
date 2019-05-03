@@ -28,6 +28,7 @@ Course Link: <https://codewithmosh.teachable.com/p/object-oriented-programming-i
     ![20190501_162929](img/20190501_162929.png)
 
 - 宣告時，Class Name 須使用 Pascal Case，即所有單字之首字母大寫
+- 在介紹到 OOP 的[封裝(Encapsulation)](#封裝(Encapsulation))概念以前，本筆記所有範例中的欄位(Field)都會暫時用 public 來展示
 
     ``` csharp
     // 在官方文件的 coding style 中，建議類別的欄位宣告和方法宣告中間要有一行空白
@@ -365,7 +366,7 @@ partial class Program
         // 0
         ```
 
-    3. 如果 Order 欄位是使用唯讀欄位，在 compile 階段就報錯，禁止在一個以上的地方作欄位初始化
+    3. 如果 Order 欄位是使用唯讀欄位，在 compile 階段就會報錯，禁止在一個以上的地方為該欄位作初始化
 
         ``` csharp
         public class Customer
@@ -381,3 +382,157 @@ partial class Program
             }
         }
         ```
+
+### 存取修飾詞(Access Modifiers)
+
+- 用來控制類別和其成員的存取
+- 為了達到 OOP 概念中的封裝(Encapsulation)，將類別中的資訊隱藏
+- 共有 5 種存取層級
+    - public
+    - private
+    - protected
+    - internal
+    - protected internal
+
+### 封裝(Encapsulation)
+
+- 想像餐廳是一個應用程式(Application)，裡面的員工們就是類別(Class)，服務生不應插手、也不需要知道廚師的工作內容，也就是說，類別之間不需要知道彼此的細節，只要能互相溝通即可
+- 實際作法是將類別中的欄位(Field)設為 private 層級，並提供 public 層級的 setter/getter 方法，讓其它類別可以透過這兩種方法來設定/取得欄位資訊
+- 類別中的欄位名稱，應使用 Camel Case 並加上底線前綴，例如 ```private int _myNumber;```
+- 以下述程式碼為例
+
+    ``` csharp
+    public class Person
+    {
+        // 欄位使用 private 層級，並使用 Camel Case 加上底線前綴作命名
+        private string _name;
+
+        // setter 使用 public 層級，供其它類別叫用
+        public void SetName(string name)
+        {
+            if (!String.IsNullOrEmpty(name))
+                this._name = name;
+        }
+
+        // getter 使用 public 層級，供其它類別叫用
+        public string GetName()
+        {
+            return this._name;
+        }
+    }
+    ```
+
+### 屬性(Properties)
+
+- 簡化封裝概念中，欄位(Field)的 setter/getter
+- 屬性使用 public 層級，供其它類別叫用
+- 屬性名稱應使用 Pascal Case
+- 以下述程式碼為例
+
+    ``` csharp
+    public class Person
+    {
+        private string _name;
+
+        // 屬性使用 public 層級
+        public string Name
+        {
+            get { return _name; }
+            set { Name = _name; }
+        }
+    }
+    ```
+
+#### 自動實作屬性(Auto-Implement Properties)
+
+- 若屬性(Properties)無其它邏輯，只是給值/取值，可以更進一步簡化屬性的寫法
+- 在編譯階段，編譯器會自動為我們建立 private 層級的欄位(Field)
+- 承上，透過 ildasm 工具去反組譯 compile 後的 exe 檔，可以看到中介語言(IL)真的會將這種寫法轉成 private 欄位和對應的 setter/getter
+- 以下述程式碼為例
+
+    ※ 小技巧：在類別中輸入「prop」即可產生自動實作屬性的程式碼片段
+
+    ``` csharp
+    public class Person
+    {
+        public string Name { get; set; }
+    }
+    ```
+
+- 若屬性有其它邏輯，就不應該使用，例如下例的 ```Age```
+
+    ``` csharp
+    // 類別
+    public class Person
+    {
+        public DateTime Birthday { get; set; }
+
+        // 年齡應該是根據生日自動算出來的，有其邏輯，所以不使用自動實作，
+        // 且年齡不應允許設定其值，所以不給 setter
+        public int Age
+        {
+            get
+            {
+                var timeSpan = DateTime.Now - this.Birthday;
+                var years = timeSpan.Days / 365;
+
+                return years;
+            }
+        }
+    }
+
+    // 主程式
+    partial class Program
+    {
+        static void Main(string[] args)
+        {
+            var person = new Person();
+            person.Birthday = new DateTime(1990, 1, 1);
+            Console.WriteLine(person.Age);
+        }
+    }
+
+    // output:
+    // 29
+    ```
+
+- 若自動實作的屬性，只允許 set 一次值，則將 ```set``` 加上 private 層級，並改在建構式(Constructor)設定屬性值，如此一來在建立物件時，便強迫需要設定該屬性值，且不得再作更改
+
+    ``` csharp
+    // 類別
+    public class Person
+    {
+        // 在建構式設定 Birthday 屬性值
+        public Person(DateTime birthday)
+        {
+            this.Birthday = birthday;
+        }
+
+        // set 前面加上 private
+        public DateTime Birthday { get; private set; }
+        public int Age
+        {
+            get
+            {
+                var timeSpan = DateTime.Now - this.Birthday;
+                var years = timeSpan.Days / 365;
+
+                return years;
+            }
+        }
+    }
+
+    // 主程式
+    partial class Program
+    {
+        static void Main(string[] args)
+        {
+            // 建立物件時便必須設定 Birthday 值
+            var person = new Person(new DateTime(1990, 1, 1));
+            Console.WriteLine(person.Age);
+        }
+    }
+
+    // output:
+    // 29
+    ```
