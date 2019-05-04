@@ -28,7 +28,7 @@ Course Link: <https://codewithmosh.teachable.com/p/object-oriented-programming-i
     ![20190501_162929](img/20190501_162929.png)
 
 - 宣告時，Class Name 須使用 Pascal Case，即所有單字之首字母大寫
-- 在介紹到 OOP 的[封裝(Encapsulation)](#封裝%28Encapsulation%29)概念以前，本筆記所有範例中的欄位(Field)都會暫時用 public 來展示
+- 在介紹到 OOP 的[封裝(Encapsulation)](#封裝Encapsulation)概念以前，本筆記所有範例中的欄位(Field)都會暫時用 public 來展示
 
     ``` csharp
     // 在官方文件的 coding style 中，建議類別的欄位宣告和方法宣告中間要有一行空白
