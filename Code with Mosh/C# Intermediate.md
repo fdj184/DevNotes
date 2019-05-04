@@ -28,7 +28,7 @@ Course Link: <https://codewithmosh.teachable.com/p/object-oriented-programming-i
     ![20190501_162929](img/20190501_162929.png)
 
 - 宣告時，Class Name 須使用 Pascal Case，即所有單字之首字母大寫
-- 在介紹到 OOP 的[封裝(Encapsulation)](#封裝(Encapsulation))概念以前，本筆記所有範例中的欄位(Field)都會暫時用 public 來展示
+- 在介紹到 OOP 的[封裝(Encapsulation)](#封裝%28Encapsulation%29)概念以前，本筆記所有範例中的欄位(Field)都會暫時用 public 來展示
 
     ``` csharp
     // 在官方文件的 coding style 中，建議類別的欄位宣告和方法宣告中間要有一行空白
@@ -249,7 +249,7 @@ partial class Program
 #### Ref 修飾詞
 
 - It's a code smell in Mosh's opinion. **不建議使用**，知道有這個東西就好
-- 將 value type 當成 reference type 來使用 (可參考 [C# Basics.md](C%23%20Basics.md#Value-Types-and-Reference-Types))
+- 將 value type 當成 reference type 來使用 (兩者差異可參考 [C# Basics.md](C%23%20Basics.md#Value-Types-and-Reference-Types))
 - 以下述程式碼為例
 
     |        |                                                         沒有使用 ref 修飾詞                                                         |                                                           使用 ref 修飾詞                                                           |
@@ -385,14 +385,26 @@ partial class Program
 
 ### 存取修飾詞(Access Modifiers)
 
-- 用來控制類別和其成員的存取
+- 用來控制類別和其成員的存取範圍
 - 為了達到 OOP 概念中的封裝(Encapsulation)，將類別中的資訊隱藏
 - 共有 5 種存取層級
-    - public
-    - private
-    - protected
-    - internal
-    - protected internal
+
+    <table style="text-align: center;">
+        <tr>
+            <th></th>
+            <th>public</th>
+            <th>private</th>
+            <th>protected</th>
+            <th>internal</th>
+            <th>protected internal</th>
+        </tr>
+        <tr>
+            <td>可存取範圍</td>
+            <td>到處皆可</td>
+            <td>只有在 Class 中才可存取</td>
+            <td colspan="3">在繼承(Inheritance)章節再作介紹</td>
+        </tr>
+    </table>
 
 ### 封裝(Encapsulation)
 
@@ -445,7 +457,7 @@ partial class Program
 
 #### 自動實作屬性(Auto-Implement Properties)
 
-- 若屬性(Properties)無其它邏輯，只是給值/取值，可以更進一步簡化屬性的寫法
+- 若屬性(Property)無其它邏輯，只是給值/取值，可以更進一步簡化屬性的寫法
 - 在編譯階段，編譯器會自動為我們建立 private 層級的欄位(Field)
 - 承上，透過 ildasm 工具去反組譯 compile 後的 exe 檔，可以看到中介語言(IL)真的會將這種寫法轉成 private 欄位和對應的 setter/getter
 - 以下述程式碼為例
@@ -535,4 +547,45 @@ partial class Program
 
     // output:
     // 29
+    ```
+
+### 索引子(Indexers)
+
+- 類似屬性(Property)，當某個欄位(Field)是集合型態(Array, List or Dictionary .. etc.)，可以透過 key/value(一個 key 對應一個 value)的方式來存取該集合中的元素
+- 索引子用 ```this``` 關鍵字作為名稱
+- 以下述程式碼為例
+
+    ``` csharp
+    // 類別
+    public class SuperHero
+    {
+        private Dictionary<string, string> _dictionary;
+
+        public SuperHero()
+        {
+            this._dictionary = new Dictionary<string, string>();
+        }
+
+        // 用 "this" 作為名稱
+        // "value" 關鍵字代表欲設定的值
+        public string this[string key]
+        {
+            get { return _dictionary[key]; }
+            set { _dictionary[key] = value; }
+        }
+    }
+
+    // 主程式
+    partial class Program
+    {
+        static void Main(string[] args)
+        {
+            var superHero = new SuperHero();
+            superHero["Batman"] = "Bruce Wayne";
+            Console.WriteLine(superHero["Batman"]);
+        }
+    }
+
+    // output:
+    // Bruce Wayne
     ```
