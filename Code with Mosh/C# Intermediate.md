@@ -587,6 +587,7 @@ partial class Program
 ### 繼承(Inheritance)
 
 - 兩個類別(Class)間的一種關係，讓其中一個類別的程式可以繼承自另一個類別
+- 被繼承者稱為基底類別(Base Class)，繼承者稱為衍生類別(Derived Class)
 - 用英文來說是「Is-A」關係，例如「A Car **is a** Vehicle.」，「Car」就是繼承自「Vehicle」
 - 繼承的優點
     - 程式可重複利用(Code re-use)
@@ -734,3 +735,90 @@ partial class Program
     |     protected      |               只有在該類別和繼承該類別之子類別中才可存取               | 不符合，<br>子類別能看到母類別中的資訊，<br>除非不得已，否則避免使用 | ![20190505_182145](img/20190505_182145.png) |
     |      internal      | 只有在相同組件(Assembly)中才可存取，不會設在類別成員，通常是設在類別上 |                                                                      |                                             |
     | protected internal |          只有在相同組件、該類別和繼承該類別之子類別中才可存取          |                       不符合，理由同 protected                       |                                             |
+
+### 建構式繼承(Constructor Inheritance)
+
+- 基底類別(Base Class)的建構式一定會最先執行
+- 基底類別的建構式不會被繼承
+- 承上，欲使用基底類別的建構式，可以透過 ```: base()``` 的寫法來繼承基底類別的建構式
+- 以下述程式碼為例
+    1. 建立基底類別 Vehicle 和其衍生類別 Car，並各自建立建構式
+
+        ``` csharp
+        // Base Class
+        public class Vehicle
+        {
+            public Vehicle()
+            {
+                Console.WriteLine("Vehicle is being initialized.");
+            }
+        }
+
+        // Derived Class
+        public class Car : Vehicle
+        {
+            public Car()
+            {
+                Console.WriteLine("Car is being initialized.");
+            }
+        }
+
+        // Main
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                // 建立 Car 物件
+                var car = new Car();
+            }
+        }
+
+        // output:
+        // Vehicle is being initialized.
+        // Car is being initialized.
+        ```
+
+    2. 從上述程式碼輸出可以看出基底類別的建構式會先執行
+    3. 假設今天 Vehicle 增加了一個 carPlateNumber 唯讀欄位
+
+        ``` csharp
+        // Base Class
+        public class Vehicle
+        {
+            // 增加一個 _carPlateNumber 唯讀欄位
+            private readonly string _carPlateNumber;
+
+            public Vehicle(string carPlateNumber)
+            {
+                // 唯讀欄位必須在建構式中給值
+                this._carPlateNumber = carPlateNumber;
+
+                Console.WriteLine($"Vehicle is being initialized. {carPlateNumber}");
+            }
+        }
+
+        // Derived Class
+        public class Car : Vehicle
+        {
+            // 透過 :base() 的方式，可以將 Car 建構式收到的參數傳遞到 Vehicle 類別
+            public Car(string carPlateNumber)
+                : base(carPlateNumber)
+            {
+                Console.WriteLine($"Car is being initialized. {carPlateNumber}");
+            }
+        }
+
+        // Main
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                // Car 物件必須給車牌號碼才能建立
+                var car = new Car("ABC-1234");
+            }
+        }
+
+        // output:
+        // Vehicle is being initialized. ABC-1234
+        // Car is being initialized. ABC-1234
+        ```
