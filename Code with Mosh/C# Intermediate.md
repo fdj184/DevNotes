@@ -402,7 +402,7 @@ partial class Program
             <td>可存取範圍</td>
             <td>到處皆可</td>
             <td>只有在 Class 中才可存取</td>
-            <td colspan="3">在繼承(Inheritance)章節再作介紹</td>
+            <td colspan="3">在<a href="#%E7%B9%BC%E6%89%BFinheritance">繼承(Inheritance)</a>章節再作介紹</td>
         </tr>
     </table>
 
@@ -589,3 +589,155 @@ partial class Program
     // output:
     // Bruce Wayne
     ```
+
+## Association Between Classes
+
+### 耦合性(Class Coupling)
+
+- 一種衡量類別(Class)和子系統相依程度的方式
+
+    |            |                                               高耦合<br>(Tightly Coupled)                                               |                              低耦合<br>(Loosely Coupled)                               |
+    |:----------:|:-----------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|
+    | 較佳的設計 |                                                                                                                         |                                           V                                            |
+    |    描述    |                                 類別之間高度相依，修改一個地方就到處都要修改或重新編譯                                  |                   類別之間相依性低，任何類別都較小程度的影響其它類別                   |
+    |    範例    | ![20190505_145206](img/20190505_145206.png)<br>修改 Class A 會影響到 Class B 和 Class F，也會影響到其它相依的子類別 | ![20190505_145719](img/20190505_145719.png)<br>無論修改哪個 Class 都僅會影響到本身 |
+
+- 可以透過以下方式達成低耦合設計
+    - [封裝(Encapsulation)](#封裝encapsulation)
+    - 類別之間的關係，例如[繼承(Inheritance)](#繼承inheritance)和[組合(Composition)](#組合composition)
+    - [介面(Interfaces)](#介面interfaces)
+
+### 繼承(Inheritance)
+
+- 兩個類別(Class)間的一種關係，讓其中一個類別的程式可以繼承自另一個類別
+- 用英文來說是「Is-A」關係，例如「A Car **is a** Vehicle.」，「Car」就是繼承自「Vehicle」
+- 繼承的優點
+    - 程式可重複利用(Code re-use)
+    - 多型(Polymorphic)特性
+- 在 C# 中，類別只能繼承自一個類別(不能繼承多個類別)
+- 在 C# 中，所有類別(即使未特別指定)都會繼承自 object 類別，所以都會有 ```Equals()```、```GetType()```、```ToString()``` .. 等方法
+- 宣告時，在類別名稱後加上「:」即可作繼承
+- 以下述情境為例
+    1. 假設今天要設計一個簡報程式，我們會有文字、圖片、表格 .. 等等元件，但其實每個類別都會有複製、貼上、移至最上層 .. 等等共同功能，所以我們會建立一個母類別，並把這些共同功能都放在該類別中，再讓其它元件來繼承它
+    2. 我們設計的 UML 如下圖
+        ![20190505_160548](img/20190505_160548.png)
+    3. 程式碼如下
+
+        ``` csharp
+        // Parent class
+        public class PresentationObject
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+
+            public void Copy() { ... }
+        }
+
+        // Child class
+        public class Text : PresentationObject
+        {
+            public int FontSize { get; set; }
+            public string FontFamily { get; set; }
+
+            public void AddText(string str) { ... }
+        }
+
+        // Main
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                var text = new Text();
+                // 可以使用母類別的類別成員
+                text.Width = 10;
+                text.Copy();
+            }
+        }
+        ```
+
+### 組合(Composition)
+
+- 兩個類別(Class)間的一種關係，讓其中一個類別擁有另一個類別
+- 用英文來說是「Has-A」關係，例如「A Car **has an** Engine.」
+- 繼承的優點
+    - 程式可重複利用(Code re-use)
+    - 彈性
+    - 具低耦合特性
+- 以下述情境為例
+    1. 假設今天要設計 DbMigrator 和 Installer 兩個類別，且兩個類別都需要寫 log 的功能
+    2. 我們設計的 UML 如下圖
+        ![20190505_161809](img/20190505_161809.png)
+    3. 程式碼如下
+
+        ``` csharp
+        // 共有的功能
+        public class Logger
+        {
+            public void Log(string message)
+            {
+                Console.WriteLine(message);
+            }
+        }
+
+        // 類別一
+        public class DbMigrator
+        {
+            private Logger _logger;
+
+            public DbMigrator(Logger logger)
+            {
+                this._logger = logger;
+            }
+
+            public void Migrate()
+            {
+                _logger.Log("We are migrating.");
+            }
+        }
+
+        // 類別二
+        public class Installer
+        {
+            private Logger _logger;
+
+            public Installer(Logger logger)
+            {
+                this._logger = logger;
+            }
+
+            public void Install()
+            {
+                _logger.Log("We are installing.");
+            }
+        }
+
+        // Main
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                var dbMigrator = new DbMigrator(new Logger());
+                dbMigrator.Migrate();
+
+                var logger = new Logger();
+                var installer = new Installer(logger);
+                installer.Install();
+            }
+        }
+        ```
+
+### Favor Composition over Inheritance
+
+- 繼承(Inheritance)的缺點
+    - 容易被濫用
+    - 繼承關係越長，越難維護
+    - 造成高耦合
+- 任何繼承關係都能轉換成組合關係
+- 以下述情境為例
+
+    |              |                       繼承(Inheritance)                       |                                      組合(Composition)                                      |
+    |:------------:|:-------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
+    |    人和狗    | 人和狗都是動物<br>![20190505_165100](img/20190505_165100.png) |             人和狗都擁有動物特性<br>![20190505_165719](img/20190505_165719.png)             |
+    | 加入走路功能 |  動物都會走路<br>![20190505_165251](img/20190505_165251.png)  |                 增加走路特性<br>![20190505_165814](img/20190505_165814.png)                 |
+    |   加入金魚   |  金魚也是動物<br>![20190505_165417](img/20190505_165417.png)  | 金魚擁有動物特性、游泳特性，但不擁有走路特性<br>![20190505_165851](img/20190505_165851.png) |
+    |     差異     | 出現錯誤，因為金魚不會走路，必須修改動物、人、狗 .. 等等類別  |             因為低耦合，所以較不易牽一髮而動全身，特性還可以作成介面(Interface)             |
