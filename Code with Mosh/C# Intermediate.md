@@ -969,3 +969,179 @@ partial class Program
         ![20190506_175152](img/20190506_175152.png)
 
     4. 所以最好別用 ArrayList，而是改用 List<>
+
+## Polymorphism: Third Pillar of OOP
+
+### 方法覆寫(Method Overriding)
+
+- 修改從基底類別(Base Class)繼承來的方法(Method)
+- 透過在基底類別的方法加上 ```virtual``` 關鍵字，並在衍生類別的方法加上 ```override``` 關鍵字即可作到方法覆寫
+
+    ``` csharp
+    // Base Class
+    public class Shape
+    {
+        public virtual void Draw()
+        {
+            // Default implementation
+        }
+    }
+
+    // Derived Class
+    public class Circle : Shape
+    {
+        public override void Draw()
+        {
+            // New implementation
+        }
+    }
+    ```
+
+- 如果衍生類別的方法沒有作 override，則會沿用基底類別的方法內容
+- 現實案例，假設我們有個 Shape 類別定義了不同的形狀，另外有一個 Canvas 類別可以將 ```List<Shape>``` 逐一繪製，比較下述兩種寫法
+
+    <table>
+        <tr>
+            <th></th>
+            <th>沒有運用封裝、繼承、方法覆寫的概念</th>
+            <th>運用封裝、繼承、方法覆寫的概念</th>
+        </tr>
+        <tr>
+            <td>程式碼</td>
+
+<td>
+
+``` csharp
+// ShapeType.cs
+// 把不同形狀作成列舉
+public enum ShapeType
+{
+    Circle,
+    Rectangle
+}
+
+// Shape.cs
+// Shape 使用 Type 屬性來判斷哪種形狀
+public class Shape
+{
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public ShapeType Type { get; set; }
+}
+
+// Canvas.cs
+// Canvas 定義不同形狀應該怎麼繪製
+public class Canvas
+{
+    public void DrawShapes(List<Shape> shapes)
+    {
+        foreach (var shape in shapes)
+        {
+            switch (shape.Type)
+            {
+                case ShapeType.Circle:
+                    Console.WriteLine("Draw a circle.");
+                    break;
+                case ShapeType.Rectangle:
+                    Console.WriteLine("Draw a rectangle.");
+                    break;
+            }
+        }
+    }
+}
+
+// Program.cs
+partial class Program
+{
+    static void Main(string[] args)
+    {
+        var shapes = new List<Shape>();
+        shapes.Add(new Shape { Type = ShapeType.Circle });
+        shapes.Add(new Shape { Type = ShapeType.Rectangle });
+
+        var canvas = new Canvas();
+        canvas.DrawShapes(shapes);
+    }
+}
+```
+
+</td>
+<td>
+
+``` csharp
+// Shape.cs
+// Shape 提供可被覆寫的 Draw() 方法，並定義所有形狀共有的屬性
+public class Shape
+{
+    public int Width { get; set; }
+    public int Height { get; set; }
+
+    public virtual void Draw() { }
+}
+
+// Circle.cs
+// Circle 繼承自 Shape，並覆寫 Draw() 方法成自己所需的樣子
+public class Circle : Shape
+{
+    public override void Draw()
+    {
+        Console.WriteLine("Draw a circle.");
+    }
+}
+
+// Rectangle.cs
+// Rectangle 繼承自 Shape，並覆寫 Draw() 方法成自己所需的樣子
+public class Rectangle : Shape
+{
+    public override void Draw()
+    {
+        Console.WriteLine("Draw a rectangle.");
+    }
+}
+
+// Canvas.cs
+// Canvas 只負責繪製，不必管是哪個類別、該怎麼繪製
+public class Canvas
+{
+    public void DrawShapes(List<Shape> shapes)
+    {
+        foreach (var shape in shapes)
+        {
+            shape.Draw();
+        }
+    }
+}
+
+// Program.cs
+partial class Program
+{
+    static void Main(string[] args)
+    {
+        var shapes = new List<Shape>();
+        shapes.Add(new Circle());
+        shapes.Add(new Rectangle());
+
+        var canvas = new Canvas();
+        canvas.DrawShapes(shapes);
+    }
+}
+```
+
+</td>
+        </tr>
+        <tr>
+            <td>差異</td>
+            <td>
+                <ul>
+                    <li>當今天多了其它新的形狀，例如 Triangle，需要改到 ShapeType 列舉、Canvas 類別，所有引用到 ShapeType.cs 和 Canvas.cs 的程式也都需要重新編譯</li>
+                    <li>當形狀越來越多，Canvas.cs 會越長越大支，降低可讀性</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>當今天多了其它新的形狀，例如 Triangle，僅需要增加一個 Triangle 類別(繼承自 Shape)，放到 Triangle.cs 供人引用，其它程式碼皆不必修改亦不必重新編譯</li>
+                    <li>當形狀越來越多，只是會有越來越多支 .cs 檔</li>
+                </ul>
+            </td>
+        </tr>
+    </table>
