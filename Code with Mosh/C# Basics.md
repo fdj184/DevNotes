@@ -406,9 +406,10 @@ public enum Fruit
 #### Value Types
 
 - 以 Structure 方式建立
+- 用堆疊(Stack)方式存放於記憶體
 - Primitive types 和 custom structures 屬於此類
 - 宣告時會自動分配記憶體空間
-- 在有效範圍外就會立刻被釋放資源
+- 生命周期較短，在有效範圍外就會立刻被釋放資源
 
 ![20190428_154610](img/20190428_154610.png)
 
@@ -419,9 +420,10 @@ public enum Fruit
 #### Reference Types
 
 - 以 Class 方式建立
-- Non-primitive types 和 custom classes 屬於此類
+- 用堆積(Heap)方式存放於記憶體
+- Non-primitive types、custom classes 和其它不屬於 Value Types 的都屬於此類
 - 宣告時需手動分配記憶體空間
-- 會由 GC 機制決定何時釋放資源
+- 生命周期較長，會由 GC 機制決定何時釋放資源
 
 ![20190428_154830](img/20190428_154830.png)
 
