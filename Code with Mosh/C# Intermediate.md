@@ -822,3 +822,150 @@ partial class Program
         // Vehicle is being initialized. ABC-1234
         // Car is being initialized. ABC-1234
         ```
+
+### Upcasting and Downcasting
+
+#### 向上轉型(Upcasting)
+
+- 從衍生類別(Derived Class)建立的物件，使用基底類別(Base Class)的成員(屬性、方法 .. 等等)，這個過程稱為向上轉型
+- 向上轉型為隱含轉換，不需要特別寫出欲轉型的目標類別
+
+    ![20190506_154754](img/20190506_154754.png)
+
+- 其實轉型前後，都是指向記憶體中的同一個位址，只是用不同檢視看到不同類別成員，以下述程式碼為例
+
+    ``` csharp
+    // Base Class
+    public class Shape
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
+    // Derived Class
+    public class Text : Shape
+    {
+        public int FontSize { get; set; }
+    }
+
+    // Main
+    partial class Program
+    {
+        static void Main(string[] args)
+        {
+            Text text = new Text();
+            Shape shape = text;
+
+            // text 跟 shape 其實是同一個記憶體位址
+            // 所以以下兩行，其實都在更改同一個物件的 Width
+            text.Width = 200;
+            shape.Width = 100;
+
+            Console.WriteLine(text.Width);
+        }
+    }
+
+    // output:
+    // 100
+    ```
+
+- 向上轉型的現實案例
+    1. StreamReader
+        - StreamReader 在宣告時，其中一個建構式是要傳入 Stream
+
+            ![20190506_164543](img/20190506_164543.png)
+
+        - 因為 Stream 是 FileStream、MemoryStream .. 等等類別的基底類別，所以不需要指定類別，即可當作 Stream 使用
+
+            ![20190506_165336](img/20190506_165336.png)
+
+    2. ArrayList
+        - ArrayLst.Add() 可傳入 object
+
+            ![20190506_165721](img/20190506_165721.png)
+
+        - 因為 object 是任何類別的基底類別，所以不需要指定類別，即可將 int、string 等等類別傳入
+
+            ![20190506_165810](img/20190506_165810.png)
+
+#### 向下轉型(Downcasting)
+
+- 從基底類別(Base Class)建立的物件，使用衍生類別(Derived Class)的成員(屬性、方法 .. 等等)，這個過程稱為向下轉型
+- 向下轉型需要用 ```(DerivedClass)BaseClass``` 的方式，寫出欲轉型的目標類別
+
+    ![20190506_154935](img/20190506_154935.png)
+
+- 向下轉型有可能會出現 InvalidCastException，所以比較安全的作法是使用 ```as``` 關鍵字，若轉型失敗會是 null，不會直接丟 exception
+
+    ![20190506_160117](img/20190506_160117.png)
+
+- 承上點，也可以使用 ```is``` 關鍵字來檢查
+
+    ![20190506_160409](img/20190506_160409.png)
+
+- 向下轉型的現實案例
+    1. Windows Form 或 WPF Application 中的按按鈕事件
+        - sender 雖然指的是按鈕本身，但因為使用的是基底類別 object，所以只有 object 自己的類別成員能使用
+
+            ![20190506_171355](img/20190506_171355.png)
+
+        - 不過如果使用向下轉型，指定 sender 為 Button 類別，就能使用 Button 的類別成員
+
+            ![20190506_171518](img/20190506_171518.png)
+
+### Boxing and Unboxing
+
+首先要先了解
+
+1. Value Types 和 Reference Types 的差異，可以參考 [C# Basics.md](C%23%20Basics.md#Value-Types-and-Reference-Types)
+2. 在 .Net Framework 中，Object 類別是所有類別的基底類別
+
+#### 裝箱(Boxing)
+
+- 將 Value Types 類別建立的物件，轉換成 Object 類別的過程，稱為裝箱
+- 以下述程式碼為例
+
+    ``` csharp
+    // boxing
+    int number = 10;
+    object obj1 = number;
+
+    // also boxing
+    object obj2 = 10;
+    ```
+
+- 承上例，記憶體會將數字 10，改用堆積(Heap)方式儲存，而非堆疊(Stack)
+
+    ![20190506_173706](img/20190506_173706.png)
+
+#### 拆箱(Unboxing)
+
+- 將 Object 類別建立的物件，轉換成 Value Types 類別的過程，稱為拆箱
+- 以下述程式碼為例
+
+    ``` csharp
+    // boxing
+    object obj = 10;
+
+    // unboxing
+    int number = (int)obj;
+    ```
+
+#### 裝箱和拆箱的現實案例
+
+- 無論裝箱或拆箱都會影響效能，因為多了一層轉換，應避免使用
+- 以下述程式碼為例
+
+    1. ArrayLst.Add() 可傳入 object
+
+        ![20190506_174710](img/20190506_174710.png)
+
+    2. 在向上轉型(Upcasting)章節已經學到，可以將 int、string .. 等等類別傳入
+
+        ![20190506_174907](img/20190506_174907.png)
+
+    3. 但這樣的 ArrayList 除了不是個型別安全(Type Safe)的物件，在傳入 Value Types 時其實就作了裝箱的動作，無形中影響效能
+
+        ![20190506_175152](img/20190506_175152.png)
+
+    4. 所以最好別用 ArrayList，而是改用 List<>
