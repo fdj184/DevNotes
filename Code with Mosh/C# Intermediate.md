@@ -998,17 +998,19 @@ partial class Program
     ```
 
 - 如果衍生類別的方法沒有作 override，則會沿用基底類別的方法內容
-- 現實案例，假設我們有個 Shape 類別定義了不同的形狀，另外有一個 Canvas 類別可以將 ```List<Shape>``` 逐一繪製，比較下述兩種寫法
 
-    <table>
-        <tr>
-            <th></th>
-            <th>沒有運用封裝、繼承、方法覆寫的概念</th>
-            <th>運用封裝、繼承、方法覆寫的概念</th>
-        </tr>
-        <tr>
-            <td>程式碼</td>
+#### 方法覆寫的現實案例
 
+假設我們有個 Shape 類別定義了不同的形狀，另外有一個 Canvas 類別可以將 ```List<Shape>``` 逐一繪製，比較下述兩種寫法
+
+<table>
+    <tr>
+        <th></th>
+        <th>沒有運用封裝、繼承、方法覆寫的概念</th>
+        <th>運用封裝、繼承、方法覆寫的概念</th>
+    </tr>
+    <tr>
+        <td>程式碼</td>
 <td>
 
 ``` csharp
@@ -1128,20 +1130,66 @@ partial class Program
 ```
 
 </td>
-        </tr>
-        <tr>
-            <td>差異</td>
-            <td>
-                <ul>
-                    <li>當今天多了其它新的形狀，例如 Triangle，需要改到 ShapeType 列舉、Canvas 類別，所有引用到 ShapeType.cs 和 Canvas.cs 的程式也都需要重新編譯</li>
-                    <li>當形狀越來越多，Canvas.cs 會越長越大支，降低可讀性</li>
-                </ul>
-            </td>
-            <td>
-                <ul>
-                    <li>當今天多了其它新的形狀，例如 Triangle，僅需要增加一個 Triangle 類別(繼承自 Shape)，放到 Triangle.cs 供人引用，其它程式碼皆不必修改亦不必重新編譯</li>
-                    <li>當形狀越來越多，只是會有越來越多支 .cs 檔</li>
-                </ul>
-            </td>
-        </tr>
-    </table>
+    </tr>
+    <tr>
+        <td>差異</td>
+        <td>
+            <ul>
+                <li>當今天多了其它新的形狀，例如 Triangle，需要改到 ShapeType 列舉、Canvas 類別，所有引用到 ShapeType.cs 和 Canvas.cs 的程式也都需要重新編譯</li>
+                <li>當形狀越來越多，Canvas.cs 會越長越大支，降低可讀性</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>當今天多了其它新的形狀，例如 Triangle，僅需要增加一個 Triangle 類別(繼承自 Shape)，放到 Triangle.cs 供人引用，其它程式碼皆不必修改亦不必重新編譯</li>
+                <li>當形狀越來越多，只是會有越來越多支 .cs 檔</li>
+            </ul>
+        </td>
+    </tr>
+</table>
+
+### 抽象類別和其成員(Abstract Classes and Members)
+
+- 類別成員(Class Member)使用 ```abstract``` 關鍵字，代表此成員本身缺少實作，衍生類別在繼承後需要覆寫並實作
+- 當有類別成員使用 ```abstract``` 關鍵字，則該類別本身也須使用 ```abstract``` 關鍵字成為抽象類別
+- 繼承自抽象類別的衍生類別，必須實作所有的抽象類別成員
+- 抽象類別**不能**被實體化
+- 現實案例中，為了避免後人在擴展類別時忘記實作方法，透過抽象類別的方式，可以強迫別人要自行實作方法
+- 以下述程式碼為例
+
+    ```csharp
+    // Base Class
+    // 類別使用 abstract 關鍵字
+    public abstract class Shape
+    {
+        // 類別成員使用 abstract 關鍵字，且不需要有程式主體(大括號)
+        public abstract void Draw();
+    }
+
+    // Derived Class
+    public class Circle : Shape
+    {
+        // 使用 override 關鍵字覆寫方法
+        public override void Draw()
+        {
+            // Implementation for Circle class
+        }
+    }
+
+    // Main
+    partial class Program
+    {
+        static void Main(string[] args)
+        {
+            // Error，抽象類別不能實體化
+            // var shape = new Shape();
+        }
+    }
+    ```
+
+### 封閉類別和其成員(Sealed Classes and Members)
+
+- 和 ```abstract``` 相反，```sealed``` 關鍵字可以用在
+    1. 衍生類別：避免類別再往下被繼承
+    2. 衍生類別中，使用 ```override``` 的類別成員：避免再往下繼承後被覆寫
+- 現實案例中很少使用 ```sealed```
