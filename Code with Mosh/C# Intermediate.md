@@ -1162,7 +1162,7 @@ partial class Program
     // 類別使用 abstract 關鍵字
     public abstract class Shape
     {
-        // 類別成員使用 abstract 關鍵字，且不需要有程式主體(大括號)
+        // 類別成員使用 abstract 關鍵字，且不需要有實作程式(大括號)
         public abstract void Draw();
     }
 
@@ -1193,3 +1193,242 @@ partial class Program
     1. 衍生類別：避免類別再往下被繼承
     2. 衍生類別中，使用 ```override``` 的類別成員：避免再往下繼承後被覆寫
 - 現實案例中很少使用 ```sealed```
+
+## 介面(Interfaces)
+
+- 宣告方式類似 class
+- 命名首字母以大寫「I」開頭
+- 不需要程式實作，所以方法不會有大括號
+- 成員不會有存取關鍵字(Access Modifier)
+- 用來建立低耦合的應用程式，用餐廳的例子來形容，與其指定廚房由 John 這個類別來負責，更好的作法是指定會炒菜、煮飯這樣的介面來負責，如此一來，日後任何能實作炒菜、煮飯行為的人，都能接替廚房的工作
+
+### Interfaces and Testability
+
+- 介面能增加程式可測試性
+- 單元測試(Unit Test)會在其他課程詳述，先有個概念就好
+- 作單元測試時，一次只能測試一個類別，所以當類別中有使用到其他類別(成員)時，須將另一個類別作成介面
+
+### Interfaces and Extensibility
+
+- 介面能增加程式可擴充性
+- 透過介面可以達成 OOP 的 Open–closed principle(software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification.)，也就是在不更改原始程式的前提下，能夠擴充行為
+- 以下述程式碼為例
+
+    1. 假設我們有一個 DbMigrator 類別，其在 Migrate() 方法會寫 log 記錄起始和結束時間
+
+        ``` csharp
+        // DbMigrator.cs
+        public class DbMigrator
+        {
+            public void Migrate()
+            {
+                Console.WriteLine($"Migration started at {DateTime.Now}");
+
+                // Details of migrating the database
+
+                Console.WriteLine($"Migration finished at {DateTime.Now}");
+            }
+        }
+
+        // Program.cs
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                var dbMigrator = new DbMigrator();
+                dbMigrator.Migrate();
+            }
+        }
+        ```
+
+    2. 在這個例子中，我們寫死了「寫 log」這個行為要透過 Console.WriteLine() 達成，就好像在餐廳例子中指定了 John 這個廚師
+    3. 承上，更好的作法應該是把「寫 log」這個行為作成介面，以後不管要寫到 Console、文字檔、DB 或其它地方，都只要另外實作介面即可
+
+        ``` csharp
+        // ILogger.cs
+        // 定義「寫 log」行為的介面
+        public interface ILogger
+        {
+            void LogError(string message);
+            void LogInfo(string message);
+        }
+
+        // ConsoleLogger.cs
+        // 實作介面
+        public class ConsoleLogger : ILogger
+        {
+            public void LogError(string message)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(message);
+            }
+
+            public void LogInfo(string message)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(message);
+            }
+        }
+
+        // DbMigrator.cs
+        // 改成使用介面中的方法，而不是指定使用 Console 的方法
+        public class DbMigrator
+        {
+            private readonly ILogger _logger;
+
+            public DbMigrator(ILogger logger)
+            {
+                this._logger = logger;
+            }
+
+            public void Migrate()
+            {
+
+                _logger.LogInfo($"Migration started at {DateTime.Now}");
+
+                // Details of migrating the database
+
+                _logger.LogInfo($"Migration finished at {DateTime.Now}");
+            }
+        }
+
+        // Program.cs
+        // 在主程式才去指定使用哪種實作來完成「寫 log」的行為
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                var dbMigrator = new DbMigrator(new ConsoleLogger());
+                dbMigrator.Migrate();
+            }
+        }
+        ```
+
+### Interfaces vs. Inheritance
+
+兩者只有語法相似，使用上則完全不同
+
+<table>
+    <tr>
+        <th></th>
+        <th>繼承<br>(Inheritance)</th>
+        <th>介面<br>(Interfaces)</th>
+    </tr>
+    <tr>
+        <td>語法</td>
+<td>
+
+``` csharp
+public class A : B
+{
+
+}
+```
+
+</td>
+<td>
+
+``` csharp
+public class A : IB
+{
+
+}
+```
+
+</td>
+    </tr>
+    <tr>
+        <td>讀法</td>
+        <td>A 類別繼承自 B 類別</td>
+        <td>A 類別為 B 介面的實作</td>
+    </tr>
+    <tr>
+        <td>規則</td>
+        <td>在 C# 中，類別僅能繼承自一個類別</td>
+        <td>類別可以是多個介面的實作</td>
+    </tr>
+    <tr>
+        <td>Why</td>
+        <td>增加程式可重複利用性</td>
+        <td>建立低耦合程式、增加可測試性、增加可擴充性</td>
+    </tr>
+    <tr>
+        <td>多型特性</td>
+        <td>有</td>
+        <td>有</td>
+    </tr>
+</table>
+
+### Interfaces and Polymorphism
+
+介面也有多型特性，以下述程式碼為例
+
+``` csharp
+// INotificationChannel.cs
+// 通知行為的介面
+public interface INotificationChannel
+{
+    void Send(string message);
+}
+
+// EmailNotification.cs
+// 透過 Email 實作通知行為的類別
+public class EmailNotification : INotificationChannel
+{
+    public void Send(string message)
+    {
+        Console.WriteLine($"[Email] {message}");
+    }
+}
+
+// SmsNotification.cs
+// 透過 SMS 實作通知行為的類別
+public class SmsNotification : INotificationChannel
+{
+    public void Send(string message)
+    {
+        Console.WriteLine($"[SMS] {message}");
+    }
+}
+
+// UploadFile.cs
+// 上傳檔案，結束時須作通知，但不寫死使用哪種通知
+public class UploadFile
+{
+    private readonly IList<INotificationChannel> _notificationChannels;
+
+    public UploadFile()
+    {
+        _notificationChannels = new List<INotificationChannel>();
+    }
+
+    public void Upload()
+    {
+        // Some codes about uploading files
+        ...
+
+        // 多型特性，一樣都是使用介面的 Send() 行為，但是會因為不同的類別實作，而有不同的結果
+        foreach (var channel in this._notificationChannels)
+        {
+            channel.Send("Done");
+        }
+    }
+
+    public void AddNotificationChannel(INotificationChannel channel)
+    {
+        this._notificationChannels.Add(channel);
+    }
+}
+
+// Program.cs
+partial class Program
+{
+    static void Main(string[] args)
+    {
+        var uploadFile = new UploadFile();
+        uploadFile.AddNotificationChannel(new EmailNotification());
+        uploadFile.AddNotificationChannel(new SmsNotification());
+        uploadFile.Upload();
+    }
+}
+```
