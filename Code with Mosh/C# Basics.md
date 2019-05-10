@@ -2,7 +2,7 @@
 
 ![C# Basics](img/20190427_224541.jpg)
 
-Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
+Course Link: <https://codewithmosh.com/p/csharp-basics-for-beginners>
 
 ---
 
@@ -65,9 +65,9 @@ Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
 - 命名不能是關鍵字，例如「int」
 - 命名要用有意義的名稱，例如使用「firstName」而不用「fn」
 - 命名慣例
-  - 駝峰式(Camel Case)，例如「firstName」
-  - 帕斯卡命名法(Pascal Case)，例如「FirstName」
-  - 匈牙利命名法(Hungarian Notation)，例如「strFirstName」
+    - 駝峰式(Camel Case)，例如「firstName」
+    - 帕斯卡命名法(Pascal Case)，例如「FirstName」
+    - 匈牙利命名法(Hungarian Notation)，例如「strFirstName」
 
 ``` csharp
 // 變數宣告，可選擇是否給予初始值

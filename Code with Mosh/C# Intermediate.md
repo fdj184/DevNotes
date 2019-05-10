@@ -2,7 +2,7 @@
 
 ![C# Intermediate](img/20190501_155800.jpg)
 
-Course Link: <https://codewithmosh.teachable.com/p/object-oriented-programming-in-csharp>
+Course Link: <https://codewithmosh.com/p/object-oriented-programming-in-csharp>
 
 ---
 
