@@ -330,7 +330,7 @@ div.myclass {
 - 寫在後面 > 寫在前面
 - 寫在內層(元素上) > 寫在外層
 
-但是也要考量[分數系統](#Selector-Specificity-(選擇器分數系統))
+但是也要考量[分數系統](#Selector-Specificity-選擇器分數系統)
 
 ## Inheritance (繼承關係)
 
