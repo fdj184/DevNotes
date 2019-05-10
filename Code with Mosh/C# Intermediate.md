@@ -386,7 +386,7 @@ partial class Program
 ### 封裝(Encapsulation)
 
 - 想像餐廳是一個應用程式(Application)，裡面的員工們就是類別(Class)，服務生不應插手、也不需要知道廚師的工作內容，也就是說，類別之間不需要知道彼此的細節，只要能互相溝通即可
-- 實際作法是將類別中的欄位(Field)設為 [private 層級](#存取修飾詞access-modifiers)，並提供 [public 層級](#存取修飾詞access-modifiers)的 setter/getter 方法，讓其它類別可以透過這兩種方法來設定/取得欄位資訊
+- 實際作法是將類別中的欄位(Field)設為 [private 層級](#存取修飾詞Access-Modifiers)，並提供 [public 層級](#存取修飾詞Access-Modifiers)的 setter/getter 方法，讓其它類別可以透過這兩種方法來設定/取得欄位資訊
 - 類別中的欄位名稱，應使用 Camel Case 並加上底線前綴，例如 ```private int _myNumber;```
 - 以下述程式碼為例
 
@@ -580,9 +580,9 @@ partial class Program
     |    範例    | ![20190505_145206](img/20190505_145206.png)<br>修改 Class A 會影響到 Class B 和 Class F，也會影響到其它相依的子類別 | ![20190505_145719](img/20190505_145719.png)<br>無論修改哪個 Class 都僅會影響到本身 |
 
 - 可以透過以下方式達成低耦合設計
-    - [封裝(Encapsulation)](#封裝encapsulation)
-    - 類別之間的關係，例如[繼承(Inheritance)](#繼承inheritance)和[組合(Composition)](#組合composition)
-    - [介面(Interfaces)](#介面interfaces)
+    - [封裝(Encapsulation)](#封裝Encapsulation)
+    - 類別之間的關係，例如[繼承(Inheritance)](#繼承Inheritance)和[組合(Composition)](#組合Composition)
+    - [介面(Interfaces)](#介面Interfaces)
 
 ### 繼承(Inheritance)
 
