@@ -303,7 +303,7 @@ person.jump(5);
 
 ## Sets
 
-- 新的資料型態
+- 新的資料型別
 - 不會有重複的值，重複的會自動被忽略
 
 |      Methods      |   Description    |

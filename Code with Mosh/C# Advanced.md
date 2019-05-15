@@ -9,12 +9,12 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
 ## 泛型(Generics)
 
 - 在 C# 1.0 時代，如果需要可變長度陣列，有兩種作法
-    1. 建立各種型態的陣列類別：因為每個類別都需要 Add()、Remove() .. 等等方法，造成大量的重複程式碼
-    2. 建立 Object 型態的陣列類別：雖然解決了前者的問題，但在執行過程產生[裝箱(Boxing)、拆箱(Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing)，造成效能低落
-- 在 C# 2.0 之後，我們可以使用泛型，也就是在定義類別或方法時，可以使用一個或多個不指定型態的變數，等到建立實體時，再明定型態為何
+    1. 建立各種型別的陣列類別：因為每個類別都需要 Add()、Remove() .. 等等方法，造成大量的重複程式碼
+    2. 建立 Object 型別的陣列類別：雖然解決了前者的問題，但在執行過程產生[裝箱(Boxing)、拆箱(Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing)，造成效能低落
+- 在 C# 2.0 之後，我們可以使用泛型，也就是在定義類別或方法時，可以使用一個或多個不指定型別的變數，等到建立實體時，再明定型別為何
 
     ``` csharp
-    // T 代表 Type 或 Template，不指定型態
+    // T 代表 Type 或 Template，不指定型別
     public class GenericList<T>
     {
         public void Add(T element)
@@ -27,7 +27,7 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
     {
         static void Main(string[] args)
         {
-            // 建立實體時才指定此陣列為哪種型態
+            // 建立實體時才指定此陣列為哪種型別
             var genericList = new GenericList<int>();
             genericList.Add(10);
         }
@@ -36,7 +36,7 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
 
 ### 條件約束(Constraints)
 
-- 使用條件約束可以讓 compiler 知道，泛型類別或方法建立實體後的型態會有那些功能
+- 使用條件約束可以讓 compiler 知道，泛型類別或方法建立實體後的型別會有那些功能
 - 語法為在類別或方法之後加上「```where T :``` + 條件約束」
 - 條件約束有以下幾種
     1. 介面(Interface)
@@ -44,14 +44,14 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
         ``` csharp
         public class Utilities
         {
-            // 數字型態的比大小
+            // 數字型別的比大小
             public int IntBigger(int a, int b)
             {
                 return a > b ? a : b;
             }
 
             // 泛型的比大小
-            // 因為 a 跟 b 本身是 object 型態，無法單純用數學的方式比大小，
+            // 因為 a 跟 b 本身是 object 型別，無法單純用數學的方式比大小，
             // 但是可以透過條件約束 IComparable，告訴 compiler 這兩個值在建立實體時能夠比大小
             public T GenericBigger<T>(T a, T b) where T : IComparable
             {
@@ -212,7 +212,7 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
         // CustomPhotoFilters.cs 去除紅眼功能
         public class CustomPhotoFilters
         {
-            // 需要和 PhotoFilters.cs 中的方法，使用相同型態和數量的傳入參數
+            // 需要和 PhotoFilters.cs 中的方法，使用相同型別和數量的傳入參數
             public void RemoveRedEyes(Photo photo)
             {
                 Console.WriteLine("Remove red eyes on the photo");
@@ -272,10 +272,10 @@ public class PhotoFilters
 // PhotoProcessor.cs 相片後製的標準流程
 public class PhotoProcessor
 {
-    // 不必再自行宣告委派型態
+    // 不必再自行宣告委派型別
     // public delegate void PhotoFilterHandler(Photo photo);
 
-    // 傳入的委派型態改用內建的 Action<T>
+    // 傳入的委派型別改用內建的 Action<T>
     public void Process(string path, Action<Photo> filterHandler)
     {
         var photo = new Photo(path);
