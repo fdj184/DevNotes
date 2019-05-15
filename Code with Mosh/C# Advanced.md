@@ -500,7 +500,7 @@ partial class Program
             // 取得所有從 DB 撈到的書本
             var books = new BookDB().GetBooks();
 
-            // 找出所有書本中符合判斷的書本
+            // 找出所有書本中符合敘述的書本
             var cheapBooks = books.FindAll(book => book.Price < 10);
             foreach (var book in cheapBooks)
             {
@@ -818,3 +818,197 @@ public class VideoEncode
 </td>
 </tr>
 </table>
+
+## 擴充方法(Extension Methods)
+
+- 可以在不改動原始碼或不使用衍生類別繼承的前提下，為某個類別增加新的方法(Method)
+- 宣告擴充方法的類別和使用擴充方法的類別**必須在同一個 namespace 中**或是另外「using ***namespace***」
+- 宣告語法有以下規則
+    1. 須宣告於 ```static``` 類別中，類別命名為「目標類別 + Extensions」
+    2. 須使用 ```static``` 方法，傳入的第一個參數為「this ***目標類別*** ***變數名稱***」
+- 以擴充 ```String``` 類別之方法為例
+
+    ``` csharp
+    // StringExtensions.cs 擴充方法
+    // 使用靜態類別，類別命名為「目標類別 + Extensions」
+    public static class StringExtensions
+    {
+        // 使用靜態方法，傳入的第一個參數為「this 目標類別 變數名稱」
+        public static string Shorten(this String str, int numberOfWords)
+        {
+            if (numberOfWords < 0)
+                throw new IndexOutOfRangeException("numberOfWords should greater than or equal to 0.");
+
+            if (String.IsNullOrEmpty(str.Trim()))
+                return "";
+
+            var words = str.Split(' ');
+
+            if (numberOfWords >= words.Length)
+                return str;
+
+            return String.Join(" ", words.Take(numberOfWords)) + "...";
+        }
+    }
+
+    // Program.cs 主程式
+    partial class Program
+    {
+        static void Main(string[] args)
+        {
+            var post = "this is a very long long long long long long long post";
+            Console.WriteLine(post.Shorten(5));
+        }
+    }
+
+    // output:
+    // this is a very long...
+    ```
+
+- 擴充方法有其風險，以上述的 ```String.Shorten()``` 為例，如果今天 C# 自己內建同樣名稱的方法，我們自訂的擴充方法便會失效，所以微軟文件建議必要時才使用擴充方法，且應該用在自行衍生的類別上，而非像此例中使用在內建的 ```String``` 類別上
+
+## LINQ
+
+- **L**anguage **In**tegrated **Q**uery
+- 可以查詢以下物件
+    - LINQ to Objects: Objects in memory, eg: collections
+    - LINQ to Entities: Databases
+    - LINQ to XML: XML
+    - LINQ to DataSet: ADO .NET DataSet
+- LINQ 可以透過 [Lambda Expression](#Lambda-Expressions) 簡化程式碼
+- LINQ 可以串連多個查詢，例如 ```books.Where(...).OrderBy(...)```
+- LINQ 有兩種寫法
+    1. LINQ Extension Methods
+    2. LINQ Query Operators: 語法總是由 ```from``` 開頭，並用 ```select``` 作結尾
+- 以下為常見的擴充方法/查詢語法
+
+    | Syntax in Extension Methods | Syntax in Query Operators |                                Description                                 |
+    |:---------------------------:|:-------------------------:|:--------------------------------------------------------------------------:|
+    |    .Where(expression***)    |           where           |                             篩選符合敘述的元素                             |
+    |         .OrderBy()          |          orderby          |                                正序排列集合                                |
+    |    .OrderByDescending()     |  orderby ... descending   |                                倒序排列集合                                |
+    |          .Select()          |          select           |                 將符合敘述的元素或元素屬性產生至新的集合中                 |
+    |          .Single()          |                           | 回傳唯一符合敘述的元素，<br>若符合元素之數量為零或多於一個則會丟 exception |
+    |     .SingleOrDefault()      |                           |  回傳唯一符合敘述的元素，<br>若符合元素之數量為零或多於一個則會回傳預設值  |
+    |          .First()           |                           |     回傳第一個符合敘述的元素，<br>若符合元素之數量為零則會丟 exception     |
+    |      .FirstOrDefault()      |                           |      回傳第一個符合敘述的元素，<br>若符合元素之數量為零則會回傳預設值      |
+    |           .Last()           |                           |              回傳最後一個符合敘述的元素，其它情況同 .First()               |
+    |      .LastOrDefault()       |                           |          回傳最後一個符合敘述的元素，其它情況同 .FirstOrDefault()          |
+    |           .Skip()           |                           |                     略過前 N 個元素後，回傳剩下的集合                      |
+    |           .Take()           |                           |                              回傳前 N 個元素                               |
+    |          .Count()           |                           |                            回傳集合中的元素數量                            |
+    |           .Max()            |                           |                            回傳符合敘述的最大值                            |
+    |           .Min()            |                           |                            回傳符合敘述的最小值                            |
+    |           .Sum()            |                           |                             回傳符合敘述的總和                             |
+
+- 以下述程式碼為例
+
+    1. 假設我們有一個書本資料庫(這邊寫死在 List 中作示範)
+
+        ``` csharp
+        // Book.cs 書本基本資訊
+        public class Book
+        {
+            public string Title { get; set; }
+            public decimal Price { get; set; }
+        }
+
+        // BookDB.cs 書本資料庫
+        public class BookDB
+        {
+            public List<Book> GetBooks()
+            {
+                return new List<Book>
+                {
+                    new Book { Title = "ADO .Net Step by Step", Price = 5m },
+                    new Book { Title = "ASP.NET MVC", Price = 9.99m },
+                    new Book { Title = "ASP.NET Web API", Price = 13m },
+                    new Book { Title = "C# Advanced", Price = 7m },
+                    new Book { Title = "C# Advanced", Price = 9m }
+                };
+            }
+        }
+        ```
+
+    2. 對書本作查詢
+
+        ``` csharp
+        // Program.cs 主程式
+        partial class Program
+        {
+            static void Main(string[] args)
+            {
+                var books = new BookDB().GetBooks();
+
+                // LINQ Extension Methods
+                var cheapBooks = books
+                                    .Where(b => b.Price < 10) // 篩選出小於 10 塊錢的書
+                                    .OrderBy(b => b.Title) // 用書名作正排序
+                                    .Select(b => b.Title); // 產出只有書名(string type)的集合
+
+                // LINQ Query Operators
+                cheapBooks = from b in books
+                             where b.Price < 10
+                             orderby b.Title
+                             select b.Title;
+
+                // 以上兩者是相同的查詢結果
+            }
+        }
+        ```
+
+## Nullable Types
+
+- 首先，要知道 C# 中的 [Value Type](C%23%20Basics.md#Value-Types-and-Reference-Types) 不能是 null
+- 但在現實案例中，還是有機會會遇到空值，例如 DB 裡有個生日(DateTime)欄位，客戶可能不願意填，就會是 null，一旦把 DB 資料倒進程式中，就會遇到值為 null 的 DateTime
+- Nullable Type 的宣告規則為「Nullable<***Class***>」，例如 ```Nullable<DateTime>```，也可以簡寫成「***Class***?」，例如 ```DateTime?```
+
+    ``` csharp
+    DateTime? date = null;
+    ```
+
+- 以下為常見的方法
+
+    |       Method        |        Description         |
+    |:-------------------:|:--------------------------:|
+    | GetValueOrDefault() | 有值回傳值，沒值回傳預設值 |
+    |      HasValue       |   檢查是否有值，回傳布林   |
+    |        Value        | 回傳值，沒值會丟 exception |
+
+- 不能直接把 Nullable Type 指派給 Value Type，因為 compiler 會不知道遇到 null 時該如何處理
+
+    ``` csharp
+    DateTime? date1 = null;
+    DateTime date2 = date1; // error
+    ```
+
+### null 聯合運算子(Null-coalescing Operator)
+
+若指派值為 null 則給另一個指定值
+
+``` csharp
+DateTime? date1 = null;
+
+// 若 date1 != null，則 date2 = date1
+// 若 date1 == null，則 date2 = DateTime.Today
+DateTime date2 = date1 ?? DateTime.Today;
+```
+
+## Dynamic
+
+- 首先，先知道程式語言可分為
+
+    |                            | 靜態語言<br>(Static Programming Languages) | 動態語言<br>(Dynamic Programming Languages) |
+    |:--------------------------:|:------------------------------------------:|:-------------------------------------------:|
+    |        解析變數型別        |              at compile-time               |                 at run-time                 |
+    | 使用不存在類別中的類別成員 |               編譯時就會報錯               |               執行時才會報錯                |
+    |          代表語言          |                  C#, Java                  |          Ruby, JavaScript, Python           |
+
+- .NET 4 加入了 dynamic 型別以利和動態語言互動
+- 以下述程式碼為例
+
+    ``` csharp
+    // 不會報錯，因為是透過 DLR (Dynamic Language Runtime) 一行一行解析型別
+    dynamic obj = "Hello";
+    obj = 10;
+    ```
