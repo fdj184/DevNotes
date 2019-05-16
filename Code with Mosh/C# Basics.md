@@ -2,7 +2,7 @@
 
 ![C# Basics](img/20190427_224541.jpg)
 
-Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
+Course Link: <https://codewithmosh.com/p/csharp-basics-for-beginners>
 
 ---
 
@@ -65,9 +65,9 @@ Course Link: <https://codewithmosh.teachable.com/p/csharp-basics-for-beginners>
 - 命名不能是關鍵字，例如「int」
 - 命名要用有意義的名稱，例如使用「firstName」而不用「fn」
 - 命名慣例
-  - 駝峰式(Camel Case)，例如「firstName」
-  - 帕斯卡命名法(Pascal Case)，例如「FirstName」
-  - 匈牙利命名法(Hungarian Notation)，例如「strFirstName」
+    - 駝峰式(Camel Case)，例如「firstName」
+    - 帕斯卡命名法(Pascal Case)，例如「FirstName」
+    - 匈牙利命名法(Hungarian Notation)，例如「strFirstName」
 
 ``` csharp
 // 變數宣告，可選擇是否給予初始值
@@ -78,7 +78,7 @@ int num2 = 10;
 const float pi = 3.14f;
 ```
 
-### 資料型態(Data Type)
+### 資料型別(Data Type)
 
 ![20190428_091938](img/20190428_091938.png)
 
@@ -95,7 +95,7 @@ decimal c = 1.5m;
 
 ### 溢位(Overflow)
 
-超出範圍時會產生溢位，實際應用上，會用較大的資料型態去宣告以避免溢位
+超出範圍時會產生溢位，實際應用上，會用較大的資料型別去宣告以避免溢位
 
 ### 變數有效範圍(Scope)
 
@@ -103,13 +103,13 @@ decimal c = 1.5m;
 
 ![20190428_093513](img/20190428_093513.png)
 
-### 型態轉換
+### 型別轉換
 
 |                                                      |                                               描述                                               |                    範例                     |
 |:----------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:-------------------------------------------:|
-|      隱含型態轉換<br>(Implicit Type Convention)      | 編譯器確定目標型態可轉換且資料不會遺失(原型態 range 小於目標型態)才轉換，否則會有 compiler error | ![20190428_095756](img/20190428_095756.png) |
-| 明確型態轉換<br>(Explicit Type Convention = Casting) |                                     明確指定指定欲轉換的型態                                     | ![20190428_100125](img/20190428_100125.png) |
-|                 Non-compatible Type                  |                    當兩個型態不相容時，需使用 Convert 或 Parse 關鍵字來作轉換                    | ![20190428_100827](img/20190428_100827.png) |
+|      隱含型別轉換<br>(Implicit Type Convention)      | 編譯器確定目標型別可轉換且資料不會遺失(原型別 range 小於目標型別)才轉換，否則會有 compiler error | ![20190428_095756](img/20190428_095756.png) |
+| 明確型別轉換<br>(Explicit Type Convention = Casting) |                                     明確指定指定欲轉換的型別                                     | ![20190428_100125](img/20190428_100125.png) |
+|                 Non-compatible Type                  |                    當兩個型別不相容時，需使用 Convert 或 Parse 關鍵字來作轉換                    | ![20190428_100827](img/20190428_100827.png) |
 
 ### 運算子(Operator)
 
@@ -231,7 +231,7 @@ public struct RgbColor
 
 ### Array
 
-- 用來儲存若干個相同型態的變數
+- 用來儲存若干個相同型別的變數
 - 宣告後不能改變 size
 - 索引起始值為 0
 

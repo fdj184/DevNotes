@@ -2,7 +2,7 @@
 
 ![C# Intermediate](img/20190501_155800.jpg)
 
-Course Link: <https://codewithmosh.teachable.com/p/object-oriented-programming-in-csharp>
+Course Link: <https://codewithmosh.com/p/object-oriented-programming-in-csharp>
 
 ---
 
@@ -145,11 +145,11 @@ Fields 和 Methods 都屬於類別成員，類別成員又可分成
 - 在現實世界中，類別不可能為每個欄位都建立建構式，我們只針對有必要給予初始狀態的欄位給予建構式
 - 以下述程式碼為例
 
-    1. 在 Customer 類別中加入一個 Order 欄位，其型態為 List\<string>
+    1. 在 Customer 類別中加入一個 Order 欄位，其型別為 List\<string>
 
         ![20190502_183531](img/20190502_183531.png)
 
-    2. 回到 Main() 欲使用該欄位會出現 NullReferenceException，因為 ```customer.Order``` 現在還是 null，沒辦法執行 ```Add()``` 方法，換句話說，List<> 型態需要初始化過才能使用
+    2. 回到 Main() 欲使用該欄位會出現 NullReferenceException，因為 ```customer.Order``` 現在還是 null，沒辦法執行 ```Add()``` 方法，換句話說，List<> 型別需要初始化過才能使用
 
         ![20190502_183715](img/20190502_183715.png)
 
@@ -207,7 +207,7 @@ partial class Program
 用以區別不同方法的特徵，有以下兩點
 
 1. 方法名稱(Name)
-2. 傳入參數的型態(Type)和數量
+2. 傳入參數的型別(Type)和數量
 
 #### 多載(Overloading)
 
@@ -224,8 +224,8 @@ public class Person
 
 #### Param 修飾詞
 
-- 知道傳入參數都是同樣型態，但不知道個數時可使用
-- 參數型態必須是一維陣列
+- 知道傳入參數都是同樣型別，但不知道個數時可使用
+- 參數型別必須是一維陣列
 - 呼叫時，可以用陣列或逗號分隔的方式傳入值
 
 ``` csharp
@@ -528,7 +528,7 @@ partial class Program
 
 ### 索引子(Indexers)
 
-- 類似屬性(Property)，當某個欄位(Field)是集合型態(Array, List or Dictionary .. etc.)，可以透過 key/value(一個 key 對應一個 value)的方式來存取該集合中的元素
+- 類似屬性(Property)，當某個欄位(Field)是集合型別(Array, List or Dictionary .. etc.)，可以透過 key/value(一個 key 對應一個 value)的方式來存取該集合中的元素
 - 索引子用 ```this``` 關鍵字作為名稱
 - 以下述程式碼為例
 
