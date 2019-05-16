@@ -1012,3 +1012,325 @@ DateTime date2 = date1 ?? DateTime.Today;
     dynamic obj = "Hello";
     obj = 10;
     ```
+
+## 例外處理(Exception Handling)
+
+- 當程式執行時遇到非預期的錯誤，就會產生例外(Exception)，若未作例外處理就會導致程式崩潰
+- 例外會有以下資訊
+    - 例外訊息(Message)：發生例外的原因
+    - 例外來源(Source)：發生例外的程式其 namespace
+    - 呼叫堆疊(Stack Trace)：倒序列出程式呼叫的過程和程式行數
+- 透過「Try-Catch」區塊可以捕捉例外
+
+    ``` csharp
+    try
+    {
+        // 程式於此段執行
+    }
+    catch (Exception)
+    {
+        // 在 try 區塊發生例外時，就會跳到此區塊，
+        // 我們可以選擇在此區塊修正錯誤，或是重新拋出(Rethrow)例外到更外層的程式
+    }
+    ```
+
+- ```Exception``` 類別是所有例外的父類別
+- 除了使用最上層的 ```Exception``` 類別進行捕捉，我們也可以列出其他更細(更下層)的例外類別，但是要記得越細(越下層)的類別要寫在程式越前面
+
+    ``` csharp
+    try
+    {
+        int x = 0;
+        int y = 1 / x;
+    }
+    catch (DivideByZeroException)
+    {
+        Console.WriteLine("Captured by DivideByZeroException class.");
+    }
+    catch (ArithmeticException)
+    {
+        Console.WriteLine("Captured by ArithmeticException class.");
+    }
+    catch (Exception)
+    {
+        Console.WriteLine("Captured by Exception class.");
+    }
+    ```
+
+- 透過「Try-Catch-Finally」區塊，無論是否發生例外，都會執行 ```finally``` 中的程式碼，常見的案例為使用 unmanaged resources 後無論程式是否正常執行，最後都須釋放資源，否則程式可能造成檔案咬死或資源用盡(out of resources)
+    > Unmanaged Resources: 不會自動被 GC 機制清理的物件，例如開啟檔案、開啟連線 .. 等等
+
+    ``` csharp
+    StreamReader reader = null;
+    try
+    {
+        // 開啟檔案
+        reader = new StreamReader(@"C:\test.txt");
+        var content = reader.ReadToEnd();
+    }
+    catch (Exception)
+    {
+        Console.WriteLine("something is wrong.");
+    }
+    finally
+    {
+        if (reader != null)
+        {
+            // 釋放資源
+            reader.Dispose();
+        }
+    }
+    ```
+
+- 上述程式碼，可以更進一步透過 using statement 來簡化，並同時確保有使用 IDisposable 物件
+
+    ```csharp
+    try
+    {
+        // 開啟檔案
+        using (var reader = new StreamReader(@"C:\test.txt"))
+        {
+            var content = reader.ReadToEnd();
+        }
+        // using 一結束就會呼叫 Dispose()
+    }
+    catch (Exception)
+    {
+        Console.WriteLine("something is wrong.");
+    }
+    ```
+
+- 我們可以建立衍生自 ```Exception``` 類別的自訂例外類別，避免將底層資訊透漏給使用者
+
+    ``` csharp
+    // Video.cs 影片基本資訊
+    public class Video
+    {
+        public string Title { get; set; }
+    }
+
+    // YouTubeException.cs 自訂例外類別
+    public class YouTubeException : Exception
+    {
+        public YouTubeException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+
+        }
+    }
+
+    // YouTubeApi.cs 取得使用者影片
+    public class YouTubeApi
+    {
+        public List<Video> GetVideos(string user)
+        {
+            try
+            {
+                // Access YouTube web service
+                // Read the data 
+                // Create a list of Video objects
+                throw new Exception("Oops some low level YouTube error.");
+            }
+            catch (Exception ex)
+            {
+                // Writing logs in somewhere else
+
+                // 呼叫自訂的例外類別
+                throw new YouTubeException("Could not fetch the videos from YouTube.", ex);
+            }
+
+            return new List<Video>();
+        }
+    }
+
+    partial class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                var videos = new YouTubeApi().GetVideos("Wayne");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+
+    // output:
+    // Could not fetch the videos from YouTube.
+    ```
+
+## 非同步處理(Async/Await)
+
+- 同步和非同步的差異
+
+    |          |                      同步處理<br>(Synchronous Programming Execution)                       |                      非同步處理<br>(Asynchronous Programming Execution)                      |
+    |:--------:|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+    |   定義   | 程式逐行執行，當遇到函式(function)被呼叫，執行緒**會**封鎖，等到該函式回傳後，再往下行執行 | 程式逐行執行，當遇到函式(function)被呼叫，執行緒**不會**封鎖，在該函式回傳前便繼續往下行執行 |
+    |  示意圖  |                        ![20190516_234200](img\20190516_234200.gif)                         |                         ![20190516_234600](img\20190516_234600.gif)                          |
+    | 現實案例 |                                                                                            |                                      影片播放器、瀏覽器                                      |
+    | 適用情況 |                                                                                            |         <ul><li>存取網頁</li><li>存取檔案</li><li>存取 DB</li><li>存取圖片</li></ul>         |
+
+- 如何達成非同步
+    - 傳統作法
+        - 多執行緒(Multi-Threading)
+        - Callback
+    - .NET 4.5 後的新作法
+        - Async/Await
+- 若函式使用 ```await``` 關鍵字，則其父函式也須使用 ```async``` 關鍵字，並在父函式名稱後面加上「Async」
+- 非同步函式若本身無回傳值，須回傳 ```Task``` 類別，反之則回傳 ```Task<T>``` 泛型類別，例如 ```Task<string>```
+- 以使用 WPF 撰寫點擊按鈕後，將某網頁文字寫至檔案之功能為例
+
+    <table>
+    <tr>
+    <th></th>
+    <th>同步處理</th>
+    <th>非同步處理</th>
+    </tr>
+    <tr>
+    <td>程式碼</td>
+    <td>
+
+    ``` csharp
+    // 只是為了紀錄執行過程時間
+    DateTime begin = DateTime.Now;
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        Log("A");
+        DownloadHtml("https://docs.microsoft.com/zh-tw/dotnet/csharp/");
+        Log("G");
+    }
+
+    public void DownloadHtml(string url)
+    {
+        Log("B");
+        var webClient = new WebClient();
+        // 採同步處理的 DownloadString()
+        var html = webClient.DownloadString(url);
+
+        Log("C");
+        using (var writer = new StreamWriter(@"D:\123.txt"))
+        {
+            Log("D");
+            writer.Write(html);
+            Log("E");
+        }
+        Log("F");
+    }
+
+    public void Log(string message)
+    {
+        var time = DateTime.Now - begin;
+        textBox.Text += $"\r\n[{time.ToString("mm':'ss':'fff")}] {message}";
+    }
+    ```
+
+    </td>
+    <td>
+
+    ``` csharp
+    // 只是為了紀錄執行過程時間
+    DateTime begin = DateTime.Now;
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        Log("A");
+        DownloadHtmlAsync("https://docs.microsoft.com/zh-tw/dotnet/csharp/");
+        Log("G");
+    }
+
+    // 因為函式中有使用 await 的函式，父函式也要使用 async 關鍵字，並在名稱後面加上「Async」
+    // 又因為 DownloadHtml() 本身不回傳值，須使用 Task 類別 (不能寫 async void)
+    public async Task DownloadHtmlAsync(string url)
+    {
+        Log("B");
+        var webClient = new WebClient();
+        // 執行耗費較多時間，所以改採非同步處理的 DownloadStringTaskAsync()，並加上 await 關鍵字
+        var html = await webClient.DownloadStringTaskAsync(url);
+
+        Log("C");
+        using (var writer = new StreamWriter(@"D:\123.txt"))
+        {
+            Log("D");
+            writer.Write(html);
+            Log("E");
+        }
+        Log("F");
+    }
+
+    public void Log(string message)
+    {
+        var time = DateTime.Now - begin;
+        textBox.Text += $"\r\n[{time.ToString("mm':'ss':'fff")}] {message}";
+    }
+    ```
+
+    </td>
+    </tr>
+    <tr>
+    <td>結果</td>
+    <td>[00:01:929] A<br>[00:01:932] B<br>[00:02:457] C<br>[00:02:458] D<br>[00:02:459] E<br>[00:02:460] F<br>[00:02:460] G</td>
+    <td>[00:03:125] A<br>[00:03:128] B<br><b>[00:04:217] G</b><br>[00:04:286] C<br>[00:04:286] D<br>[00:04:287] E<br>[00:04:287] F</td>
+    </tr>
+    <tr>
+    <td>說明</td>
+    <td>程式逐行執行，沒什麼好說的</td>
+    <td><ol><li>程式逐行執行</li><li>在 <code>DownloadHtmlAsync()</code> 函式中遇到關鍵字 <code>await</code> 時，會將控制權還給呼叫 <code>DownloadHtmlAsync()</code> 的函式 <code>Button_Click()</code></li><li>等到 <code>Button_Click()</code> 所有程式都執行完，執行緒沒事作了</li><li>再回頭執行 <code>DownloadHtmlAsync()</code> 中 <code>await</code> 後面的程式</li></ol></td>
+    </tr>
+    </table>
+
+- 以下述程式碼為例，示範非同步處理有回傳值的函式
+
+    <table>
+    <tr>
+    <th></th>
+    <th>非同步處理</th>
+    </tr>
+    <tr>
+    <td>程式碼</td>
+    <td>
+
+    ``` csharp
+    // 只是為了紀錄執行過程時間
+    DateTime begin = DateTime.Now;
+
+    private async void Button_Click(object sender, RoutedEventArgs e)
+    {
+        Log("A");
+        // 這邊取得的 getHtmlTask 是 Task<string>
+        var getHtmlTask = GetHtmlAsync("https://docs.microsoft.com/zh-tw/dotnet/csharp/");
+        Log("C");
+        // 這邊用 await 將 Task<string> 解開成 string
+        var html = await getHtmlTask;
+        Log("D");
+
+        MessageBox.Show(html.Substring(0, 10));
+        Log("E");
+    }
+
+    // 欲回傳 string，所以改使用 Task<string>
+    public async Task<string> GetHtmlAsync(string url)
+    {
+        Log("B");
+        var webClient = new WebClient();
+        // 一樣使用 await 關鍵字和 DownloadStringTaskAsync()
+        return await webClient.DownloadStringTaskAsync(url);
+    }
+
+    public void Log(string message)
+    {
+        var time = DateTime.Now - begin;
+        textBox.Text += $"\r\n[{time.ToString("mm':'ss':'fff")}] {message}";
+    }
+    ```
+
+    </td>
+    </tr>
+    <tr>
+    <td>結果</td>
+    <td>[00:01:919] A<br>[00:01:922] B<br>[00:03:031] C<br>[00:03:101] D<br>[00:04:660] E<br></td>
+    </tr>
+    </table>
