@@ -1127,7 +1127,7 @@ DateTime date2 = date1 ?? DateTime.Today;
             try
             {
                 // Access YouTube web service
-                // Read the data 
+                // Read the data
                 // Create a list of Video objects
                 throw new Exception("Oops some low level YouTube error.");
             }
