@@ -822,10 +822,10 @@ public class VideoEncode
 ## 擴充方法(Extension Methods)
 
 - 可以在不改動原始碼或不使用衍生類別繼承的前提下，為某個類別增加新的方法(Method)
-- 宣告擴充方法的類別和使用擴充方法的類別**必須在同一個 namespace 中**或是另外「using ***namespace***」
+- 宣告擴充方法的類別和使用擴充方法的類別**必須在同一個 namespace 中**或是另外「using *namespace*」
 - 宣告語法有以下規則
     1. 須宣告於 ```static``` 類別中，類別命名為「目標類別 + Extensions」
-    2. 須使用 ```static``` 方法，傳入的第一個參數為「this ***目標類別*** ***變數名稱***」
+    2. 須使用 ```static``` 方法，傳入的第一個參數為「this *目標類別 變數名稱*」
 - 以擴充 ```String``` 類別之方法為例
 
     ``` csharp
@@ -884,7 +884,7 @@ public class VideoEncode
 
     | Syntax in Extension Methods | Syntax in Query Operators |                                Description                                 |
     |:---------------------------:|:-------------------------:|:--------------------------------------------------------------------------:|
-    |    .Where(expression***)    |           where           |                             篩選符合敘述的元素                             |
+    |          .Where()           |           where           |                             篩選符合敘述的元素                             |
     |         .OrderBy()          |          orderby          |                                正序排列集合                                |
     |    .OrderByDescending()     |  orderby ... descending   |                                倒序排列集合                                |
     |          .Select()          |          select           |                 將符合敘述的元素或元素屬性產生至新的集合中                 |
@@ -961,7 +961,7 @@ public class VideoEncode
 
 - 首先，要知道 C# 中的 [Value Type](C%23%20Basics.md#Value-Types-and-Reference-Types) 不能是 null
 - 但在現實案例中，還是有機會會遇到空值，例如 DB 裡有個生日(DateTime)欄位，客戶可能不願意填，就會是 null，一旦把 DB 資料倒進程式中，就會遇到值為 null 的 DateTime
-- Nullable Type 的宣告規則為「Nullable<***Class***>」，例如 ```Nullable<DateTime>```，也可以簡寫成「***Class***?」，例如 ```DateTime?```
+- Nullable Type 的宣告規則為「Nullable<*Class*>」，例如 ```Nullable<DateTime>```，也可以簡寫成「*Class*?」，例如 ```DateTime?```
 
     ``` csharp
     DateTime? date = null;
