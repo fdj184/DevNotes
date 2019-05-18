@@ -22,11 +22,11 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 - :file_folder: App_Start: 應用程式啟動時會執行的檔案
     - BundleConfig.cs: 合併和壓縮 css 或 javascript 成一個 bundle，可以減少 http request 數，也就加快網頁載入速度
     - FilterConfig.cs
-    - RouteConfig.cs: 設定 router 規則，以下圖為例
+    - RouteConfig.cs: 設定 route 規則，以下圖為例
 
         ![20190517_190220](img/20190517_190220.png)
 
-        當 url 符合「{controller}/{action}/{id}」格式時，router 就會去解析該由哪個 controller 的哪個 action 去作事
+        當 url 符合「{controller}/{action}/{id}」格式時，route 就會去解析該由哪個 controller 的哪個 action 去作事
 
         ![20190517_190450](img/20190517_190450.png)
 
@@ -47,7 +47,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
     - :file_folder: Shared: 供不同 controller 共同使用的 view
 - favicon.ico: 供瀏覽器顯示的網站圖示
 - Global.asax: 為各種事件提供 hooks 或生命週期的全域類別
-    - Application_Start() 中會在應用程式啟動時執行，例如註冊 router
+    - Application_Start() 中會在應用程式啟動時執行，例如註冊 route
 - packages.config: NuGet 套件管理，與其逐一到外部套件網站下載，我們透過 NuGet 來統一下載、更新和管理套件
 
     ![20190517_193345](img/20190517_193345.png)
@@ -97,7 +97,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
         ![20190517_234831](img/20190517_234831.png)
 
-4. Ctrl+F5 檢查執行結果
+4. Ctrl+F5(開啟，但不進行偵錯)檢查執行結果
 
     ![20190517_235917](img/20190517_235917.png)
 
@@ -114,4 +114,188 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     ![20190518_001901](img/20190518_001901.png)
 
-4. Ctrl+F5 檢查執行結果
+4. Ctrl+Shift+B(建置方案)後檢查執行結果
+
+## 動作結果(Action Results)
+
+- ```ActionResult``` 類別用來表示每個 action 的結果
+- 在下圖 Controller 中，我們可以看到 ```Random()``` 這個 action 應該要回傳 ```ActionResult``` 類別，但是實際上是回傳 ```ViewResult``` 類別，因為後者其實是前者的衍生類別(Derived Class)
+
+    ![20190518_162750](img/20190518_162750.png)
+
+- ```ActionResult``` 類別有以下衍生類別，這些都可以當作 action 回傳的類別，有些還能透過 helper method 簡化
+
+    | 較常用 |         類別          |   Helper Method    |                  功能                  |
+    |:------:|:---------------------:|:------------------:|:--------------------------------------:|
+    |   V    |      ViewResult       |       View()       |             return a view              |
+    |        |   PartialViewResult   |   PartialView()    |         return a partial view          |
+    |        |     ContentResult     |     Content()      |          return a simple text          |
+    |   V    |    RedirectResult     |     Redirect()     |           redirect to a url            |
+    |        | RedirectToRouteResult | RedirectToAction() |      redirect to an action method      |
+    |        |      JsonResult       |       Json()       |          return a JSON object          |
+    |        |      FileResult       |       File()       |             return a file              |
+    |   V    |  HttpNotFoundResult   |   HttpNotFound()   | return "Not Found" or "404 Error" page |
+    |        |      EmptyResult      |                    |     nothing to return, like "void"     |
+
+- 以下述程式碼為例
+
+    <table>
+    <tr align="center">
+    <th>程式碼</th>
+    <th>結果</th>
+    </tr>
+    <tr>
+    <td>
+
+    ``` csharp
+    public class MoviesController : Controller
+    {
+        // GET: Movies/Random
+        public ActionResult Random()
+        {
+            // ContentResult
+            return Content("Hello World!");
+        }
+    }
+    ```
+
+    </td>
+    <td>
+
+    ![20190518_173345](img/20190518_173345.png)
+
+    </td>
+    </tr>
+    <tr>
+    <td>
+
+    ``` csharp
+    public class MoviesController : Controller
+    {
+        // GET: Movies/Random
+        public ActionResult Random()
+        {
+            // HttpNotFoundResult
+            return HttpNotFound();
+        }
+    }
+    ```
+
+    </td>
+    <td>
+
+    ![20190518_173222](img/20190518_173222.png)
+
+    </td>
+    </tr>
+    <tr>
+    <td>
+
+    ``` csharp
+    public class MoviesController : Controller
+    {
+        // GET: Movies/Random
+        public ActionResult Random()
+        {
+            // RedirectToRouteResult
+            return RedirectToAction(
+                "Index", "Home", new { page = 1, sortBy = "name" }
+            );
+        }
+    }
+    ```
+
+    </td>
+    <td>
+
+    ![20190518_173457](img/20190518_173457.png)
+
+    </td>
+    </table>
+
+## 動作參數(Action Parameters)
+
+- 參數綁定(Parameter Binding)的過程
+
+    ![20190518_173945](img/20190518_173945.png)
+
+- 參數可以有以下形式
+
+    ![20190518_174254](img/20190518_174254.png)
+
+- 以下述程式碼為例
+    1. 在「MoviesController.cs」新增一個 ```Edit()``` action，並傳入參數 ```id```
+
+        ![20190518_175435](img/20190518_175435.png)
+
+    2. 建置後，可以透過「Movies/Edit/1」或「Movies/Edit?id=1」看到我們有正確取得參數
+
+        ![20190518_175802](img/20190518_175802.png)
+
+        ![20190518_175747](img/20190518_175747.png)
+
+    3. 但是如果把參數名稱改為 ```movieId```
+
+        ![20190518_180119](img/20190518_180119.png)
+
+    4. 建置後，可以看到「Movies/Edit?movieId=1」可以運作，但「Movies/Edit/1」是出錯的
+
+        ![20190518_180315](img/20190518_180315.png)
+
+        ![20190518_180452](img/20190518_180452.png)
+
+    5. 因為在「App_Start\RouteConfig.cs」中，預設 route 的預設參數寫作「id」
+
+        ![20190518_180759](img/20190518_180759.png)
+
+    6. 欲修正此錯誤有兩種方式
+        1. 新增自定義的 route，會在下一個章節介紹
+        2. 若參數為選填，可以將 value type 的參數改為 [Nullable](C%23%20Advanced.md#Nullable-Types)，並自訂預設值
+
+            ※ ```string``` 為 reference type，原本就允許空值，所以不必特別處理
+
+            ![20190518_182446](img/20190518_182446.png)
+
+            ![20190518_182617](img/20190518_182617.png)
+
+## Convention Routing
+
+- 在「App_Start\RouteConfig.cs」中設定
+- route 宣告順序會影響優先權，所以越細的 route 要寫在越前面
+- ```MapRoute()``` 有好幾種多載，最常用的下列前三個
+    1. name: 必須是唯一值(unique)
+    2. url: url 格式，符合此格式就會使用這個 route，若有參數須用大括號包覆
+    3. defaults (objects): 預設使用的 controller, action, default value of parameters
+    4. constraints (objects): 可透過正規表示式(regular expression)設定 url 參數的條件約束
+- 以下述程式碼為例
+    1. 欲新增「依發行月份取得電影清單」之 action
+    2. 先到「RouteConfig.cs」加入自定義 route，在 url 格式加上 ```{year}``` 和 ```{month}``` 參數
+
+        ※ 要記得寫在 default route 的前面，才有優先權
+
+        ![20190519_031747](img/20190519_031747.png)
+
+    3. 回到「MoviesController.cs」，新增 ```ByReleaseDate``` action
+
+        ![20190519_032337](img/20190519_032337.png)
+
+    4. Ctrl+Shift+B 建置後，瀏覽「*專案 url*/movies/release/」會找不到頁面，原因是這個 url 格式對應不到任何的 route
+
+        ![20190519_034629](img/20190519_034629.png)
+
+    5. 如果在 url 加上參數，就可以順利瀏覽
+
+        ![20190519_034828](img/20190519_034828.png)
+
+    6. 如果要更進一步限制年份為4碼數字、月份為2碼數字，可以回到「RouteConfig.cs」增加 url 參數的條件約束
+
+        ![20190519_035708](img/20190519_035708.png)
+
+    7. 建置後，剛剛的「*專案 url*/movies/release/2019/5」就找不到頁面了，原因同步驟 4
+
+        ![20190519_040100](img/20190519_040100.png)
+
+    8. 改用「*專案 url*/movies/release/2019/**05**」才能順利瀏覽
+
+        ![20190519_040225](img/20190519_040225.png)
+
