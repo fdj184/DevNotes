@@ -299,3 +299,24 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190519_040225](img/20190519_040225.png)
 
+## Attribute Routing
+
+- Convention Routing 有以下缺點
+    1. 隨著自定義的 route 越來越多，「RouteConfig.cs」會越來越大
+    2. 必須來回在 controller 和「RouteConfig.cs」間來回修改
+    3. 承上點，若在任一邊修改 action name，另一邊須記得修改，否則無法順利導向
+- 若專案為 ASP&#46;NET MVC 5 之後的版本，建議使用 Attribute Routing，可以更簡潔的作到自定義 route
+- 以下述程式碼為例
+    1. 原本的「RouteConfig.cs」如下
+
+        ![20190519_031747](img/20190519_031747.png)
+
+    2. 刪掉原本的自定義 route，並使用 ```MapMvcAttributeRoutes()```
+
+        ![20190519_103935](img/20190519_103935.png)
+
+    3. 回到 controller，在 action method 前面加上屬性
+
+        ※ 透過「{*參數*:regex(*expression*)}」可以為參數加上正規表示式的條件約束，其它條件約束方式可參考 [Routing Constraints](https://docs.microsoft.com/zh-tw/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#route-constraints)
+
+        ![20190519_105132](img/20190519_105132.png)
