@@ -80,7 +80,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
 3. 新增 View
     1. 有了 Controller 也要有對應的 View，在「Views\Movies」資料夾加入檢視(View)
-        - 部分檢視(Partial View)指的是可以用很多個部分檢視，組合成一個完整的檢視，這邊不勾選
+        - [部分檢視(Partial View)](#Partial-Views)指的是比較小單位的 View，可以重複使用、組合而成一個完整的 View，這邊不勾選
         - 版面配置頁(Layout Page)代表可以使用 template page 或 master page 讓檢視有相似的風格樣式，這邊選擇內建的「~/Views/Shared/_Layout.cshtml」
 
         ![20190517_233306](img/20190517_233306.png)
@@ -320,3 +320,83 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
         ※ 透過「{*參數*:regex(*expression*)}」可以為參數加上正規表示式的條件約束，其它條件約束方式可參考 [Routing Constraints](https://docs.microsoft.com/zh-tw/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#route-constraints)
 
         ![20190519_105132](img/20190519_105132.png)
+
+## Passing Data to Views
+
+從 Controller 傳遞資料到 View 有以下方式
+
+|          |                 ActionResult                 |                                                                                                                                   ViewData                                                                                                                                   |                                                                   ViewBag                                                                   |
+|:--------:|:--------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------:|
+|   說明   |       透過 ```ActionResult``` 回傳物件       |                                                                                                          用 dictionary 型別的 ```ViewData``` 其 key/value 存放物件                                                                                                           |                                               用 dynamic 型別的 ```ViewBag``` 其屬性存放物件                                                |
+|   範例   | 參考 [ActionResult](#動作結果Action-Results) |                                                                             Controller<br>![20190520_193005](img/20190520_193005.png)<br><br>View<br>![20190520_193310](img/20190520_193310.png)                                                                             |            Controller<br>![20190520_193614](img/20190520_193614.png)<br><br>View<br>![20190520_193746](img/20190520_193746.png)             |
+|   缺點   |                                              | <ul align="left"><li>修改 key 名稱的話，在 Controller 和 View 都得修改</li><li>View 的程式碼因必須轉型而顯得冗長</li><li>ViewData 的 dictionary value 為 object 型別，轉型會帶來[裝箱(Boxing)和拆箱(Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing)的副作用</li></ul> | <ul align="left"><li>修改屬性名稱的話，在 Controller 和 View 都得修改</li><li>ViewBag 為 dynamic 型別，沒辦法在編譯階段就發現 bug</li></ul> |
+| 建議使用 |              :heavy_check_mark:              |                                                                                                                                                                                                                                                                              |                                                                                                                                             |
+
+## View Models
+
+- 通常一個 View 只能指定一種 Model 類別，如果一個 View 中需要同時用到很多種 Model，可以改成建立 ViewModel，並將欲使用的 Model 們設為屬性，在 View 中則改為指定這個自定義的 ViewModel
+- 以下述程式碼為例
+    1. 目前程式碼如下
+        |            |                             目前程式碼                             |
+        |:----------:|:------------------------------------------------------------------:|
+        |   Model    |      Movie.cs<br>![20190517_230315](img/20190517_230315.png)       |
+        |    View    |    Movie.cshtml<br>![20190517_234831](img/20190517_234831.png)     |
+        | Controller | MoviesController.cs<br>![20190520_224716](img/20190520_224716.png) |
+    2. 欲在 ```Random()``` action 中同時使用 ```Movie``` 和 ```List<Customer>``` 兩個類別
+    3. 先新增 ```Customer``` 類別在 Model 中
+
+        ![20190520_225145](img/20190520_225145.png)
+
+        ![20190520_225228](img/20190520_225228.png)
+
+    4. 接著在專案目錄中新增「ViewModels」資料夾，並新增「RandomMovieViewModel.cs」
+
+        ![20190520_225557](img/20190520_225557.png)
+
+        ![20190520_225735](img/20190520_225735.png)
+
+    5. 回到 Controller 實作 ```RandomMovieViewModel``` 並放到 action result 中回傳
+
+        ![20190520_230414](img/20190520_230414.png)
+
+    6. 在 View 中，原本是指定 Model，現在要改成指定 ViewModel
+
+        ![20190520_230756](img/20190520_230756.png)
+
+## Razor Syntax
+
+- 在「.cshtml」檔案中，可以混用 html 和 C# code(要使用 ```@``` 符號開頭)
+- 以下述程式碼為例
+    - foreach loop 和 if-else statement
+        |                    View                     |                    結果                     |
+        |:-------------------------------------------:|:-------------------------------------------:|
+        | ![20190520_232839](img/20190520_232839.png) | ![20190520_233017](img/20190520_233017.png) |
+    - dynamic attributes
+
+        ![20190520_233812](img/20190520_233812.png)
+
+    - 註解使用「```@*``` *comment* ```*@```」區塊
+
+        ![20190520_234135](img/20190520_234135.png)
+
+## Partial Views
+
+- 想像成比較小單位的 View，可以重複使用在不同 View 中，也可以組合多個 Partial View 成一個完整的 View
+- 命名規則為底線開頭，例如「_NavBar.cshtml」
+- 以下述程式碼為例
+    1. 欲將「Views\Shared\_Layout.cshtml」的導覽列拆成獨立的檔案
+    2. 在「Views\Shared」資料夾新增部分檢視(partial view)，命名須為底線開頭
+
+        ![20190521_032410](img/20190521_032410.png)
+
+        ![20190521_032635](img/20190521_032635.png)
+
+    3. 將「Views\Shared\_Layout.cshtml」的導覽列程式碼剪下並貼到「_NavBar.cshtml」
+
+        ![20190521_033047](img/20190521_033047.png)
+
+    4. 接著在「_Layout.cshtml」原處，透過 ```@Html.Partial()``` 渲染 partial view
+
+        ![20190521_033534](img/20190521_033534.png)
+
+    5. ```@Html.Partial()``` 有另一個多載是傳入 partial view 和 model，不過這邊沒使用到
