@@ -14,6 +14,20 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 | 以租片網站為例 |                                                                            ![20190517_173910](img/20190517_173910.png)                                                                             |                                             |    ![20190517_174347](img/20190517_174347.png)     |            ![20190517_182644](img/20190517_182644.png)            |
 |      說明      | <ul align="left"><li>僅透過類別 (Class) 中的屬性 (Attribute) 或方法 (Method)，來表示應用程式的狀態或規則</li><li>因為不依賴 UI，所以 Model 中的邏輯也可以拿去套用在 desktop app 或 mobile app</li></ul> |                  網頁呈現                   | Controller 會去 Model 取得資料，並放到 View 作呈現 | 造訪任一網頁時，Router 會選擇出正確的 Controller 去作它該作的工作 |
 
+## 建立 MVC 專案
+
+1. 建立新專案時，選擇「ASP&#46;NET Web Application」
+
+    ![20190521_233105](img/20190521_233105.png)
+
+2. 設定專案名稱、存放路徑和 .NET Framework 版本
+
+    ![20190521_233259](img/20190521_233259.png)
+
+3. 選擇 MVC 範本，並將驗證模式改為「個別使用者帳戶 (Individual User Accounts)」
+
+    ![20190521_233504](img/20190521_233504.png)
+
 ## 預設專案結構
 
 ![20190517_185504](img/20190517_185504.png)
@@ -400,3 +414,89 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
         ![20190521_033534](img/20190521_033534.png)
 
     5. ```@Html.Partial()``` 有另一個多載是傳入 partial view 和 model，不過這邊沒使用到
+
+## Entity Framework
+
+- 一種物件關聯式對應程式 (O/RM)，透過資料抽象化將將每個資料庫物件都轉換成應用程式物件 (entity)，而資料欄位都轉換為屬性 (property)，關聯則轉換為結合屬性 (association)
+
+    ![20190521_184623](img/20190521_184623.png)
+
+- Entity Framework 提供
+    1. ```DbContext``` 類別：代表 DB 或是多張 table、view 的集合
+    2. ```DbSet``` 類別：代表單張 table、view
+
+    ![20190521_200742](img/20190521_200742.png)
+
+- 實際使用時，我們會透過 LINQ 操作 ```DbSet``` 物件
+    - 若 LINQ 為查詢指令，會在 runtime 階段轉為 SQL 向 DB 要資料，DB 再將撈到的資料回傳至 ```DbSet```
+
+        ![20190521_201302](img/20190521_201302.png)
+
+    - 若 LINQ 為新增、修改或刪除指令，```DbSet``` 會記錄過程的變化，並在我們要求異動時，一樣轉為 SQL 要求 DB 執行
+
+        ![20190521_201709](img/20190521_201709.png)
+
+### Database First vs Code First
+
+|        |               Database First                |                 Code First                  |
+|:------:|:-------------------------------------------:|:-------------------------------------------:|
+|  描述  |     傳統策略，先有 DB tables，才建立 EF     |     先寫程式，再透過 DF 建立 DB tables      |
+| 示意圖 | ![20190521_223011](img/20190521_223011.png) | ![20190521_223219](img/20190521_223219.png) |
+
+※ 兩者詳細差異，可參考 Mosh 的另一堂課 [Entity Framework 6 in Depth](https://codewithmosh.com/p/entity-framework)
+
+## Code First Migrations
+
+- 若使用 Code First 策略，在每次建立或修改類別 (Class) 時，我們就需要建立移轉 (Migration) 並寫至 DB
+- 以下述操作為例
+    1. 開啟套件管理器主控台 (Package Manager Console)
+
+        ![20190521_225253](img/20190521_225253.png)
+
+    2. 首次使用 Migration 時要先作啟用，在 console 輸入 ```enable-migrations```
+
+        ![20190521_225704](img/20190521_225704.png)
+
+    3. 啟用成功後會出現「Migrations\Configuration.cs」
+
+        ![20190522_001538](img/20190522_001538.png)
+
+    4. 輸入「add-migration *{移轉名稱}*」以建立移轉，例如 ```add-migration InitialModel```
+
+        ![20190522_002454](img/20190522_002454.png)
+
+    5. 建立後會出現「Migrations\\*{guid}*_*{移轉名稱}*.cs」，例如「Migrations\201905211620599_InitialModel.cs」
+
+        ![20190522_002754](img/20190522_002754.png)
+
+    6. 承上，這個建立移轉的動作，會在 Model 中尋找有使用 ```DbContext``` 的類別並建立快照，以此專案為例，目前快照的來源皆來自「Models\IdentityModels.cs」的 ```ApplicationDbContext``` 類別，為 ASP&#46;NET 內建的驗證身分和授權功能
+
+        ※ ```ApplicationDbContext``` 為 ```IdentityDbContext``` 的衍生類別，```IdentityDbContext``` 又為 ```DbContext``` 的衍生類別
+
+        ![20190522_004811](img/20190522_004811.png)
+
+    7. 為了讓我們自定義的 ```Movie``` 和 ```Customer``` 類別也建立自己的 table，我們在 ```ApplicationDbContext``` 類別下用增加屬性 (Property) 的方式宣告我們的自定義類別，型別為 ```DbSet<T>```
+
+        ![20190522_010136](img/20190522_010136.png)
+
+    8. 接著再一次建立移轉，可以使用新的移轉名稱，也可以用「add-migration *{移轉名稱}* -force」洗掉原本的移轉內容，這邊以後者為例
+
+        ※ ```cls``` 指令可以清掉 console 訊息
+
+        ![20190522_011706](img/20190522_011706.png)
+
+    9. 回到「Migrations\201905211620599_InitialModel.cs」可以看到 ```Movie``` 和 ```Customer``` 類別對應的 LINQ 語法已經建立
+
+        ![20190522_011904](img/20190522_011904.png)
+
+    10. 接著在 console 輸入 ```update-database```，便會在「App_Data」資料夾底下建立 DB 檔案 (.mdf)
+
+        ![20190522_012328](img/20190522_012328.png)
+
+    11. 如果在方案總管沒看到，可以點擊「顯示所有檔案」
+
+        ![20190522_012551](img/20190522_012551.png)
+
+    12. 雙擊 mdf 檔，即可在伺服器總管檢視我們的 table 和 column 的確有被建立
+
+        ![20190522_012807](img/20190522_012807.png)
