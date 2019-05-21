@@ -6,7 +6,7 @@ Course Link: <https://www.youtube.com/playlist?list=PL4cUxeGkcC9i9Ae2D9Ee1RvylH3
 
 ## Where to put your JS
 
-因為 Html 是由上往下載入，建議把 js 寫在 \<body> 元素的最後面，這樣至少先看得到畫面(Html元素)。
+因為 Html 是由上往下載入，建議把 js 寫在 \<body> 元素的最後面，這樣至少先看得到畫面 (Html元素)
 
 ``` html
 <head> ... </head>
@@ -32,7 +32,7 @@ Course Link: <https://www.youtube.com/playlist?list=PL4cUxeGkcC9i9Ae2D9Ee1RvylH3
 
 - JS 的大小寫有差異
 - 敘述要用「;」結尾
-- 空格(whitespace)和換行(line break)不影響敘述
+- 空格 (whitespace) 和換行 (line break) 不影響敘述
 - 單行註解用「//」，多行註解用「/\*」和「\*/」
 - JS 由上往下執行，所以寫在下面的語法有可能會覆蓋掉上面的
 
@@ -199,7 +199,7 @@ console.log(Math.min(1, 5, 7));
 
 ### Strings (字串)
 
-- 可以用單引號(')或雙引號(")包起字串
+- 可以用單引號 (') 或雙引號 (") 包起字串
 - 跳脫字元為「\」
 
 ``` javascript
@@ -406,7 +406,7 @@ false
 
 ## Objects (物件)
 
-- 物件有屬性(properties)和方法(methods)
+- 物件有屬性 (properties) 和方法 (methods)
 - String, Number, Boolean .. 都屬於物件的一種
 
 ``` javascript
@@ -426,7 +426,7 @@ console.log(myCar.drive("Wayne"));
 
 ### THIS Keyword
 
-在物件的方法(Methods)中，「this」指向其擁有者物件，其它「this」的指向情況，可參考 [w3schools](https://www.w3schools.com/js/js_this.asp)
+在物件的方法 (Methods) 中，「this」指向其擁有者物件，其它「this」的指向情況，可參考 [w3schools](https://www.w3schools.com/js/js_this.asp)
 
 ``` javascript
 var myCar = {
@@ -682,11 +682,11 @@ Error: myVar2 is not defined */
 
 ### Finding HTML Elements
 
-|                Syntax                 |          Description          |
-|:-------------------------------------:|:-----------------------------:|
-|      document.getElementById(_id_)      |    透過 id 取得 html 元素     |
-| document.getElementsByClassName(_name_) | 透過 class 取得 html 元素集合(陣列) |
-|  document.getElementsByTagName(_name_)  |  透過 tag 取得 html 元素集合(陣列)  |
+|                 Syntax                  |             Description              |
+|:---------------------------------------:|:------------------------------------:|
+|      document.getElementById(_id_)      |        透過 id 取得 html 元素        |
+| document.getElementsByClassName(_name_) | 透過 class 取得 html 元素集合 (陣列) |
+|  document.getElementsByTagName(_name_)  |  透過 tag 取得 html 元素集合 (陣列)  |
 
 ``` html
 <div>
@@ -751,8 +751,8 @@ myList.removeChild(uselessEle);
 |:--------------------------------------------:|:-----------------------------:|
 |             _element_.innerHTML              |    取得或設定元素內的文字     |
 |            _element_._attribute_             |     取得或設定元素的屬性      |
-|     _element_.getAttribute(_attribute_)      |    取得元素的屬性(原始值)     |
-| _element_.setAttribute(_attribute_, _value_) |    設定元素的屬性(原始值)     |
+|     _element_.getAttribute(_attribute_)      |    取得元素的屬性 (原始值)    |
+| _element_.setAttribute(_attribute_, _value_) |    設定元素的屬性 (原始值)    |
 |          _element_.style._property_          | 取得或設定元素 style 中的屬性 |
 
 ``` html

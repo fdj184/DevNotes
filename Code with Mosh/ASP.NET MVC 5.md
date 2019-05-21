@@ -6,13 +6,13 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
 ---
 
-## MVC 架構(MVC Architectural Pattern)
+## MVC 架構 (MVC Architectural Pattern)
 
 |                |                                                                                               Model                                                                                                |                    View                     |                     Controller                     |                              Router                               |
 |:--------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------:|:--------------------------------------------------:|:-----------------------------------------------------------------:|
 |      職責      |                                                                            ![20190517_173736](img/20190517_173736.png)                                                                             | ![20190517_174013](img/20190517_174013.png) |    ![20190517_174046](img/20190517_174046.png)     |            ![20190517_182341](img/20190517_182341.png)            |
 | 以租片網站為例 |                                                                            ![20190517_173910](img/20190517_173910.png)                                                                             |                                             |    ![20190517_174347](img/20190517_174347.png)     |            ![20190517_182644](img/20190517_182644.png)            |
-|      說明      | <ul align="left"><li>僅透過類別(Class)中的屬性(Attribute)或方法(Method)，來表示應用程式的狀態或規則</li><li>因為不依賴 UI，所以 Model 中的邏輯也可以拿去套用在 desktop app 或 mobile app</li></ul> |                  網頁呈現                   | Controller 會去 Model 取得資料，並放到 View 作呈現 | 造訪任一網頁時，Router 會選擇出正確的 Controller 去作它該作的工作 |
+|      說明      | <ul align="left"><li>僅透過類別 (Class) 中的屬性 (Attribute) 或方法 (Method)，來表示應用程式的狀態或規則</li><li>因為不依賴 UI，所以 Model 中的邏輯也可以拿去套用在 desktop app 或 mobile app</li></ul> |                  網頁呈現                   | Controller 會去 Model 取得資料，並放到 View 作呈現 | 造訪任一網頁時，Router 會選擇出正確的 Controller 去作它該作的工作 |
 
 ## 預設專案結構
 
@@ -65,7 +65,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
         ![20190517_230442](img/20190517_230442.png)
 
-    2. 在「Movie.cs」建立 ```Movie``` 類別並添加 ```Id``` 和 ```Name``` 屬性(Property)
+    2. 在「Movie.cs」建立 ```Movie``` 類別並添加 ```Id``` 和 ```Name``` 屬性 (Property)
 
         ![20190517_230315](img/20190517_230315.png)
 
@@ -79,9 +79,9 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
         ![20190517_233941](img/20190517_233941.png)
 
 3. 新增 View
-    1. 有了 Controller 也要有對應的 View，在「Views\Movies」資料夾加入檢視(View)
-        - [部分檢視(Partial View)](#Partial-Views)指的是比較小單位的 View，可以重複使用、組合而成一個完整的 View，這邊不勾選
-        - 版面配置頁(Layout Page)代表可以使用 template page 或 master page 讓檢視有相似的風格樣式，這邊選擇內建的「~/Views/Shared/_Layout.cshtml」
+    1. 有了 Controller 也要有對應的 View，在「Views\Movies」資料夾加入檢視 (View)
+        - [部分檢視 (Partial View)](#Partial-Views) 指的是比較小單位的 View，可以重複使用、組合而成一個完整的 View，這邊不勾選
+        - 版面配置頁 (Layout Page) 代表可以使用 template page 或 master page 讓檢視有相似的風格樣式，這邊選擇內建的「~/Views/Shared/_Layout.cshtml」
 
         ![20190517_233306](img/20190517_233306.png)
 
@@ -97,11 +97,11 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
         ![20190517_234831](img/20190517_234831.png)
 
-4. Ctrl+F5(開啟，但不進行偵錯)檢查執行結果
+4. Ctrl+F5 (開啟，但不進行偵錯) 檢查執行結果
 
     ![20190517_235917](img/20190517_235917.png)
 
-## 加入主題(Adding a Theme)
+## 加入主題 (Adding a Theme)
 
 ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前端框架，我們可以到 [Bootswatch](https://bootswatch.com/3/) 尋找免費的 Bootstrap 主題回來替換，以「Lumen」這個主題為例
 
@@ -114,12 +114,12 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     ![20190518_001901](img/20190518_001901.png)
 
-4. Ctrl+Shift+B(建置方案)後檢查執行結果
+4. Ctrl+Shift+B (建置方案) 後檢查執行結果
 
-## 動作結果(Action Results)
+## 動作結果 (Action Results)
 
 - ```ActionResult``` 類別用來表示每個 action 的結果
-- 在下圖 Controller 中，我們可以看到 ```Random()``` 這個 action 應該要回傳 ```ActionResult``` 類別，但是實際上是回傳 ```ViewResult``` 類別，因為後者其實是前者的衍生類別(Derived Class)
+- 在下圖 Controller 中，我們可以看到 ```Random()``` 這個 action 應該要回傳 ```ActionResult``` 類別，但是實際上是回傳 ```ViewResult``` 類別，因為後者其實是前者的衍生類別 (Derived Class)
 
     ![20190518_162750](img/20190518_162750.png)
 
@@ -213,9 +213,9 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
     </td>
     </table>
 
-## 動作參數(Action Parameters)
+## 動作參數 (Action Parameters)
 
-- 參數綁定(Parameter Binding)的過程
+- 參數綁定 (Parameter Binding) 的過程
 
     ![20190518_173945](img/20190518_173945.png)
 
@@ -263,10 +263,10 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 - 在「App_Start\RouteConfig.cs」中設定
 - route 宣告順序會影響優先權，所以越細的 route 要寫在越前面
 - ```MapRoute()``` 有好幾種多載，最常用的下列前三個
-    1. name: 必須是唯一值(unique)
+    1. name: 必須是唯一值 (unique)
     2. url: url 格式，符合此格式就會使用這個 route，若有參數須用大括號包覆
     3. defaults (objects): 預設使用的 controller, action, default value of parameters
-    4. constraints (objects): 可透過正規表示式(regular expression)設定 url 參數的條件約束
+    4. constraints (objects): 可透過正規表示式 (regular expression) 設定 url 參數的條件約束
 - 以下述程式碼為例
     1. 欲新增「依發行月份取得電影清單」之 action
     2. 先到「RouteConfig.cs」加入自定義 route，在 url 格式加上 ```{year}``` 和 ```{month}``` 參數
@@ -329,7 +329,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 |:--------:|:--------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------:|
 |   說明   |       透過 ```ActionResult``` 回傳物件       |                                                                                                          用 dictionary 型別的 ```ViewData``` 其 key/value 存放物件                                                                                                           |                                               用 dynamic 型別的 ```ViewBag``` 其屬性存放物件                                                |
 |   範例   | 參考 [ActionResult](#動作結果Action-Results) |                                                                             Controller<br>![20190520_193005](img/20190520_193005.png)<br><br>View<br>![20190520_193310](img/20190520_193310.png)                                                                             |            Controller<br>![20190520_193614](img/20190520_193614.png)<br><br>View<br>![20190520_193746](img/20190520_193746.png)             |
-|   缺點   |                                              | <ul align="left"><li>修改 key 名稱的話，在 Controller 和 View 都得修改</li><li>View 的程式碼因必須轉型而顯得冗長</li><li>ViewData 的 dictionary value 為 object 型別，轉型會帶來[裝箱(Boxing)和拆箱(Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing)的副作用</li></ul> | <ul align="left"><li>修改屬性名稱的話，在 Controller 和 View 都得修改</li><li>ViewBag 為 dynamic 型別，沒辦法在編譯階段就發現 bug</li></ul> |
+|   缺點   |                                              | <ul align="left"><li>修改 key 名稱的話，在 Controller 和 View 都得修改</li><li>View 的程式碼因必須轉型而顯得冗長</li><li>ViewData 的 dictionary value 為 object 型別，轉型會帶來[裝箱 (Boxing) 和拆箱 (Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing) 的副作用</li></ul> | <ul align="left"><li>修改屬性名稱的話，在 Controller 和 View 都得修改</li><li>ViewBag 為 dynamic 型別，沒辦法在編譯階段就發現 bug</li></ul> |
 | 建議使用 |              :heavy_check_mark:              |                                                                                                                                                                                                                                                                              |                                                                                                                                             |
 
 ## View Models
@@ -365,7 +365,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 ## Razor Syntax
 
-- 在「.cshtml」檔案中，可以混用 html 和 C# code(要使用 ```@``` 符號開頭)
+- 在「.cshtml」檔案中，可以混用 html 和 C# code (要使用 ```@``` 符號開頭)
 - 以下述程式碼為例
     - foreach loop 和 if-else statement
         |                    View                     |                    結果                     |
@@ -385,7 +385,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 - 命名規則為底線開頭，例如「_NavBar.cshtml」
 - 以下述程式碼為例
     1. 欲將「Views\Shared\_Layout.cshtml」的導覽列拆成獨立的檔案
-    2. 在「Views\Shared」資料夾新增部分檢視(partial view)，命名須為底線開頭
+    2. 在「Views\Shared」資料夾新增部分檢視 (partial view)，命名須為底線開頭
 
         ![20190521_032410](img/20190521_032410.png)
 

@@ -6,11 +6,11 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
 
 ---
 
-## 泛型(Generics)
+## 泛型 (Generics)
 
 - 在 C# 1.0 時代，如果需要可變長度陣列，有兩種作法
     1. 建立各種型別的陣列類別：因為每個類別都需要 Add()、Remove() .. 等等方法，造成大量的重複程式碼
-    2. 建立 Object 型別的陣列類別：雖然解決了前者的問題，但在執行過程產生[裝箱(Boxing)、拆箱(Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing)，造成效能低落
+    2. 建立 Object 型別的陣列類別：雖然解決了前者的問題，但在執行過程產生[裝箱 (Boxing)、拆箱 (Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing)，造成效能低落
 - 在 C# 2.0 之後，我們可以使用泛型，也就是在定義類別或方法時，可以使用一個或多個不指定型別的變數，等到建立實體時，再明定型別為何
 
     ``` csharp
@@ -34,12 +34,12 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
     }
     ```
 
-### 條件約束(Constraints)
+### 條件約束 (Constraints)
 
 - 使用條件約束可以讓 compiler 知道，泛型類別或方法建立實體後的型別會有那些功能
 - 語法為在類別或方法之後加上「```where T :``` + 條件約束」
 - 條件約束有以下幾種
-    1. 介面(Interface)
+    1. 介面 (Interface)
 
         ``` csharp
         public class Utilities
@@ -60,7 +60,7 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
         }
         ```
 
-    2. 類別(Class)
+    2. 類別 (Class)
 
         ``` csharp
         public class Product
@@ -99,9 +99,9 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
 
     5. 其它用法可參考[微軟文件](https://docs.microsoft.com/zh-tw/dotnet/csharp/programming-guide/generics/constraints-on-type-parameters)
 
-## 委派(Delegates)
+## 委派 (Delegates)
 
-- 把一或多個方法(Method)當作參數，傳遞到某一個類別的方法中
+- 把一或多個方法 (Method) 當作參數，傳遞到某一個類別的方法中
 - 用於建立彈性且可擴充的應用程式
 - 以下述程式碼為例
     1. 假設我們有一個後製照片的流程如下
@@ -161,8 +161,8 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
         }
         ```
 
-    2. 承上，相片後製的標準流程是寫死的，今天如果有其它工程師要在某張相片添加新的後製功能，例如去除紅眼，就必須要改動 PhotoFilters.cs(增加去除紅眼的細節) 和 PhotoProcessor.cs(流程增加去除紅眼)，改動程式也等於要重新編譯和部署，產生諸多不便
-    3. 這個時候就可以把流程作成 delegate，透過增減方法(Method)的方式來決定流程
+    2. 承上，相片後製的標準流程是寫死的，今天如果有其它工程師要在某張相片添加新的後製功能，例如去除紅眼，就必須要改動 PhotoFilters.cs (增加去除紅眼的細節) 和 PhotoProcessor.cs (流程增加去除紅眼)，改動程式也等於要重新編譯和部署，產生諸多不便
+    3. 這個時候就可以把流程作成 delegate，透過增減方法 (Method) 的方式來決定流程
 
         ``` csharp
         // PhotoFilters.cs 相片後製細節
@@ -320,7 +320,7 @@ partial class Program
 }
 ```
 
-### 委派(Delegate) vs. 介面(Interface)
+### 委派 (Delegate) vs. 介面 (Interface)
 
 <table style="text-align: center;">
     <tr>
@@ -334,15 +334,15 @@ partial class Program
     </tr>
     <tr>
         <td>差異</td>
-        <td style="text-align: left;">委派類似於只有一種方法(Method)的介面，<br>建立實體後傳入的方法只會作類似的事，並使用相同的傳入參數</td>
-        <td style="text-align: left;">一個介面可以有多個方法(Method)，<br>介面被實作後，會根據定義，實作不一樣的方法<br></td>
+        <td style="text-align: left;">委派類似於只有一種方法 (Method) 的介面，<br>建立實體後傳入的方法只會作類似的事，並使用相同的傳入參數</td>
+        <td style="text-align: left;">一個介面可以有多個方法 (Method)，<br>介面被實作後，會根據定義，實作不一樣的方法<br></td>
     </tr>
     <tr>
         <td>適用情況</td>
         <td style="text-align: left;">
             <ul>
-                <li>使用觀察者模式(Observer Pattern)時</li>
-                <li>會被多次建立實體時(不同實體會註冊不同的方法)</li>
+                <li>使用觀察者模式 (Observer Pattern) 時</li>
+                <li>會被多次建立實體時 (不同實體會註冊不同的方法)</li>
             </ul>
         </td>
         <td style="text-align: left;">介面實作後的方法僅會建立一次時</td>
@@ -357,7 +357,7 @@ partial class Program
 
 ## Lambda Expressions
 
-- 一種匿名函式(Anonymous Function)，沒有存取關鍵字(Access Modifier)、名稱(Name)，也不需要寫明 ```return``` 關鍵字
+- 一種匿名函式 (Anonymous Function)，沒有存取關鍵字 (Access Modifier)、名稱 (Name)，也不需要寫明 ```return``` 關鍵字
 - 可以用較少的程式碼達成目的
 - 基本語法為 ```args => expression```，中間的箭頭讀作「goes to」，以下程式碼為常見格式
 
@@ -427,7 +427,7 @@ partial class Program
 
 常用來逐一查看集合中是否有符合條件的元素，以下述程式碼為例
 
-1. 假設我們有一個書本資料庫(這邊寫死在 List 中作示範)
+1. 假設我們有一個書本資料庫 (這邊寫死在 List 中作示範)
 
     ``` csharp
     // Book.cs 書本基本資訊
@@ -514,11 +514,11 @@ partial class Program
     }
     ```
 
-## 事件和委派(Events and Delegates)
+## 事件和委派 (Events and Delegates)
 
-- 物件(Object)間溝通的機制，例如在物件 A 中發生一些事後，可以通知其它物件 B 和 C
+- 物件 (Object) 間溝通的機制，例如在物件 A 中發生一些事後，可以通知其它物件 B 和 C
 - 承上例，物件 A 稱為 publisher 或 event sender，而物件 B 和 C 稱為 subscriber 或 event receiver
-- 用來建立低耦合(Loosely Coupled)的應用程式，也就有更高的可擴充性
+- 用來建立低耦合 (Loosely Coupled) 的應用程式，也就有更高的可擴充性
 - 欲使用事件，有三個步驟
     1. Declare a delegate (命名結尾使用「EventHandler」)
     2. Declare an event based on the delegate
@@ -819,9 +819,9 @@ public class VideoEncode
 </tr>
 </table>
 
-## 擴充方法(Extension Methods)
+## 擴充方法 (Extension Methods)
 
-- 可以在不改動原始碼或不使用衍生類別繼承的前提下，為某個類別增加新的方法(Method)
+- 可以在不改動原始碼或不使用衍生類別繼承的前提下，為某個類別增加新的方法 (Method)
 - 宣告擴充方法的類別和使用擴充方法的類別**必須在同一個 namespace 中**或是另外「using *namespace*」
 - 宣告語法有以下規則
     1. 須宣告於 ```static``` 類別中，類別命名為「目標類別 + Extensions」
@@ -903,7 +903,7 @@ public class VideoEncode
 
 - 以下述程式碼為例
 
-    1. 假設我們有一個書本資料庫(這邊寫死在 List 中作示範)
+    1. 假設我們有一個書本資料庫 (這邊寫死在 List 中作示範)
 
         ``` csharp
         // Book.cs 書本基本資訊
@@ -960,7 +960,7 @@ public class VideoEncode
 ## Nullable Types
 
 - 首先，要知道 C# 中的 [Value Type](C%23%20Basics.md#Value-Types-and-Reference-Types) 不能是 null
-- 但在現實案例中，還是有機會會遇到空值，例如 DB 裡有個生日(DateTime)欄位，客戶可能不願意填，就會是 null，一旦把 DB 資料倒進程式中，就會遇到值為 null 的 DateTime
+- 但在現實案例中，還是有機會會遇到空值，例如 DB 裡有個生日 (DateTime) 欄位，客戶可能不願意填，就會是 null，一旦把 DB 資料倒進程式中，就會遇到值為 null 的 DateTime
 - Nullable Type 的宣告規則為「Nullable<*Class*>」，例如 ```Nullable<DateTime>```，也可以簡寫成「*Class*?」，例如 ```DateTime?```
 
     ``` csharp
@@ -982,7 +982,7 @@ public class VideoEncode
     DateTime date2 = date1; // error
     ```
 
-### null 聯合運算子(Null-coalescing Operator)
+### null 聯合運算子 (Null-coalescing Operator)
 
 若指派值為 null 則給另一個指定值
 
@@ -1013,13 +1013,13 @@ DateTime date2 = date1 ?? DateTime.Today;
     obj = 10;
     ```
 
-## 例外處理(Exception Handling)
+## 例外處理 (Exception Handling)
 
-- 當程式執行時遇到非預期的錯誤，就會產生例外(Exception)，若未作例外處理就會導致程式崩潰
+- 當程式執行時遇到非預期的錯誤，就會產生例外 (Exception)，若未作例外處理就會導致程式崩潰
 - 例外會有以下資訊
-    - 例外訊息(Message)：發生例外的原因
-    - 例外來源(Source)：發生例外的程式其 namespace
-    - 呼叫堆疊(Stack Trace)：倒序列出程式呼叫的過程和程式行數
+    - 例外訊息 (Message)：發生例外的原因
+    - 例外來源 (Source)：發生例外的程式其 namespace
+    - 呼叫堆疊 (Stack Trace)：倒序列出程式呼叫的過程和程式行數
 - 透過「Try-Catch」區塊可以捕捉例外
 
     ``` csharp
@@ -1030,12 +1030,12 @@ DateTime date2 = date1 ?? DateTime.Today;
     catch (Exception)
     {
         // 在 try 區塊發生例外時，就會跳到此區塊，
-        // 我們可以選擇在此區塊修正錯誤，或是重新拋出(Rethrow)例外到更外層的程式
+        // 我們可以選擇在此區塊修正錯誤，或是重新拋出 (Rethrow) 例外到更外層的程式
     }
     ```
 
 - ```Exception``` 類別是所有例外的父類別
-- 除了使用最上層的 ```Exception``` 類別進行捕捉，我們也可以列出其他更細(更下層)的例外類別，但是要記得越細(越下層)的類別要寫在程式越前面
+- 除了使用最上層的 ```Exception``` 類別進行捕捉，我們也可以列出其他更細 (更下層) 的例外類別，但是要記得越細 (越下層) 的類別要寫在程式越前面
 
     ``` csharp
     try
@@ -1057,7 +1057,7 @@ DateTime date2 = date1 ?? DateTime.Today;
     }
     ```
 
-- 透過「Try-Catch-Finally」區塊，無論是否發生例外，都會執行 ```finally``` 中的程式碼，常見的案例為使用 unmanaged resources 後無論程式是否正常執行，最後都須釋放資源，否則程式可能造成檔案咬死或資源用盡(out of resources)
+- 透過「Try-Catch-Finally」區塊，無論是否發生例外，都會執行 ```finally``` 中的程式碼，常見的案例為使用 unmanaged resources 後無論程式是否正常執行，最後都須釋放資源，否則程式可能造成檔案咬死或資源用盡 (out of resources)
     > Unmanaged Resources: 不會自動被 GC 機制清理的物件，例如開啟檔案、開啟連線 .. 等等
 
     ``` csharp
@@ -1162,20 +1162,20 @@ DateTime date2 = date1 ?? DateTime.Today;
     // Could not fetch the videos from YouTube.
     ```
 
-## 非同步處理(Async/Await)
+## 非同步處理 (Async/Await)
 
 - 同步和非同步的差異
 
     |          |                      同步處理<br>(Synchronous Programming Execution)                       |                      非同步處理<br>(Asynchronous Programming Execution)                      |
     |:--------:|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-    |   定義   | 程式逐行執行，當遇到函式(function)被呼叫，執行緒**會**封鎖，等到該函式回傳後，再往下行執行 | 程式逐行執行，當遇到函式(function)被呼叫，執行緒**不會**封鎖，在該函式回傳前便繼續往下行執行 |
+    |   定義   | 程式逐行執行，當遇到函式 (function) 被呼叫，執行緒**會**封鎖，等到該函式回傳後，再往下行執行 | 程式逐行執行，當遇到函式 (function) 被呼叫，執行緒**不會**封鎖，在該函式回傳前便繼續往下行執行 |
     |  示意圖  |                        ![20190516_234200](img/20190516_234200.gif)                         |                         ![20190516_234600](img/20190516_234600.gif)                          |
     | 現實案例 |                                                                                            |                                      影片播放器、瀏覽器                                      |
     | 適用情況 |                                                                                            |         <ul><li>存取網頁</li><li>存取檔案</li><li>存取 DB</li><li>存取圖片</li></ul>         |
 
 - 如何達成非同步
     - 傳統作法
-        - 多執行緒(Multi-Threading)
+        - 多執行緒 (Multi-Threading)
         - Callback
     - .NET 4.5 後的新作法
         - Async/Await
