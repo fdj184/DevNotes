@@ -28,7 +28,7 @@ Course Link: <https://codewithmosh.com/p/object-oriented-programming-in-csharp>
     ![20190501_162929](img/20190501_162929.png)
 
 - 宣告時，Class Name 須使用 Pascal Case，即所有單字之首字母大寫
-- 在介紹到 OOP 的[封裝 (Encapsulation)](#封裝-encapsulation)概念以前，本筆記所有範例中的欄位 (Field) 都會暫時用 public 來展示
+- 在介紹到 OOP 的[封裝 (Encapsulation)](#封裝-encapsulation) 概念以前，本筆記所有範例中的欄位 (Field) 都會暫時用 public 來展示
 
     ``` csharp
     // 在官方文件的 coding style 中，建議類別的欄位宣告和方法宣告中間要有一行空白
@@ -249,7 +249,7 @@ partial class Program
 #### Ref 修飾詞
 
 - It's a code smell in Mosh's opinion. **不建議使用**，知道有這個東西就好
-- 將 value type 當成 reference type 來使用 (兩者差異可參考 [C# Basics.md](C%23%20Basics.md#Value-Types-and-Reference-Types))
+- 將 value type 當成 reference type 來使用 (兩者差異可參考 [C# Basics.md](C%23%20Basics.md#value-types-and-reference-types))
 - 以下述程式碼為例
 
     |        |                                                         沒有使用 ref 修飾詞                                                         |                                                           使用 ref 修飾詞                                                           |
@@ -386,7 +386,7 @@ partial class Program
 ### 封裝 (Encapsulation)
 
 - 想像餐廳是一個應用程式 (Application)，裡面的員工們就是類別 (Class)，服務生不應插手、也不需要知道廚師的工作內容，也就是說，類別之間不需要知道彼此的細節，只要能互相溝通即可
-- 實際作法是將類別中的欄位 (Field) 設為 [private 層級](#存取修飾詞Access-Modifiers)，並提供 [public 層級](#存取修飾詞Access-Modifiers)的 setter/getter 方法，讓其它類別可以透過這兩種方法來設定/取得欄位資訊
+- 實際作法是將類別中的欄位 (Field) 設為 [private 層級](#存取修飾詞-access-modifiers)，並提供 [public 層級](#存取修飾詞-access-modifiers)的 setter/getter 方法，讓其它類別可以透過這兩種方法來設定/取得欄位資訊
 - 類別中的欄位名稱，應使用 Camel Case 並加上底線前綴，例如 ```private int _myNumber;```
 - 以下述程式碼為例
 
@@ -581,7 +581,7 @@ partial class Program
 
 - 可以透過以下方式達成低耦合設計
     - [封裝 (Encapsulation)](#封裝-encapsulation)
-    - 類別之間的關係，例如[繼承 (Inheritance)](#繼承-inheritance)和[組合 (Composition)](#組合-composition)
+    - 類別之間的關係，例如[繼承 (Inheritance)](#繼承-inheritance) 和[組合 (Composition)](#組合-composition)
     - [介面 (Interfaces)](#介面-interfaces)
 
 ### 繼承 (Inheritance)
@@ -917,7 +917,7 @@ partial class Program
 
 首先要先了解
 
-1. Value Types 和 Reference Types 的差異，可以參考 [C# Basics.md](C%23%20Basics.md#Value-Types-and-Reference-Types)
+1. Value Types 和 Reference Types 的差異，可以參考 [C# Basics.md](C%23%20Basics.md#value-types-and-reference-types)
 2. 在 .Net Framework 中，Object 類別是所有類別的基底類別
 
 #### 裝箱 (Boxing)

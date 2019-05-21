@@ -10,7 +10,7 @@ Course Link: <https://codewithmosh.com/p/csharp-advanced>
 
 - 在 C# 1.0 時代，如果需要可變長度陣列，有兩種作法
     1. 建立各種型別的陣列類別：因為每個類別都需要 Add()、Remove() .. 等等方法，造成大量的重複程式碼
-    2. 建立 Object 型別的陣列類別：雖然解決了前者的問題，但在執行過程產生[裝箱 (Boxing)、拆箱 (Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing)，造成效能低落
+    2. 建立 Object 型別的陣列類別：雖然解決了前者的問題，但在執行過程產生[裝箱 (Boxing)、拆箱 (Unboxing)](C%23%20Intermediate.md#boxing-and-unboxing)，造成效能低落
 - 在 C# 2.0 之後，我們可以使用泛型，也就是在定義類別或方法時，可以使用一個或多個不指定型別的變數，等到建立實體時，再明定型別為何
 
     ``` csharp
@@ -875,7 +875,7 @@ public class VideoEncode
     - LINQ to Entities: Databases
     - LINQ to XML: XML
     - LINQ to DataSet: ADO .NET DataSet
-- LINQ 可以透過 [Lambda Expression](#Lambda-Expressions) 簡化程式碼
+- LINQ 可以透過 [Lambda Expression](#lambda-expressions) 簡化程式碼
 - LINQ 可以串連多個查詢，例如 ```books.Where(...).OrderBy(...)```
 - LINQ 有兩種寫法
     1. LINQ Extension Methods
@@ -959,7 +959,7 @@ public class VideoEncode
 
 ## Nullable Types
 
-- 首先，要知道 C# 中的 [Value Type](C%23%20Basics.md#Value-Types-and-Reference-Types) 不能是 null
+- 首先，要知道 C# 中的 [Value Type](C%23%20Basics.md#value-types-and-reference-types) 不能是 null
 - 但在現實案例中，還是有機會會遇到空值，例如 DB 裡有個生日 (DateTime) 欄位，客戶可能不願意填，就會是 null，一旦把 DB 資料倒進程式中，就會遇到值為 null 的 DateTime
 - Nullable Type 的宣告規則為「Nullable<*Class*>」，例如 ```Nullable<DateTime>```，也可以簡寫成「*Class*?」，例如 ```DateTime?```
 

@@ -80,7 +80,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
 3. 新增 View
     1. 有了 Controller 也要有對應的 View，在「Views\Movies」資料夾加入檢視 (View)
-        - [部分檢視 (Partial View)](#Partial-Views) 指的是比較小單位的 View，可以重複使用、組合而成一個完整的 View，這邊不勾選
+        - [部分檢視 (Partial View)](#partial-views) 指的是比較小單位的 View，可以重複使用、組合而成一個完整的 View，這邊不勾選
         - 版面配置頁 (Layout Page) 代表可以使用 template page 或 master page 讓檢視有相似的風格樣式，這邊選擇內建的「~/Views/Shared/_Layout.cshtml」
 
         ![20190517_233306](img/20190517_233306.png)
@@ -250,7 +250,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     6. 欲修正此錯誤有兩種方式
         1. 新增自定義的 route，會在下一個章節介紹
-        2. 若參數為選填，可以將 value type 的參數改為 [Nullable](C%23%20Advanced.md#Nullable-Types)，並自訂預設值
+        2. 若參數為選填，可以將 value type 的參數改為 [Nullable](C%23%20Advanced.md#nullable-types)，並自訂預設值
 
             ※ ```string``` 為 reference type，原本就允許空值，所以不必特別處理
 
@@ -328,8 +328,8 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 |          |                 ActionResult                 |                                                                                                                                   ViewData                                                                                                                                   |                                                                   ViewBag                                                                   |
 |:--------:|:--------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------:|
 |   說明   |       透過 ```ActionResult``` 回傳物件       |                                                                                                          用 dictionary 型別的 ```ViewData``` 其 key/value 存放物件                                                                                                           |                                               用 dynamic 型別的 ```ViewBag``` 其屬性存放物件                                                |
-|   範例   | 參考 [ActionResult](#動作結果Action-Results) |                                                                             Controller<br>![20190520_193005](img/20190520_193005.png)<br><br>View<br>![20190520_193310](img/20190520_193310.png)                                                                             |            Controller<br>![20190520_193614](img/20190520_193614.png)<br><br>View<br>![20190520_193746](img/20190520_193746.png)             |
-|   缺點   |                                              | <ul align="left"><li>修改 key 名稱的話，在 Controller 和 View 都得修改</li><li>View 的程式碼因必須轉型而顯得冗長</li><li>ViewData 的 dictionary value 為 object 型別，轉型會帶來[裝箱 (Boxing) 和拆箱 (Unboxing)](C%23%20Intermediate.md#Boxing-and-Unboxing) 的副作用</li></ul> | <ul align="left"><li>修改屬性名稱的話，在 Controller 和 View 都得修改</li><li>ViewBag 為 dynamic 型別，沒辦法在編譯階段就發現 bug</li></ul> |
+|   範例   | 參考 [ActionResult](#動作結果-action-results) |                                                                             Controller<br>![20190520_193005](img/20190520_193005.png)<br><br>View<br>![20190520_193310](img/20190520_193310.png)                                                                             |            Controller<br>![20190520_193614](img/20190520_193614.png)<br><br>View<br>![20190520_193746](img/20190520_193746.png)             |
+|   缺點   |                                              | <ul align="left"><li>修改 key 名稱的話，在 Controller 和 View 都得修改</li><li>View 的程式碼因必須轉型而顯得冗長</li><li>ViewData 的 dictionary value 為 object 型別，轉型會帶來[裝箱 (Boxing) 和拆箱 (Unboxing)](C%23%20Intermediate.md#boxing-and-unboxing) 的副作用</li></ul> | <ul align="left"><li>修改屬性名稱的話，在 Controller 和 View 都得修改</li><li>ViewBag 為 dynamic 型別，沒辦法在編譯階段就發現 bug</li></ul> |
 | 建議使用 |              :heavy_check_mark:              |                                                                                                                                                                                                                                                                              |                                                                                                                                             |
 
 ## View Models
