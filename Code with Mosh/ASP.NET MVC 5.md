@@ -415,6 +415,19 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     5. ```@Html.Partial()``` 有另一個多載是傳入 partial view 和 model，不過這邊沒使用到
 
+## Exercise in section 2
+
+需求
+
+1. 在「/Movies」頁面用 hard code 方式，在表格中顯示兩部電影
+2. 建立 ```Customer``` 類別
+3. 在「/Customers」頁面用 hard code 方式，在表格中顯示兩個客戶姓名 (```Customer.Name```)
+4. 承上，若目前無客戶，需顯示「Sorry, we don't have any customer yet.」
+5. 承上，客戶姓名可超連結至「/Customers/Details/*{id}*」
+6. 承上，該頁僅需顯示該客戶姓名
+
+解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
+
 ## Entity Framework
 
 - 一種物件關聯式對應程式 (O/RM)，透過資料抽象化將將每個資料庫物件都轉換成應用程式物件 (entity)，而資料欄位都轉換為屬性 (property)，關聯則轉換為結合屬性 (association)
