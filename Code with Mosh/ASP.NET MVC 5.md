@@ -417,8 +417,6 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 ## Exercise in section 2
 
-需求
-
 1. 在「/Movies」頁面用 hard code 方式，在表格中顯示兩部電影
 2. 建立 ```Customer``` 類別
 3. 在「/Customers」頁面用 hard code 方式，在表格中顯示兩個客戶姓名 (```Customer.Name```)
@@ -513,3 +511,155 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
     12. 雙擊 mdf 檔，即可在伺服器總管檢視我們的 table 和 column 的確有被建立
 
         ![20190522_012807](img/20190522_012807.png)
+
+## Changing the Model
+
+為了讓 Model 更接近實務般的複雜，我們欲在 ```Customer``` 類別加入 ```IsSubscribedToNewsletter``` 和 ```MembershipType``` 兩個屬性，其中，```MembershipType``` 為一類別，並擁有 ```SignUpFee```, ```DurationInMonths```, ```DiscountRate``` 三個屬性，以下述操作為例
+
+1. 先在 ```Customer``` 類別加入 ```IsSubscribedToNewsletter``` 屬性
+
+    ![20190522_155739](img/20190522_155739.png)
+
+2. 建立移轉，並更新至 DB 檔案
+
+    > ※ 使用 Code First 策略時，建立移轉時機類似於 Git 的 commit，每作完一個單位的異動就建立一次移轉，而不是作完全部功能才建立一個移轉，這樣比較不會有問題
+
+    ![20190522_144901](img/20190522_144901.png)
+
+3. 建立 ```MembershipType``` 類別，除了先前提到的三個屬性，我們還必須額外建立 ```Id``` 欄位，作為 DB table 的 primary key
+
+    > ※ .NET Framework 和 SQL Server 資料型別對應可參考這篇：[C# Equivalent of SQL Server DataTypes](https://stackoverflow.com/questions/425389/c-sharp-equivalent-of-sql-server-datatypes)
+
+    ![20190522_151813](img/20190522_151813.png)
+
+4. 回到 ```Customer``` 類別
+    1. 加入 ```MembershipType``` 屬性，這個屬性讓 EF 在建立移轉時，意識到也要建立 \[MembershipTypes] 這張 table
+    2. 加入 ```MembershipTypeId``` 屬性，這個屬性讓 EF 知道要將 \[Customers].\[MembershipTypeId] 這個欄位當作 foreign key 指向 \[MembershipTypes].\[Id]
+
+    ![20190522_160803](img/20190522_160803.png)
+
+5. 建立移轉，並更新至 DB 檔案
+
+    ![20190522_161603](img/20190522_161603.png)
+
+    ![20190522_161846](img/20190522_161846.png)
+
+## Seeding the Database
+
+採用 Code First 策略時，如果欲新增的資料為應用程式的一部份，則應該透過程式碼和移轉來新增資料，而不是經由其它介面來下指令，以下述操作為例
+
+> ※ 在此應用程式中，「客戶類別」為應用程式的一部份，必須事先定義且不太會異動
+
+1. 欲在 \[MembershipTypes] table 新增四筆資料
+2. 先建立一個空白的移轉
+
+    ![20190522_163209](img/20190522_163209.png)
+
+3. 承上，在產出的移轉檔案中，在 ```Up()``` 區塊手動加上新增資料的 SQL 語法
+
+    ![20190522_170615](img/20190522_170615.png)
+
+4. 更新至 DB 檔案
+
+    ![20190522_170807](img/20190522_170807.png)
+
+5. 檢查 \[MembershipTypes] table 確實有新增四筆資料
+
+    ![20190522_170908](img/20190522_170908.png)
+
+## Overriding Conventions
+
+欲覆寫 DB column 的預設屬性，例如長度和不允許空值，可以透過 ```System.ComponentModel.DataAnnotations``` 命名空間，以下述操作為例
+
+1. .NET Framework 的 ```string``` 型別在 SQL Server 中，預設會轉成 ```nvarchar(max)``` 而且允許 null
+2. 以 \[Customers].\[Name] 為例
+
+    ![20190522_172806](img/20190522_172806.png)
+
+3. 在 ```Customer``` 類別中，在 ```Name``` 前面加上 DataAnnotations 的屬性
+
+    ![20190522_173317](img/20190522_173317.png)
+
+4. 建立移轉，並更新至 DB 檔案
+
+    ![20190522_173638](img/20190522_173638.png)
+
+5. 檢查 \[Customers].\[Name] 有限制長度且不允許 null
+
+    ![20190522_173932](img/20190522_173932.png)
+
+## Querying Objects
+
+透過 EF 來查詢資料，以下述操作為例
+
+1. 欲在「CustomersController.cs」中，將原本 hard code 的客戶改為由 DB 取得
+2. 先透過伺服器總管在 \[Customers] 塞入兩筆資料
+
+    > ※ 在此應用程式中，「客戶」並不是應用程式的一部份，無法事先定義，亦會不斷增加，所以不需透過程式碼和移轉的方式來新增資料
+
+    ![20190522_181509](img/20190522_181509.png)
+
+3. 在「CustomersController.cs」中，加入 ```ApplicationDbContext``` 類別的欄位 (Field) 和相關程式碼
+
+    ![20190522_182450](img/20190522_182450.png)
+
+4. 接著，原本 hard code 的地方全改成從 ```ApplicationDbContext``` 來取得資料
+
+    > ※ 要注意的是，EF 並不是在一使用 ```ApplicationDbContext``` 就立刻作查詢，例如下圖的 ```_context.Customers``` 應不會立刻去查詢 \[Customers] 的資料，而是會等到真正要使用資料時，也就是傳到 View 在跑迴圈時才作查詢
+
+    ![20190522_182932](img/20190522_182932.png)
+
+    > ※ 在下圖中，因為 ```_context.Customers``` 緊接著 LINQ，馬上要使用真正的資料，所以在這行就會立刻作查詢
+
+    ![20190522_183119](img/20190522_183119.png)
+
+5. Ctrl+F5 檢查「/Customers」頁面有正常顯示
+
+## Eager Loading
+
+為了讓 EF 能夠載入相關的實體，我們需要 Eager Loading，以下述程式碼為例
+
+1. 在下圖寫法中，EF 只會載入一個實體 (Entity)，也就是 ```Customers```
+
+    ![20190522_182932](img/20190522_182932.png)
+
+2. 但是實際上 ```Customer``` 類別還有另一個相關的實體 ```MembershipType```，就目前的寫法，我們無法取得其中的資料
+
+    ![20190522_160803](img/20190522_160803.png)
+
+3. 透過 Eager Loading，也就是 ```Include()``` 的方式，我們可以告訴 EF 要載入相關的 ```MembershipType``` 實體
+
+    > ※ 使用 ```Include()``` 必須引用 ```System.Data.Entity```
+
+    ![20190522_232224](img/20190522_232224.png)
+
+4. 接著我們在「Views\Customers\Index.cshtml」就可以使用 ```MembershipType``` 中的資料
+
+    |                    View                     |                    結果                     |
+    |:-------------------------------------------:|:-------------------------------------------:|
+    | ![20190522_232649](img/20190522_232649.png) | ![20190522_233008](img/20190522_233008.png) |
+
+## Exercise in section 3
+
+- 1st exercise
+    1. 在「/Customers」頁面，顯示「客戶姓名」和「會員類型」
+    2. 承上，會員類型必須是純文字內容
+
+        ![20190523_002110](img/20190523_002110.png)
+
+- 2nd exercise
+    1. 在「/Customers/Details/*{id}*」頁面，顯示「會員類型」和「生日」
+    2. 承上，「生日」無資料時不顯示
+
+        ![20190523_001837](img/20190523_001837.png)
+
+- 3rd exercise
+    1. 在「/Movies」頁面顯示以下資料
+
+        ![20190523_004023](img/20190523_004023.png)
+
+    2. 承上，電影名稱可超連結至「/Movies/Details/*{id}*」，並在該頁顯示以下資料
+
+        ![20190523_004135](img/20190523_004135.png)
+
+解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
