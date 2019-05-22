@@ -132,7 +132,7 @@ Fields 和 Methods 都屬於類別成員，類別成員又可分成
 
 3. 回到 Customer.cs，建立三個建構式
 
-    ※ 小技巧：在類別中輸入「ctor」即可產生建構式程式碼片段 (code snippet)
+    > ※ 小技巧：在類別中輸入「ctor」即可產生建構式程式碼片段 (code snippet)
 
     ![20190502_165808](img/20190502_165808.png)
 
@@ -439,7 +439,7 @@ partial class Program
 - 承上，透過 ildasm 工具去反組譯 compile 後的 exe 檔，可以看到中介語言 (IL) 真的會將這種寫法轉成 private 欄位和對應的 setter/getter
 - 以下述程式碼為例
 
-    ※ 小技巧：在類別中輸入「prop」即可產生自動實作屬性的程式碼片段
+    > ※ 小技巧：在類別中輸入「prop」即可產生自動實作屬性的程式碼片段
 
     ``` csharp
     public class Person

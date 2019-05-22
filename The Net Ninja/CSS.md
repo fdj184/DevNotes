@@ -221,7 +221,7 @@ div p:last-child {
 
 #### First & Last of Type
 
-※ 若後代由多種元素組成，用 child 有可能會指不到目標元素，需改用 type 的方式
+> ※ 若後代由多種元素組成，用 child 有可能會指不到目標元素，需改用 type 的方式
 
 ``` css
 /* 用這個寫法不會生效，因為 div 元素的第一個子元素不是 p 元素
@@ -254,7 +254,7 @@ div p:last-of-type {
 
 #### nth Child
 
-※ nth 的起始值為 1
+> ※ nth 的起始值為 1
 
 ``` css
 /* 選擇第三個 li 元素 */
@@ -294,7 +294,7 @@ li:nth-child(2n) {
 
 #### nth of Type
 
-※ nth 的起始值為 1
+> ※ nth 的起始值為 1
 
 ## Combining Selectors (選擇器合併使用)
 
@@ -314,7 +314,7 @@ div.myclass {
 
 ## The Universal Selector (通用選擇器)
 
-※ 瀏覽器預設樣式也會被覆蓋
+> ※ 瀏覽器預設樣式也會被覆蓋
 
 ``` css
 /* 超連結文字在瀏覽器預設樣式為深藍色，但通用選擇器會覆蓋，所以顏色也會改成紅色 */

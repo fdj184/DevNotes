@@ -266,7 +266,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
         1. 新增自定義的 route，會在下一個章節介紹
         2. 若參數為選填，可以將 value type 的參數改為 [Nullable](C%23%20Advanced.md#nullable-types)，並自訂預設值
 
-            ※ ```string``` 為 reference type，原本就允許空值，所以不必特別處理
+            > ※ ```string``` 為 reference type，原本就允許空值，所以不必特別處理
 
             ![20190518_182446](img/20190518_182446.png)
 
@@ -285,7 +285,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
     1. 欲新增「依發行月份取得電影清單」之 action
     2. 先到「RouteConfig.cs」加入自定義 route，在 url 格式加上 ```{year}``` 和 ```{month}``` 參數
 
-        ※ 要記得寫在 default route 的前面，才有優先權
+        > ※ 要記得寫在 default route 的前面，才有優先權
 
         ![20190519_031747](img/20190519_031747.png)
 
@@ -331,7 +331,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     3. 回到 controller，在 action method 前面加上屬性
 
-        ※ 透過「{*參數*:regex(*expression*)}」可以為參數加上正規表示式的條件約束，其它條件約束方式可參考 [Routing Constraints](https://docs.microsoft.com/zh-tw/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#route-constraints)
+        > ※ 透過「{*參數*:regex(*expression*)}」可以為參數加上正規表示式的條件約束，其它條件約束方式可參考 [Routing Constraints](https://docs.microsoft.com/zh-tw/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#route-constraints)
 
         ![20190519_105132](img/20190519_105132.png)
 
@@ -443,7 +443,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 |  描述  |     傳統策略，先有 DB tables，才建立 EF     |     先寫程式，再透過 DF 建立 DB tables      |
 | 示意圖 | ![20190521_223011](img/20190521_223011.png) | ![20190521_223219](img/20190521_223219.png) |
 
-※ 兩者詳細差異，可參考 Mosh 的另一堂課 [Entity Framework 6 in Depth](https://codewithmosh.com/p/entity-framework)
+> ※ 兩者詳細差異，可參考 Mosh 的另一堂課 [Entity Framework 6 in Depth](https://codewithmosh.com/p/entity-framework)
 
 ## Code First Migrations
 
@@ -471,7 +471,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     6. 承上，這個建立移轉的動作，會在 Model 中尋找有使用 ```DbContext``` 的類別並建立快照，以此專案為例，目前快照的來源皆來自「Models\IdentityModels.cs」的 ```ApplicationDbContext``` 類別，為 ASP&#46;NET 內建的驗證身分和授權功能
 
-        ※ ```ApplicationDbContext``` 為 ```IdentityDbContext``` 的衍生類別，```IdentityDbContext``` 又為 ```DbContext``` 的衍生類別
+        > ※ ```ApplicationDbContext``` 為 ```IdentityDbContext``` 的衍生類別，```IdentityDbContext``` 又為 ```DbContext``` 的衍生類別
 
         ![20190522_004811](img/20190522_004811.png)
 
@@ -481,7 +481,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     8. 接著再一次建立移轉，可以使用新的移轉名稱，也可以用「add-migration *{移轉名稱}* -force」洗掉原本的移轉內容，這邊以後者為例
 
-        ※ ```cls``` 指令可以清掉 console 訊息
+        > ※ ```cls``` 指令可以清掉 console 訊息
 
         ![20190522_011706](img/20190522_011706.png)
 
