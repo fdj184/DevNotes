@@ -6,7 +6,9 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
 ---
 
-## MVC 架構 (MVC Architectural Pattern)
+## Getting Started
+
+### MVC 架構 (MVC Architectural Pattern)
 
 |                |                                                                                               Model                                                                                                |                    View                     |                     Controller                     |                              Router                               |
 |:--------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------:|:--------------------------------------------------:|:-----------------------------------------------------------------:|
@@ -14,7 +16,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 | 以租片網站為例 |                                                                            ![20190517_173910](img/20190517_173910.png)                                                                             |                                             |    ![20190517_174347](img/20190517_174347.png)     |            ![20190517_182644](img/20190517_182644.png)            |
 |      說明      | <ul align="left"><li>僅透過類別 (Class) 中的屬性 (Attribute) 或方法 (Method)，來表示應用程式的狀態或規則</li><li>因為不依賴 UI，所以 Model 中的邏輯也可以拿去套用在 desktop app 或 mobile app</li></ul> |                  網頁呈現                   | Controller 會去 Model 取得資料，並放到 View 作呈現 | 造訪任一網頁時，Router 會選擇出正確的 Controller 去作它該作的工作 |
 
-## 建立 MVC 專案
+### 建立 MVC 專案
 
 1. 建立新專案時，選擇「ASP&#46;NET Web Application」
 
@@ -28,7 +30,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
     ![20190521_233504](img/20190521_233504.png)
 
-## 預設專案結構
+### 預設專案結構
 
 ![20190517_185504](img/20190517_185504.png)
 
@@ -70,7 +72,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
     - ```connectionStrings```: DB 連線字串
     - ```appSettings```: 應用程式的各種設定
 
-## MVC in Action
+### MVC in Action
 
 以新增隨選電影頁面為例
 
@@ -115,7 +117,7 @@ Course Link: <https://codewithmosh.com/p/asp-net-mvc>
 
     ![20190517_235917](img/20190517_235917.png)
 
-## 加入主題 (Adding a Theme)
+### 加入主題 (Adding a Theme)
 
 ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前端框架，我們可以到 [Bootswatch](https://bootswatch.com/3/) 尋找免費的 Bootstrap 主題回來替換，以「Lumen」這個主題為例
 
@@ -130,7 +132,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 4. Ctrl+Shift+B (建置方案) 後檢查執行結果
 
-## 動作結果 (Action Results)
+### 動作結果 (Action Results)
 
 - ```ActionResult``` 類別用來表示每個 action 的結果
 - 在下圖 Controller 中，我們可以看到 ```Random()``` 這個 action 應該要回傳 ```ActionResult``` 類別，但是實際上是回傳 ```ViewResult``` 類別，因為後者其實是前者的衍生類別 (Derived Class)
@@ -227,7 +229,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
     </td>
     </table>
 
-## 動作參數 (Action Parameters)
+### 動作參數 (Action Parameters)
 
 - 參數綁定 (Parameter Binding) 的過程
 
@@ -272,7 +274,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
             ![20190518_182617](img/20190518_182617.png)
 
-## Convention Routing
+### Convention Routing
 
 - 在「App_Start\RouteConfig.cs」中設定
 - route 宣告順序會影響優先權，所以越細的 route 要寫在越前面
@@ -313,7 +315,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190519_040225](img/20190519_040225.png)
 
-## Attribute Routing
+### Attribute Routing
 
 - Convention Routing 有以下缺點
     1. 隨著自定義的 route 越來越多，「RouteConfig.cs」會越來越大
@@ -335,7 +337,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190519_105132](img/20190519_105132.png)
 
-## Passing Data to Views
+### Passing Data to Views
 
 從 Controller 傳遞資料到 View 有以下方式
 
@@ -346,7 +348,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 |   缺點   |                                              | <ul align="left"><li>修改 key 名稱的話，在 Controller 和 View 都得修改</li><li>View 的程式碼因必須轉型而顯得冗長</li><li>ViewData 的 dictionary value 為 object 型別，轉型會帶來[裝箱 (Boxing) 和拆箱 (Unboxing)](C%23%20Intermediate.md#boxing-and-unboxing) 的副作用</li></ul> | <ul align="left"><li>修改屬性名稱的話，在 Controller 和 View 都得修改</li><li>ViewBag 為 dynamic 型別，沒辦法在編譯階段就發現 bug</li></ul> |
 | 建議使用 |              :heavy_check_mark:              |                                                                                                                                                                                                                                                                              |                                                                                                                                             |
 
-## View Models
+### View Models
 
 - 通常一個 View 只能指定一種 Model 類別，如果一個 View 中需要同時用到很多種 Model，可以改成建立 ViewModel，並將欲使用的 Model 們設為屬性，在 View 中則改為指定這個自定義的 ViewModel
 - 以下述程式碼為例
@@ -377,7 +379,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190520_230756](img/20190520_230756.png)
 
-## Razor Syntax
+### Razor Syntax
 
 - 在「.cshtml」檔案中，可以混用 html 和 C# code (要使用 ```@``` 符號開頭)
 - 以下述程式碼為例
@@ -393,7 +395,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190520_234135](img/20190520_234135.png)
 
-## Partial Views
+### Partial Views
 
 - 想像成比較小單位的 View，可以重複使用在不同 View 中，也可以組合多個 Partial View 成一個完整的 View
 - 命名規則為底線開頭，例如「_NavBar.cshtml」
@@ -415,7 +417,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     5. ```@Html.Partial()``` 有另一個多載是傳入 partial view 和 model，不過這邊沒使用到
 
-## Exercise in section 2
+### Exercise in section 2
 
 1. 在「/Movies」頁面用 hard code 方式，在表格中顯示兩部電影
 2. 建立 ```Customer``` 類別
@@ -426,7 +428,9 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
 
-## Entity Framework
+## Working with Data
+
+### Entity Framework
 
 - 一種物件關聯式對應程式 (O/RM)，透過資料抽象化將將每個資料庫物件都轉換成應用程式物件 (entity)，而資料欄位都轉換為屬性 (property)，關聯則轉換為結合屬性 (association)
 
@@ -447,7 +451,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190521_201709](img/20190521_201709.png)
 
-### Database First vs Code First
+#### Database First vs Code First
 
 |        |               Database First                |                 Code First                  |
 |:------:|:-------------------------------------------:|:-------------------------------------------:|
@@ -456,7 +460,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 > ※ 兩者詳細差異，可參考 Mosh 的另一堂課 [Entity Framework 6 in Depth](https://codewithmosh.com/p/entity-framework)
 
-## Code First Migrations
+### Code First Migrations
 
 - 若使用 Code First 策略，在每次建立或修改類別 (Class) 時，我們就需要建立移轉 (Migration) 並寫至 DB
 - 以下述操作為例
@@ -512,7 +516,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190522_012807](img/20190522_012807.png)
 
-## Changing the Model
+### Changing the Model
 
 為了讓 Model 更接近實務般的複雜，我們欲在 ```Customer``` 類別加入 ```IsSubscribedToNewsletter``` 和 ```MembershipType``` 兩個屬性，其中，```MembershipType``` 為一類別，並擁有 ```SignUpFee```, ```DurationInMonths```, ```DiscountRate``` 三個屬性，以下述操作為例
 
@@ -544,7 +548,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     ![20190522_161846](img/20190522_161846.png)
 
-## Seeding the Database
+### Seeding the Database
 
 採用 Code First 策略時，如果欲新增的資料為應用程式的一部份，則應該透過程式碼和移轉來新增資料，而不是經由其它介面來下指令，以下述操作為例
 
@@ -567,7 +571,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     ![20190522_170908](img/20190522_170908.png)
 
-## Overriding Conventions
+### Overriding Conventions
 
 欲覆寫 DB column 的預設屬性，例如長度和不允許空值，可以透過 ```System.ComponentModel.DataAnnotations``` 命名空間，以下述操作為例
 
@@ -588,7 +592,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     ![20190522_173932](img/20190522_173932.png)
 
-## Querying Objects
+### Querying Objects
 
 透過 EF 來查詢資料，以下述操作為例
 
@@ -615,7 +619,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 5. Ctrl+F5 檢查「/Customers」頁面有正常顯示
 
-## Eager Loading
+### Eager Loading
 
 為了讓 EF 能夠載入相關的實體，我們需要 Eager Loading，以下述程式碼為例
 
@@ -639,7 +643,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
     |:-------------------------------------------:|:-------------------------------------------:|
     | ![20190522_232649](img/20190522_232649.png) | ![20190522_233008](img/20190522_233008.png) |
 
-## Exercise in section 3
+### Exercise in section 3
 
 - 1st exercise
     1. 在「/Customers」頁面，顯示「客戶姓名」和「會員類型」
