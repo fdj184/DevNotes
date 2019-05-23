@@ -580,7 +580,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
     ![20190522_172806](img/20190522_172806.png)
 
-3. 在 ```Customer``` 類別中，在 ```Name``` 前面加上 DataAnnotations 的屬性
+3. 在 ```Customer``` 類別中，在 ```Name``` 前面加上資料註解 (Data Annotation)
 
     ![20190522_173317](img/20190522_173317.png)
 
@@ -667,3 +667,54 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
         ![20190523_004135](img/20190523_004135.png)
 
 解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
+
+## Building Forms
+
+### The Markup
+
+建立一個簡單的表單 (Form) 以新增客戶，以下述操作為例
+
+1. 在 Controller 建立新的 Action
+
+    ![20190524_005642](img/20190524_005642.png)
+
+2. 在 ```return View();``` 按右鍵可以新增 View
+
+    ![20190524_005808](img/20190524_005808.png)
+
+3. 透過 ```@using (Html.BeginForm(actionName, controllerName)) { ... }``` 可以建立 ```<form></form>``` 元素
+
+    > ※ 如果沒有使用 ```@using```，只有 ```@Html.BeginForm(actionName, controllerName)``` 的話，渲染出來會只有開頭的 ```<form>```，沒有結尾的 ```</form>```
+
+    ![20190524_020652](img/20190524_020652.png)
+
+4. 透過 ```@Html.LabelFor()``` 加入 Label、```@Html.TextBoxFor()``` 加入 TextBox
+
+    > ※ ```form-group```, ```form-input``` 是 Bootstrap 的 [css 語法](https://getbootstrap.com/docs/3.4/css/#forms)
+    >
+    > ※ ```@Html.TextBoxFor()``` 預設會根據 Model 是否有設定長度等限制來設定驗證 (Validation) 屬性
+
+    |        |                                             |
+    |:------:|:-------------------------------------------:|
+    | source | ![20190524_024602](img/20190524_024602.png) |
+    | result | ![20190524_025632](img/20190524_025632.png) |
+    |  html  | ![20190524_025601](img/20190524_025601.png) |
+
+5. 加入更多 TextBox 和 CheckBox
+
+    > ※ CheckBox 的結構也是參考 Bootstrap 文件的範例
+
+    |        |                                             |
+    |:------:|:-------------------------------------------:|
+    | source | ![20190524_030644](img/20190524_030644.png) |
+    | result | ![20190524_030437](img/20190524_030437.png) |
+    |  html  | ![20190524_030606](img/20190524_030606.png) |
+
+### Form Labels
+
+如果要自訂 Label 文字，有以下兩種方式
+
+|          |                                        使用 ```@Html.LabelFor()```                                        |                             使用純 html 的 ```<label></label>```                              |
+|:--------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
+| 額外修改 | 須在 Model 加上資料註解 ```[Display(Name = "")]```，如下圖<br>![20190524_032103](img/20190524_032103.png) |             須用 ```<label for="">``` 的方式，才能在點擊文字時，欄位也獲得 focus              |
+|   缺點   |                                          改動 Model 就要重新編譯                                          | ```for``` 的值是為欄位 id，也就是 Model 中的屬性，若屬性名稱有異動，得記得修改 ```for``` 的值 |
