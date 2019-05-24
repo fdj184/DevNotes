@@ -718,3 +718,142 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 |:--------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
 | 額外修改 | 須在 Model 加上資料註解 ```[Display(Name = "")]```，如下圖<br>![20190524_032103](img/20190524_032103.png) |             須用 ```<label for="">``` 的方式，才能在點擊文字時，欄位也獲得 focus              |
 |   缺點   |                                          改動 Model 就要重新編譯                                          | ```for``` 的值是為欄位 id，也就是 Model 中的屬性，若屬性名稱有異動，得記得修改 ```for``` 的值 |
+
+### Drop-down Lists
+
+透過 ```@Html.DropDownListFor()``` 可以加入下拉選單，以下述程式碼為例
+
+1. 欲在「/Customers/New」頁加入會員類型的下拉選單
+2. 承上，該頁會同時用到 ```Customer``` 和 ```MembershipType``` 兩個 Model，所以要改成使用 [ViewModel](#view-models)
+
+    ![20190524_155304](img/20190524_155304.png)
+
+    ![20190524_155351](img/20190524_155351.png)
+
+3. 因為在步驟 4 會需要直接透過 ```ApplicationDbContext``` 撈 ```MembershipType``` 的資料，所以先到「IdentityModels.cs」加上相關程式碼
+
+    ![20190524_155825](img/20190524_155825.png)
+
+4. 回到「CustomersController.cs」，在 ```New()``` 中建立 ViewModel 的實體並回傳給 View 使用
+
+    ![20190524_160701](img/20190524_160701.png)
+
+5. 回到 View，原本開頭是 ```@model Vidly.Models.Customer```，要改成使用 ViewModel，Razor 使用到 Model 的地方也都要修改
+
+    ![20190524_164814](img/20190524_164814.png)
+
+6. 加入下拉選單
+
+    > ※ 用 ```SelectList(items, valueField, textField)``` 渲染下拉選單中的項目
+
+    |        |                                             |
+    |:------:|:-------------------------------------------:|
+    | source | ![20190524_170303](img/20190524_170303.png) |
+    | result | ![20190524_170442](img/20190524_170442.png) |
+    |  html  | ![20190524_170547](img/20190524_170547.png) |
+
+### Model Binding
+
+按下 submit 按鈕將 View 的資料透過 Http Post 的方式傳回 Controller，以下述操作為例
+
+1. 在 View 作出 submit 按鈕
+
+    > ※ 黃色區塊中，我們當初有指定這個表單 (Form) submit 後要回傳給 ```Customers``` Controller 中的 ```Create``` Action
+
+    ![20190524_172040](img/20190524_172040.png)
+
+2. 在「CustomersController.cs」建立 ```Create``` Action
+
+    > ※ ```[HttpPost]``` 用來限制此 Action 僅能處理來自 Http Post 的要求
+
+    ![20190524_172529](img/20190524_172529.png)
+
+#### 驗證 Http Post
+
+1. 在 ```Create``` Action 下中斷點
+
+    ![20190524_172902](img/20190524_172902.png)
+
+2. F5 開始偵錯，到「Customers/New」頁填完資料後，先按下 F12 到「Network」頁籤
+
+    ![20190524_173549](img/20190524_173549.png)
+
+3. 按下表單的 Save 按鈕，執行到中斷點後，回來看瀏覽器的「Network」頁籤
+
+    ![20190524_173844](img/20190524_173844.png)
+
+4. 承上，可以看到 Post 方式送出的表單資訊
+
+### Saving New Data
+
+把 Controller 取得的資料存回 DB，以下述程式碼為例
+
+1. 從剛剛 debug 時可以看出，```Create``` Action 接收的 ViewModel 都是屬於 ```Customer``` 類別的資料
+
+    ![20190524_174636](img/20190524_174636.png)
+
+2. 所以接收的參數類別可以從 ```NewCustomerViewModel```，改成 ```Customer```
+
+    ![20190524_174949](img/20190524_174949.png)
+
+3. 透過 ```ApplicationDbContext``` 新增客戶，並在完成後導至「/Customers」頁
+
+    > ※ 一定要記得下 ```SaveChanges()``` 才會啟動交易
+
+    ![20190524_175206](img/20190524_175206.png)
+
+### Edit Form
+
+在這章節要加上修改表單的功能，而且要和新增表單共用頁面，以下述操作為例
+
+1. 原本在「/Customers」頁，點擊客戶姓名會導至「/Customers/Details/*{id}*」頁，我們改成導至「/Customers/Edit/*{id}*」頁
+
+    > ※ 要記得這個 ActionLink 是有傳一個 ```Id``` 參數的
+
+    ![20190524_180723](img/20190524_180723.png)
+
+2. 建立 ```Edit``` Action，傳入 ```Id``` 參數
+
+    > ※ 如果最後沒指定 View 名稱的話，MVC 會去找我們故意沒建的「Edit.cshtml」
+
+    ![20190524_181724](img/20190524_181724.png)
+
+3. 因為新增和修改表單都是使用同一個 View，所以我們修改所有的「New.cshtml」成「CustomerForm.cshtml」，相關程式碼也要修改
+
+    ![20190524_182653](img/20190524_182653.png)
+
+4. 同上，新增和修改表單都是使用同一個 ViewModel，所以修改所有的 ```NewCustomerViewModel``` 成 ```CustomerFormViewModel```
+
+    > ※ 可以點擊任何一個 ```NewCustomerViewModel```，按下 F2 作全域修改
+
+5. 最後，我們可以在 ```TextBoxFor()``` 使用指定日期格式的多載，讓日期格式符合我們的要求
+
+    ![20190524_184257](img/20190524_184257.png)
+
+    ![20190524_184435](img/20190524_184435.png)
+
+### Updating Data
+
+在新增表單 submit 後，我們使用 ```Create``` Action 去作新增資料到 DB 的動作。在修改表單 submit 後，也需要類似的動作儲存資料回 DB，以下述操作為例
+
+1. 較簡潔的設計是讓新增和修改表單在 submit 後都使用同一個 Action，所以我們先調整 Form 要 post 的 Action 名稱
+
+    > ※ 一樣可以用 F2 作全域修改
+
+    ![20190524_190628](img/20190524_190628.png)
+
+    ![20190524_190651](img/20190524_190651.png)
+
+2. 在 Controller 會透過是否有 ```Customer.Id``` 來判斷這個 ```Save``` Action 是要新增還是修改，所以在 View 也要實作這個資訊
+
+    > ※ ```Id``` 不需要讓使用者知道，所以用隱藏欄位 (Hidden Field)
+
+    ![20190524_191043](img/20190524_191043.png)
+
+3. 接著到 Controller，根據是否有 ```Customer.Id``` 來判斷要作新增或修改
+
+    > ※ 另一種修改方式，在撈出 DB 中的狀態後，用 [```TryUpdateModel(model)```](https://docs.microsoft.com/zh-tw/dotnet/api/system.web.mvc.controller.tryupdatemodel?view=aspnet-mvc-5.2) 一次修改所有欄位，但是有以下問題須解決
+    >   1. 安全性問題，來源的 Form data 有可能被竄改而異動到不該動的欄位
+    >   2. 承上，需要額外下參數定義那些欄位可動、哪些不可動
+
+    ![20190524_191556](img/20190524_191556.png)
