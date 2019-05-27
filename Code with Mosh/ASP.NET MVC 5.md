@@ -871,3 +871,63 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 4. 實作新增/修改電影的邏輯
 
+## Implementing Validation
+
+### Adding Validation
+
+表單驗證 (Form Validation) 有三個簡單的步驟
+
+1. 在 Model 使用資料註解 (Data Annotation)
+2. 在 Controller 使用 ```ModelState.IsValid``` 來判斷是否符合上一步驟的資料註解
+3. 在 View 透過 ```@Html.ValidationMessageFor()``` 顯示不符合驗證時的警語
+
+以下述操作為例
+
+1. 在 ```Customer``` Model 已經有資料註解，限制此欄位必填且長度須小於255字元
+
+    ![20190527_172716](img/20190527_172716.png)
+
+2. 在 Controller 增加判斷式，如果沒通過驗證，就導回原本的表單頁面並帶入原本敲入的資訊
+
+    ![20190527_173158](img/20190527_173158.png)
+
+3. 在 View 加上警語
+
+    ![20190527_173529](img/20190527_173529.png)
+
+4. 在「/Customers/New」頁面故意不填 Name 欄位就送出表單，會被導回「/Customers/New」頁面並顯示警語
+
+    ![20190527_173806](img/20190527_173806.png)
+
+### Styling Validation Form
+
+驗證失敗時，欄位的 css class 會被加上 ```input-validation-error```，警語則會加上 ```field-validation-error```
+
+![20190527_174634](img/20190527_174634.png)
+
+所以可以在 css 檔案中自定義這兩個 class 的語法
+
+![20190527_175149](img/20190527_175149.png)
+
+結果就如下圖
+
+![20190527_175223](img/20190527_175223.png)
+
+### Data Annotations for Validation
+
+以下為常見的資料註解 (Data Annotation)
+
+|                屬性                |                     描述                     |
+|:----------------------------------:|:--------------------------------------------:|
+|            \[Required]             |                 是否符合必填                 |
+|     \[StringLength(*length*)]      |               是否符合長度限制               |
+|       \[Range(*min*, *max*)]       |                 是否符合範圍                 |
+|    \[Compare(*otherProperty*)]     | 跟另一個欄位作比較，例如用於二次確認密碼欄位 |
+|              \[Phone]              |             是否符合電話號碼格式             |
+|          \[EmailAddress]           |             是否符合 Email 格式              |
+|               \[Url]               |              是否符合 Url 格式               |
+| \[RegularExpression(*expression*)] |              是否符合正則表達式              |
+
+也可以用來自定義驗證失敗的警語文字
+
+![20190527_180731](img/20190527_180731.png)
