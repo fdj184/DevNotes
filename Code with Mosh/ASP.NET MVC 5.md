@@ -871,6 +871,8 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 4. 實作新增/修改電影的邏輯
 
+解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
+
 ## Implementing Validation
 
 ### Adding Validation
@@ -1082,3 +1084,19 @@ MVC Framework 透過兩個步驟來確保 request 是發自本身的網站表單
     ![20190528_181952](img/20190528_181952.png)
 
 3. 因為駭客頂多可以偷到瀏覽器的 cookie，但是沒辦法知道原網頁中的 token，所以當我們送出 request 時，MVC Framework 就會去檢查兩個值是否一致，若一致就代表是在這個網站送出的 request，否則就有可能是 CSRF 攻擊
+
+### Exercise in section 5
+
+1. 在「/Movies/New」頁面加入驗證功能
+
+    ![20190528_183040](img/20190528_183040.png)
+
+2. 承上，其中「Number in Stock」欄位有其範圍限制
+
+    ![20190528_183118](img/20190528_183118.png)
+
+3. 「Release Date」和「Number in Stock」欄位必須有初始值
+4. 啟用 Client-side Validation
+5. 實作 Anti-forgery Token
+
+解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
