@@ -879,7 +879,7 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
 1. 在 Model 使用資料註解 (Data Annotation)
 2. 在 Controller 使用 ```ModelState.IsValid``` 來判斷是否符合上一步驟的資料註解
-3. 在 View 透過 ```@Html.ValidationMessageFor()``` 顯示不符合驗證時的警語
+3. 在 View 透過 ```@Html.ValidationMessageFor()``` 顯示特定欄位不符合驗證時的警語
 
 以下述操作為例
 
@@ -931,3 +931,154 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 也可以用來自定義驗證失敗的警語文字
 
 ![20190527_180731](img/20190527_180731.png)
+
+### Custom Validation
+
+透過繼承 ```ValidationAttribute``` 類別，並覆寫 (Override) ```IsValid()``` 方法，我們可以添加新的資料註解且用於驗證自定義的邏輯，以下述操作為例
+
+1. 假設「Pay as You Go」以外的會員資格皆須年滿18歲才能申請
+2. 先在 Model 建出 ```ValidationAttribute``` 的衍生類別，並覆寫 ```IsValid()``` 方法
+
+    ![20190528_125849](img/20190528_125849.png)
+
+    ![20190528_130448](img/20190528_130448.png)
+
+3. 自定義驗證邏輯
+
+    > ※ 使用 ```validationContext.ObjectInstance``` 取得欲驗證的物件 (須轉型)
+    >
+    > ※ 驗證成功回傳 ```return ValidationResult.Success;```
+    >
+    > ※ 驗證失敗回傳 ```return new ValidationResult(errorMessage);```
+
+    ![20190528_160235](img/20190528_160235.png)
+
+4. 在 Model 加上剛剛建立的資料註解屬性
+
+    ![20190528_160656](img/20190528_160656.png)
+
+5. 在 View 也要加上警語的 placeholder
+
+    ![20190528_160925](img/20190528_160925.png)
+
+#### Refactoring Magic Numbers
+
+這裡的 magic number 指的是在下圖邏輯中的 0 和 1
+
+![20190528_161727](img/20190528_161727.png)
+
+因為 0 和 1 代表的意義必須翻資料庫才能知道，其它工程師也不見得知道要查哪一張 table，較好的作法是將 0 和 1 兩個數字改寫成有意義的程式碼，可以透過以下兩種方式達成
+
+1. 建立 ```MembershipType.Id``` 屬性對應的[列舉 (enum)](C%23%20Basics.md#enum) 類別
+2. 在 ```MembershipType``` 類別建立 ```public static readonly``` 的欄位 (Field)
+
+    |              MembershipType.cs              |           Min18YearsIfAMember.cs            |
+    |:-------------------------------------------:|:-------------------------------------------:|
+    | ![20190528_162710](img/20190528_162710.png) | ![20190528_163109](img/20190528_163109.png) |
+
+### Validation Summary
+
+在 View 透過 ```@Html.ValidationSummary()``` 可以顯示不符合驗證時的警語結論，以下述操作為例
+
+1. 在 View 的 Form 元素一開始就加入 ```@Html.ValidationSummary()```，便可以看到警語結論
+
+    ![20190528_164504](img/20190528_164504.png)
+
+    ![20190528_164709](img/20190528_164709.png)
+
+2. 承上，會看到 hidden field 的 ```Id``` 欄位也驗證失敗是因為我們的 ```New``` Action 並沒有給 ```Customer.Id``` 值
+
+    ![20190528_164954](img/20190528_164954.png)
+
+3. 所以我們可以在 ```New``` Action 時，就先對 ```Customer``` 初始化，此時 ```Customer.Id``` 也會被給予預設值，就不會有後續的驗證失敗問題
+
+    ![20190528_165205](img/20190528_165205.png)
+
+4. 另外，也可以透過 ```@Html.ValidationSummary(true, message)``` 的多載自定義警語結論文字
+
+    ![20190528_165709](img/20190528_165709.png)
+
+### Client-side Validation
+
+截至目前為止都是使用 Server-side 的驗證，通常安全性驗證和自定義驗證 (例如18歲才能辦會員) 會交給 Server-side，而基本格式的驗證則交給 Client-side
+
+<table>
+    <tr>
+        <th colspan="2">Client-side Validation</th>
+    </tr>
+    <tr>
+        <th>優點</th>
+        <th>缺點</th>
+    </tr>
+    <tr>
+        <td>
+            <ul>
+                <li>立即回饋，不必等到 Server-side 處理完才給回饋</li>
+                <li>不需浪費 Server-side 的資源</li>
+            </ul>
+        </td>
+        <td align="center">無法驗證自定義的資料註解 (Data Annotation) 屬性</td>
+    </tr>
+</table>
+
+#### 啟用 Client-side Validation
+
+1. 在「App_Start\BundleConfig.cs」可以看到 MVC 專案預設會將「jquery.validate*」等 script 打包成一支「jqueryval.js」
+
+    ![20190528_171418](img/20190528_171418.png)
+
+2. 但是在主版頁面「Views\Shared\_Layout.cshtml」的 scripts section 是不啟用的
+
+    ![20190528_171829](img/20190528_171829.png)
+
+3. 所以我們可以在欲使用 Client-side Validation 的 View 中自行啟用
+
+    > ※ ```@section scripts``` 用來表示其中的內容要在主版頁面的 scripts section 呈現
+    >
+    > ※ ```@Scripts.Render(path)``` 則是用來宣告欲使用的 script 檔案
+
+    ![20190528_172331](img/20190528_172331.png)
+
+4. 檢查 Client-side Validation 是否確實啟用
+
+    1. 在「/Customers/New」頁面，按下 F12 打開「Network」頁籤
+    2. 按下 submit 按鈕，如果「Network」頁籤沒有出現任何 request 但表單已經出現驗證警語，代表是使用 Client-side Validation 驗證的
+
+5. 承上，驗證原理是透過欄位的 ```data-val-*``` 屬性，此屬性是 MVC Framework 根據 Model 的資料註解加上的
+
+    ![20190528_173417](img/20190528_173417.png)
+
+### CSRF (Cross-site Request Forgery) 攻擊
+
+CSRF 攻擊的原理如下
+
+1. 使用者在 A 網站 (例如網路銀行) 登入後，未登出即瀏覽其它網站
+2. 駭客在 B 網站的圖片或連結中埋 script，其內容會對 A 網站送出 post request
+3. 使用者只要一瀏覽 B 網站就會中標，駭客可以任意竄改甚至刪除使用者在 A 網站上的資料 (例如把錢都轉走)
+4. 承上，對 A 網站來說，這是使用者發出的 request，但卻**不是自願發出**的
+
+> ※  [CSRF 攻擊](https://zh.wikipedia.org/wiki/%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0)和 [XSS 攻擊](https://zh.wikipedia.org/wiki/%E8%B7%A8%E7%B6%B2%E7%AB%99%E6%8C%87%E4%BB%A4%E7%A2%BC)不同
+
+#### Anti-forgery Tokens
+
+MVC Framework 透過兩個步驟來確保 request 是發自本身的網站表單
+
+1. 在有表單的頁面加上 ```@Html.AntiForgeryToken()```
+
+    ![20190528_181100](img/20190528_181100.png)
+
+2. 在 Controller 的 post action 加上 ```[ValidateAntiForgeryToken]``` 屬性
+
+    ![20190528_181311](img/20190528_181311.png)
+
+背後邏輯如下
+
+1. 在我們瀏覽此頁面時，MVC Framework 會藏一個 token 在 hidden field 中
+
+    ![20190528_181557](img/20190528_181557.png)
+
+2. 並且在 client side 也存一個加密過的 cookie
+
+    ![20190528_181952](img/20190528_181952.png)
+
+3. 因為駭客頂多可以偷到瀏覽器的 cookie，但是沒辦法知道原網頁中的 token，所以當我們送出 request 時，MVC Framework 就會去檢查兩個值是否一致，若一致就代表是在這個網站送出的 request，否則就有可能是 CSRF 攻擊
