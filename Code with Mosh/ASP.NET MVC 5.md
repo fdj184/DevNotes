@@ -1236,3 +1236,93 @@ RESTful API 即遵守 [REST (Representational State Transfer)] 風格的 Web API
 8. 加入供 DELETE request 使用的方法
 
     ![20190529_191847](img/20190529_191847.png)
+
+### Testing an API
+
+如果直接用瀏覽器開啟我們的 Web API，預設會是 xml 格式的 data
+
+![20190529_223519](img/20190529_223519.png)
+
+較好的作法是透過 [Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop) 套件，直接對 API 發出 request，以下述操作為例
+
+1. 選擇 Http Verbs，輸入 URL 後，按下「Send」，即可取得 json 格式的 data
+
+    ![20190529_224201](img/20190529_224201.png)
+
+2. 如果想測 POST request，可以在「Body」頁籤輸入資料，然後按下「Send」
+
+    ![20190529_224647](img/20190529_224647.png)
+
+3. 承上，如果收到 media type 的錯誤，可以去「Headers」頁籤添加「Content-Type」的值為「application/json」
+
+    ![20190529_224824](img/20190529_224824.png)
+
+    ![20190529_225104](img/20190529_225104.png)
+
+### 資料傳輸物件 (Data Transfer Objects)
+
+讓 API 直接回傳 domain model 物件有以下風險
+
+1. 修改 domain model 時會造成依賴於現行 API 的程式崩潰，例如重新命名 ```Customers``` 的屬性名稱
+2. 將 domain model 的邏輯整個公開，恐遭有心人士惡意攻擊，例如修改不應異動的欄位
+
+我們可以透過 DTO (Data Transfer Objects) 僅揭露 domain model 中的必要資訊給 client，以下述操作為例
+
+1. 建立「Dtos」資料夾和「Dtos\CustomerDto.cs」檔案
+
+    ![20190529_230940](img/20190529_230940.png)
+
+2. 將「Models\Customer.cs」的屬性全部複製過來，然後刪掉所有 client 端不需要知道的屬性和資訊
+
+    ![20190529_233432](img/20190529_233432.png)
+
+3. ```CustomerDto``` 最後只保留 client 需要知道的內容
+
+    ![20190529_233556](img/20190529_233556.png)
+
+4. 接著回到 API，將所有使用到 Model，也就是用到 ```Customer``` 類別的地方，都改成使用 ```CustomerDto``` 類別，下個章節會介紹用 Auto Mapper 重新作欄位對應
+
+### Auto Mapper
+
+Auto Mapper 能自動在兩個對應的類別間作轉換，例如 Model <-> ViewModel 或是 Model <-> DTO，可省去一一條列 ```Class1.Attribute = Class2.Attribute``` 的動作，以下述操作為例
+
+1. 開啟套件管理器主控台 (Package Manager Console)，並輸入 ```Install-Package AutoMapper```
+
+    ![20190530_000746](img/20190530_000746.png)
+
+2. 建立「App_Start\MappingProfile.cs」，為類別對應的設定檔
+
+    ![20190530_001234](img/20190530_001234.png)
+
+3. 承上，先繼承 ```Mapper``` 類別，然後在建構式中設定類別對應
+
+    > ※ 不同版本會有不同寫法，此處為 8.1.0 版，語法為 ```CreateMap<TSource, TDestination>();```
+
+    ![20190530_001742](img/20190530_001742.png)
+
+4. 接著，修改「Global.asax」，讓應用程式一啟動就會載入這個設定檔
+
+    > ※ 初始化並載入設定檔 ```Mapper.Initialize(c => c.AddProfile<profileName>());```
+
+    ![20190530_002423](img/20190530_002423.png)
+
+5. 再來就可以回到 API，將用到 ```Customer``` 類別的地方，都改成使用 ```CustomerDto``` 類別，並搭配 AutoMapper 作欄位對應
+6. 調整 GET request
+
+    > ※ 如果是物件集合，可以透過 [LINQ](C%23%20Advanced.md#linq) 用 ```.Select(Mapper.Map<TSource, TDestination>)``` 產生目標類別的集合
+    >
+    > ※ 如果是單一物件，可以透過 ```Mapper.Map<TSource, TDestination>(sourceClass)``` 產生目標類別
+
+    ![20190530_003406](img/20190530_003406.png)
+
+7. 調整 POST request
+
+    > ※ ```Id``` 欄位會在新增進 DB 後有值，要更新回 ```customerDto``` 再回傳
+
+    ![20190530_004416](img/20190530_004416.png)
+
+8. 調整 PUT request
+
+    > ※ 透過 ```Mapper.Map<TSource, TDestination>(sourceClass, destinationClass)```，或是簡化成 ```Mapper.Map(sourceClass, destinationClass)``` 可以將來源類別更新至目標類別，而且不必條列欄位
+
+    ![20190530_005003](img/20190530_005003.png)
