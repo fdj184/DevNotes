@@ -1100,3 +1100,32 @@ MVC Framework 透過兩個步驟來確保 request 是發自本身的網站表單
 5. 實作 Anti-forgery Token
 
 解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
+
+#### 處理表單欄位初始值
+
+為了在新增表單時能通過驗證，我們在 ```New``` Action 中初始化了一個 ```Movie``` 實體，使 ```Id``` 能夠擁有初始值
+
+![20190529_121858](img/20190529_121858.png)
+
+但是這會造成其它 Value Type 的欄位也跑出初始值，如下圖
+
+![20190529_121636](img/20190529_121636.png)
+
+為了解決這個問題，我們可以遵循以下原則
+
+1. 將**所有實際儲存於 DB** 的欄位及特性寫在 Model，例如 ```[Required]``` (for not null column), ```[StringLength]``` (for column length) .. 等等
+2. 將**欲呈現在 View** 的欄位及特性寫在 ViewModel，例如 ```[Required]``` (for form validation), ```[StringLength]``` (for form validation), ```[Range]```, ```[Display]``` .. 等等
+
+以剛剛電影的新增表單為例
+
+1. 將 ViewModel 中原本的 ```Movie``` 屬性，替換成所有會在 View 中使用的 ```Movie``` 類別中的屬性
+
+    ![20190529_124647](img/20190529_124647.png)
+
+2. 在 ViewModel，就可以把 ```ReleaseDate``` 和 ```NumberInStock``` 兩個欄位改為 Nullable
+3. 在 ViewModel 加上建構式，讓日後的 ```New``` 和 ```Edit``` Action 使用
+
+    ![20190529_125034](img/20190529_125034.png)
+
+4. 回去調整 Controller，有使用到 ViewModel 的地方改用相對應的建構式
+5. 回去調整 View，有使用到 ViewModel 的地方都要改
