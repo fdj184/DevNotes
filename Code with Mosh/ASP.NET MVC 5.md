@@ -1129,3 +1129,110 @@ MVC Framework 透過兩個步驟來確保 request 是發自本身的網站表單
 
 4. 回去調整 Controller，有使用到 ViewModel 的地方改用相對應的建構式
 5. 回去調整 View，有使用到 ViewModel 的地方都要改
+
+## Building RESTful Services with ASP&#46;NET Web API
+
+### What is a Web API
+
+先前的 MVC 策略都是在 Server-side 作好 Html 再回傳給 Client-side
+
+![20190529_164713](img/20190529_164713.png)
+
+有另一種替代方案是 Server-side 僅回傳 Data，Client-side 再根據 Data 渲染 Html
+
+![20190529_164810](img/20190529_164810.png)
+
+用第二種方案的優點如下
+
+- 使用較少的 Server-side 資源 (增加可擴充性)
+- 減少資料傳輸量 (增加效能)
+- 能夠支援 Web Application 以外的 Client-side
+
+    ![20190529_165432](img/20190529_165432.png)
+
+這種策略就是透過「ASP&#46;NET Web API」framework 在 Server-side 提供 Web API
+
+![20190529_165606](img/20190529_165606.png)
+
+很多知名網站，例如 Facebook, YouTube, Twitter .. 等等，也會提供公開的 Web API 供他人使用，且 Web API 不僅是可以用來查詢，也可以用來修改、刪除資料
+
+### RESTful Convention
+
+RESTful API 即遵守 [REST (Representational State Transfer)] 風格的 Web API
+
+<table>
+    <tr>
+        <th>HTTP Verbs</th>
+        <th>描述</th>
+        <th colspan="2">範例</th>
+    </tr>
+    <tr align="center">
+        <td rowspan="2">GET</td>
+        <td rowspan="2">取得資料</td>
+        <td><b>GET</b> /api/customers</td>
+        <td>取得所有客戶資料</td>
+    </tr>
+    <tr align="center">
+        <td><b>GET</b> /api/customers/1</td>
+        <td>取得 id = 1 的客戶資料</td>
+    </tr>
+    <tr align="center">
+        <td>POST</td>
+        <td>新增資料</td>
+        <td><b>POST</b> /api/customers</td>
+        <td>新增所有客戶資料</td>
+    </tr>
+    <tr align="center">
+        <td>PUT</td>
+        <td>修改資料</td>
+        <td><b>PUT</b> /api/customers/1</td>
+        <td>修改 id = 1 的客戶資料</td>
+    </tr>
+    <tr align="center">
+        <td>DELETE</td>
+        <td>刪除資料</td>
+        <td><b>DELETE</b> /api/customers/1</td>
+        <td>刪除 id = 1 的客戶資料</td>
+    </tr>
+</table>
+
+### Building an API
+
+建立操作 Customers 資料的 API，以下述操作為例
+
+1. 建立「Controllers\Api」資料夾
+2. 承上，在該資料夾中加入「CustomersController.cs」，這次我們選擇「Web API 2 控制器」
+
+    ![20190529_175200](img/20190529_175200.png)
+
+3. 首次使用 Web API 會開啟「readme.txt」，依照說明在「Global.asax」添加程式碼
+
+    ![20190529_175617](img/20190529_175617.png)
+
+4. 回到「Controllers\Api\CustomersController.cs」，加入 ```ApplicationDbContext``` 類別的欄位 (Field) 和相關程式碼
+
+    ![20190529_180537](img/20190529_180537.png)
+
+5. 加入供 GET request 使用的方法
+
+    > ※ RESTful API 規定 exception 要用 ```throw new HttpResponseException(HttpStatusCode.{element});``` 的方式來回傳，在這裡的錯誤是找不到資料，所以用 ```HttpStatusCode.NotFound```
+
+    ![20190529_190836](img/20190529_190836.png)
+
+6. 加入供 POST request 使用的方法
+
+    > ※ 要記得添加給 API Controller 用的 ```[System.Web.Http.HttpPost]``` 屬性，順帶一提， ```[System.Web.MVC.HttpPost]``` 是給 MVC Controller 用的，小心搞混
+    >
+    > ※ 這裡的錯誤會是無效的 ```Id```，所以用 ```HttpStatusCode.BadRequest```
+
+    ![20190529_190910](img/20190529_190910.png)
+
+7. 加入供 PUT request 使用的方法
+
+    > ※ 要記得添加給 API Controller 用的 ```[System.Web.Http.HttpPut]``` 屬性
+
+    ![20190529_191713](img/20190529_191713.png)
+
+8. 加入供 DELETE request 使用的方法
+
+    ![20190529_191847](img/20190529_191847.png)
