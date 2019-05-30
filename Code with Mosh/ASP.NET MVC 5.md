@@ -666,8 +666,6 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
 
         ![20190523_004135](img/20190523_004135.png)
 
-解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
-
 ## Building Forms
 
 ### The Markup
@@ -870,8 +868,6 @@ ASP<span>.</span>NET MVC 使用 [Bootstrap](https://getbootstrap.com/) 作為前
     ![20190527_114254](img/20190527_114254.png)
 
 4. 實作新增/修改電影的邏輯
-
-解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
 
 ## Implementing Validation
 
@@ -1098,8 +1094,6 @@ MVC Framework 透過兩個步驟來確保 request 是發自本身的網站表單
 3. 「Release Date」和「Number in Stock」欄位必須有初始值
 4. 啟用 Client-side Validation
 5. 實作 Anti-forgery Token
-
-解答可參考我的 [repo](https://github.com/fdj184/Vidly/commits/develop)
 
 #### 處理表單欄位初始值
 
@@ -1370,3 +1364,7 @@ Auto Mapper 能自動在兩個對應的類別間作轉換，例如 Model <-> Vie
     > ※ 透過 ```Ok()``` helper method 可以回傳 200 狀態碼
 
     ![20190530_162300](img/20190530_162300.png)
+
+### Exercise in section 6
+
+加入對 ```Movie``` 操作 CRUD 的 API
