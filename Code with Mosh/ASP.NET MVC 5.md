@@ -1326,3 +1326,47 @@ Auto Mapper 能自動在兩個對應的類別間作轉換，例如 Model <-> Vie
     > ※ 透過 ```Mapper.Map<TSource, TDestination>(sourceClass, destinationClass)```，或是簡化成 ```Mapper.Map(sourceClass, destinationClass)``` 可以將來源類別更新至目標類別，而且不必條列欄位
 
     ![20190530_005003](img/20190530_005003.png)
+
+### Enable Camel Case
+
+目前 API 產生的 json，其屬性名稱是 Pascal Case
+
+![20190530_150234](img/20190530_150234.png)
+
+但為了後續讓 javascript 便於使用 data，我們應該改成 Camel Case，以下述操作為例
+
+1. 開啟「App_Start\WebApiConfig.cs」
+2. 加上以下程式碼
+
+    ![20190530_150951](img/20190530_150951.png)
+
+### IHttpActionResult
+
+目前我們的 GET 和 POST request 都是回傳自定義的類別，在[官方文件](https://docs.microsoft.com/zh-tw/aspnet/web-api/overview/getting-started-with-aspnet-web-api/action-results)寫到，如果回傳的類別不為 ```void```、```HttpResponseMessage``` 或 ```IHttpActionResult``` 其中一種，就會是回傳 [HTTP 狀態碼](https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81) 200
+
+![20190530_153900](img/20190530_153900.png)
+
+![20190530_160848](img/20190530_160848.png)
+
+但根據 RESTful API 的規則，我們在 POST request 建立資料後，應該要回傳 HTTP 狀態碼 201 且提供該筆新資料的 Uri，在 ASP<span>.</span>NET Web API 中建議我們使用 ```IHttpActionResult``` 達成，以下述操作為例
+
+1. 調整 POST request
+
+    > ※ 透過 ```Created()``` helper method 可以回傳 201 狀態碼
+    >
+    > ※ 丟例外 ```HttpResponseException``` 也有更簡潔的寫法
+
+    ![20190530_161330](img/20190530_161330.png)
+
+    實際呼叫可以看到
+
+    1. HTTP 狀態碼已經變成 201
+    2. 回傳結果的 Header 多了 location 屬性並指向該筆新資料的 Uri
+
+    ![20190530_161509](img/20190530_161509.png)
+
+2. 調整 GET request
+
+    > ※ 透過 ```Ok()``` helper method 可以回傳 200 狀態碼
+
+    ![20190530_162300](img/20190530_162300.png)
