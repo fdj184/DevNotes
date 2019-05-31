@@ -1368,3 +1368,281 @@ Auto Mapper 能自動在兩個對應的類別間作轉換，例如 Model <-> Vie
 ### Exercise in section 6
 
 加入對 ```Movie``` 操作 CRUD 的 API
+
+## Client-side Development
+
+### Calling an API Using jQuery
+
+> ※ 沒學過 [jQuery](https://api.jquery.com/) 的話可能要先去稍微了解一下
+
+在「Customers/Index」頁面建立「刪除」按鈕，並透過 jQuery 語法，用 Ajax 跟 API 發出 request，以下述操作為例
+
+1. 加入按鈕和 script section
+
+    > ※ ```btn-link``` 是 Bootstrap 的語法
+
+    ![20190531_171849](img/20190531_171849.png)
+
+2. 用 jQuery 監聽所有刪除按鈕的 click event
+
+    > ※ ```table``` 元素加上 id、按鈕加上 class，都是為了方便寫 jQuery 的選擇器 (Selector)
+    >
+    > ※ 寫 js 時，可以透過 ```console.log()``` 來 debug，在 Chrome 按 F12，「Console」頁籤可以看到輸出結果
+
+    ![20190531_172939](img/20190531_172939.png)
+
+3. click event 觸發時，跳出 confirm 視窗，確認後用 Ajax 發出 DELETE request，接著刪除該行 tr 元素
+
+    > ※ ```const``` 是 javascript ES 6 的語法
+    >
+    > ※ ```.data()```, ```.parents()```, ```.remove()``` 都是 jQuery 的語法
+
+    ![20190531_191738](img/20190531_191738.png)
+
+### Bootbox Plug-in
+
+Bootstrap 風格的彈跳視窗套件，欲替換原生的 confirm 視窗，以下述操作為例
+
+1. 用 NuGet 安裝 [Bootbox](http://bootboxjs.com/)
+2. 在「App_Start\BundleConfig.cs」加入「~/Scripts/bootbox.js」為 bundle 的一部份
+
+    ![20190531_194314](img/20190531_194314.png)
+
+3. 改寫 jQuery 中原本使用 ```confirm()``` 的地方成 ```bootbox.confirm()```
+
+    ![20190531_194923](img/20190531_194923.png)
+
+4. 測試結果
+
+    ![20190531_194745](img/20190531_194745.png)
+
+### Optimizing jQuery Code
+
+目前的 code 是將 event handler 綁在所有按鈕上
+
+``` javascript
+$("#customers .js-delete").on("click", function () {
+    ...
+});
+```
+
+Mosh 說，如果你有 100 個按鈕，上述寫法就代表你要在記憶體中存 100 個 event handler，較好的寫法是將 event handler 寫在按鈕的共同 parent 上，並用 ```.on()``` 去過濾出符合條件的選擇器，如下述程式
+
+``` javascript
+$("#customers").on("click", ".js-delete", function () {
+    ...
+});
+```
+
+參考文章：
+
+- [Should all jquery events be bound to $(document)?](https://stackoverflow.com/questions/12824549/should-all-jquery-events-be-bound-to-document)
+- [Why not take Javascript event delegation to the extreme?](https://stackoverflow.com/questions/9711118/why-not-take-javascript-event-delegation-to-the-extreme)
+
+### DataTables Plug-in
+
+表格套件，內建許多功能，例如排序、篩選、分頁 .. 等等，欲替換「/Customers/Index」頁面的表格，以下述操作為例
+
+1. 用 NuGet 安裝 [DataTables](https://datatables.net/)
+2. 在「App_Start\BundleConfig.cs」加入
+    - 「~/Scripts/DataTables/jquery.dataTables.js」
+    - 「~/Scripts/DataTables/dataTables.bootstrap.js」
+    - 「~/Content/DataTables/css/dataTables.bootstrap.css」
+3. 在 ```$(document).ready()``` 後套用 DataTables
+
+    > ※ 如果沒作用，可以 F12 看「Console」頁籤是否有 error
+
+    ``` javascript
+    $(document).ready(function () {
+        $("#customers").DataTable();
+
+        $("#customers").on("click", ".js-delete", function () {
+            ...
+        });
+    });
+    ```
+
+4. 檢視結果
+
+    ![20190601_005802](img/20190601_005802.png)
+
+### DataTables with Ajax Source
+
+在剛剛的例子中，其實是很浪費 Server-side 資源的
+
+1. 我們先在 Server-side 作好 Html (包含表格)
+2. 傳到 Client-side
+3. DataTables 元件讀取表格的 Html，再套用 DataTables
+
+較好的作法是
+
+1. 我們先在 Server-side 作好表格以外的 Html
+2. 傳到 Client-side
+3. DataTables 元件用 Ajax 去要表格的 data (json 格式)，用 data 作出 DataTables 的表格
+
+以下述操作為例
+
+1. 在套用 DataTables 時，加上初始化屬性
+
+    ``` javascript
+    $(document).ready(function () {
+        $("#customers").DataTable({
+            ajax: {
+                url: "/api/customers",
+                dataSrc: ""
+            },
+            columns: [
+                {
+                    data: "name",
+                    render: function (data, type, row) {
+                        return "<a href='/Customers/Edit/" + row.id + "'>" + data + "</a>";
+                    }
+                },
+                {
+                    // this data is temporary
+                    data: "name"
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button class='btn-link js-delete' data-customer-id='" + data + "'>Delete</button>";
+                    }
+                }
+            ]
+        });
+        ...
+    });
+    ```
+
+    > ※ ```dataSrc``` 會依資料來源的格式給予不同的值
+    >
+    >> <table>
+    >> <tr align="center">
+    >> <th>資料來源</th>
+    >> <th>DataTables 初始化</th>
+    >> </tr>
+    >> <tr>
+    >> <td>
+    >>
+    >> ``` json
+    >> {
+    >>     count: 10,
+    >>     customers: [
+    >>         { ... },
+    >>         { ... },
+    >>         { ... }
+    >>     ]
+    >> }
+    >> ```
+    >>
+    >> </td>
+    >> <td>
+    >>
+    >> ``` javascript
+    >> $("#customers").DataTable({
+    >>     ajax: {
+    >>         url: "/api/customers",
+    >>         dataSrc: "customers"
+    >>     },
+    >>     ...
+    >> });
+    >> ```
+    >>
+    >> </td>
+    >> </tr>
+    >> <tr>
+    >> <td>
+    >>
+    >> ``` json
+    >> [
+    >>     { ... },
+    >>     { ... },
+    >>     { ... }
+    >> ]
+    >> ```
+    >>
+    >> </td>
+    >> <td>
+    >>
+    >> ``` javascript
+    >> $("#customers").DataTable({
+    >>     ajax: {
+    >>         url: "/api/customers",
+    >>         dataSrc: ""
+    >>     },
+    >>     ...
+    >> });
+    >> ```
+    >>
+    >> </td>
+    >> </tr>
+    >> </table>
+    >
+    > ※ ```columns``` 用來定義表格欄位的值來自哪個屬性
+
+2. 原本的 Html 只需要保留 table 的基礎架構，資料就交給 DataTables 來渲染
+
+    ``` html
+    <h2>Customers</h2>
+    <table id="customers" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Membership Type</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- everything here is deleted -->
+        </tbody>
+    </table>
+    ```
+
+3. Controller 的 ```Index()``` Action 也不再需要回傳 Model 物件
+
+    ``` csharp
+    // GET: Customers
+    public ActionResult Index()
+    {
+        // everything here is deleted
+        return View();
+    }
+    ```
+
+4. 檢視結果
+
+### Returning Hierarchical Data
+
+在剛剛的例子中，因為 ```CustomerDto``` 類別中沒有 ```MembershipType``` 的屬性，所以在表格中我們無法用現有的 API 取得 ```MembershipType.Name```，為了解決這個問題，以下述操作為例
+
+1. 建立 ```MembershipTypeDto``` 類別，目的只是為了讓 API 能夠揭露 ```MembershipType``` 的必要屬性
+
+    ``` csharp
+    public class MembershipTypeDto
+    {
+        public byte Id { get; set; }
+        public string Name { get; set; }
+    }
+    ```
+
+2. 在 ```CustomerDto``` 加入 ```MembershipTypeDto``` 屬性
+
+    ![20190601_022901](img/20190601_022901.png)
+
+3. 在 API 的 GET request method 加上 ```.Include()```
+
+    ![20190601_023403](img/20190601_023403.png)
+
+4. 也要在 「App_Start\MappingProfile.cs」，加上 ```MembershipType``` -> ```MembershipTypeDto``` 的對應
+
+    ![20190601_023851](img/20190601_023851.png)
+
+5. 用 Postman 檢查 API 是否有正確回傳 ```MembershipTypeDto```
+
+    ![20190601_024023](img/20190601_024023.png)
+
+6. 修改 script，定義成正確的屬性
+
+    ![20190601_024147](img/20190601_024147.png)
+
+7. 檢視結果
