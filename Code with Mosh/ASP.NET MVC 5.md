@@ -1646,3 +1646,26 @@ $("#customers").on("click", ".js-delete", function () {
     ![20190601_024147](img/20190601_024147.png)
 
 7. 檢視結果
+
+### DataTables: Removing Records
+
+修正「刪除表格列」的寫法，以下述程式碼為例
+
+> ※ ```draw()``` 是為了在刪除資料後，重新渲染表格
+
+![20190601_152902](img/20190601_152902.png)
+
+### Single Page Applications (SPAs)
+
+user 點擊任何連結或發出 request 時
+
+- Server-side 僅提供各種 API 來取得或修改資料
+- 網站只有一個 View，而且全交由 Client-side 渲染 (不再需要 Razor view)
+
+    ![20190601_154000](img/20190601_154000.gif)
+
+- 對使用者體驗會更快更流暢
+
+### Exercise in section 7
+
+在「/Movies/Index」頁面實作 DataTables 和刪除的 Bootbox 功能
