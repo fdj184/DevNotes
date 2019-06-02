@@ -1669,3 +1669,251 @@ user 點擊任何連結或發出 request 時
 ### Exercise in section 7
 
 在「/Movies/Index」頁面實作 DataTables 和刪除的 Bootbox 功能
+
+## Authentication and Authorization
+
+目前的應用程式並沒有作權限管理，也就是應該要有以下限制
+
+1. 有登入帳號的使用者才能租借電影
+2. 有管理員帳號的使用者才能作新增、修改、刪除
+
+### Authentication Options
+
+在 Visual Studio 建立 MVC 專案時，有一個驗證的選項
+
+![20190521_233504](img/20190521_233504.png)
+
+其中包括
+
+- 無驗證：不作權限控管
+- 個別使用者帳戶：帳號儲存在獨立的 DB 或透過社群帳號登入 (eg:Facebook, Google, Twitter .. etc.)
+- 工作或學校帳戶：透過將帳戶儲存在 Active Directory (AD) 中，達到 Single Sign-on (SSO) 的功能
+- Windows 驗證：登入 Windows OS 時就完成授權，適用於組織內部網路
+
+![20190601_175355](img/20190601_175355.png)
+
+### ASP&#46;NET Identity
+
+內建的 Identity Framework 由三個部分構成，如下圖所示 (灰字為部分類別)，用來管理基本的帳號註冊、驗證、登入
+
+![20190601_182318](img/20190601_182318.png)
+
+第一次使用 EF Migration 時，會跑出很多「dbo.AspNetUser*」開頭的 table，就是來自「Models\IdentityModels.cs」的預設類別，兩者皆為 ASP&#46;NET Identity 的一部份
+
+![20190601_182949](img/20190601_182949.png)
+
+打開「Controllers\AccountController.cs」，就可以看到一些註冊和登入用的 Action，例如 ```Register()``` 就可以調整註冊後是否要發 email、註冊後是否自動登入 .. 等等邏輯
+
+![20190601_183455](img/20190601_183455.png)
+
+### Restricting Access
+
+- ```[Authorize]``` 屬性用來限制 Action 或整個 Controller 需要登入才能使用
+- ```[AllowAnonymous]``` 屬性用來允許匿名使用 Action 或整個 Controller
+- 以下述程式碼為例，就是整個 ```CustomersController``` 中的 Action 都要登入才能使用，但是 ```Index()``` Action 允許匿名使用
+
+    ``` csharp
+    [Authorize]
+    public class CustomersController : Controller
+    {
+        ...
+
+        // GET: Customers
+        [AllowAnonymous]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        ...
+    ```
+
+- 如果要全域使用，需要在「App_Start\FilterConfig.cs」加上程式碼
+
+    ![20190602_153221](img/20190602_153221.png)
+
+### Seeding Users and Roles
+
+欲產生 admin 和 guest 帳號，以下述操作為例
+
+1. 先透過 Web 建立「guest@vidly.com」帳號
+2. 註冊完會自動登入，先作登出
+3. 在 ```Register()``` Action 暫時加入程式碼，讓下一個註冊者自動擁有 "CanManageMovie" 角色 (角色名稱最好為實際功能)
+
+    ![20190602_162158](img/20190602_162158.png)
+
+4. 透過 Web 建立「guest@vidly.com」帳號
+5. 刪除在步驟3建立的程式碼
+6. 建立空的 Migration，把「AspNetRoles」、「AspNetUsers」和「AspNetUserRoles」的 insert script 複製到 Migration 中
+
+    ![20190602_163831](img/20190602_163831.png)
+
+7. 刪除步驟6那三張 table 的資料，跑 ```Update-Database``` 指令
+8. 承上，這樣的好處是，可以把相關 SQL script 帶到其它環境建置
+
+### Working with Roles
+
+欲讓 admin 和 guest 看到不同功能的「/Movies/Index」頁面，以下述操作為例
+
+1. 將「View\Movies\Index.cshtml」重新命名為「List.cshtml」，並複製檔案命名為「ListReadOnly.cshtml」
+2. 移除「ListReadOnly.cshtml」的新增、修改、刪除功能
+3. 到「Controllers\MoviesController.cs」修改 ```Index()``` Action，透過 ```User.IsInRole()``` 來判斷要將使用者導向「List.cshtml」或是「ListReadOnly.cshtml」
+
+    ![20190602_171658](img/20190602_171658.png)
+
+4. 承上，為了將字串 "CanManageMovies" 統一管理，我們可以在 Model 新增 ```RoleName``` 類別
+
+    ![20190602_172004](img/20190602_172004.png)
+
+5. 將步驟3的字串替換成步驟4建立的類別屬性
+
+    ![20190602_172118](img/20190602_172118.png)
+
+6. 截至目前，guest 還是可以透過 URL 直接進入新增、修改表單頁，所以我們透過 ```[Authorize(Role = {nameOfRole})]``` 屬性來限制相關的 Action
+
+    ``` csharp
+    [Authorize(Roles = RoleName.CanManageMovies)]
+    public ActionResult New()
+    {
+        ...
+    }
+
+    [Authorize(Roles = RoleName.CanManageMovies)]
+    public ActionResult Edit(int Id)
+    {
+        ...
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = RoleName.CanManageMovies)]
+    public ActionResult Save(Movie movie)
+    {
+        ...
+    }
+    ```
+
+### Adding Profile Data
+
+欲在註冊頁加上「駕照號碼」欄位，以下述操作為例
+
+1. 從 Model 開始改，在「Models\IdentityModels.cs」的 ```ApplicationUser``` 添加屬性
+
+    ![20190602_200603](img/20190602_200603.png)
+
+2. 承上，調整 Model 就要建立新的 Migration，然後更新至 DB
+3. 接著欲修改 View，可以看到「Views\Account\Register.cshtml」在一開始宣告 model type 是來自 ```RegisterViewModel```
+
+    ``` csharp
+    @model Vidly.Models.RegisterViewModel
+    ...
+    ```
+
+4. 所以也要在 ```RegisterViewModel``` 添加屬性 (這裡的修改是為了在 View 中顯示欄位，而步驟 1 的修改是為了在 EF 中新增欄位)
+
+    ![20190602_202024](img/20190602_202024.png)
+
+5. 在「Register.cshtml」添加相關 razor 語法
+
+    ``` csharp
+    ...
+    <div class="form-group">
+        @Html.LabelFor(m => m.DrivingLicense, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.DrivingLicense, new { @class = "form-control" })
+        </div>
+    </div>
+    ...
+    ```
+
+### OAuth
+
+大部分的社群登入會透過 Open Authorization (OAuth) 的機制來取得驗證，以透過 Facebook 帳號登入 Vidly 為例，其原理如下
+
+![20190603_025400](img/20190603_025400.gif)
+
+| 順序 |                       使用者端                       |                                                   背景邏輯                                                   |
+|:----:|:----------------------------------------------------:|:------------------------------------------------------------------------------------------------------------:|
+|  1   |     使用者在 Vidly 點擊「用 Facebook 帳號登入」      |                                                                                                              |
+|  2   |                                                      |                                Vidly 拿著 key 和 secret 向 Facebook 發出要求                                 |
+|  3   | Facebook 要求使用者登入，並告知 Vidly 欲存取哪些權限 |                                                                                                              |
+|  4   |                    使用者同意存取                    |                                                                                                              |
+|  5   |                                                      |                   Facebook 確認有此使用者且其允許存取後，回傳 authorization token 給 Vidly                   |
+|  6   |                                                      | Vidly 再次拿著 authorization token、key 和 secret 向 Facebook 確認這個 authorization key 的確是來自 Facebook |
+|  7   |                                                      |                       Facebook 確認 authorization token 來自本身後，回傳 access token                        |
+|  8   |                                                      |                        Vidly 用 access token 跟 Facebook 取得該使用者的 email 等資料                         |
+
+### Social Logins
+
+在 ASP&#46;NET MVC 中要使用社群登入要先作兩件事
+
+#### 開啟 SSL
+
+以確保 OAtuh 的過程是安全加密的，以下述操作為例
+
+1. 在「方案總管」選擇專案檔，接著點擊「屬性」視窗
+
+    ![20190603_033102](img/20190603_033102.png)
+
+2. 將 SSL 設定為啟用，啟用後會一併出現 SSL URL，複製該 URL
+
+    ![20190603_033148](img/20190603_033148.png)
+
+3. 在「方案總管」選擇專案檔，右鍵選擇「屬性」，在「Web」頁籤的專案 URL 貼上剛剛的 SSL URL 後儲存
+
+    ![20190603_033424](img/20190603_033424.png)
+
+4. Ctrl + F5 啟動專案，確認可以用 SSL URL 開啟網站
+
+    ![20190603_033700](img/20190603_033700.png)
+
+5. 回到專案，開啟「App_Start\FilterConfig.cs」，加入 ```RequireHttpsAttribute()``` filter
+
+    > ※ 實際上用原本的非 SSL 加密的 URL 也還是可以開啟網站，所以要作此步驟
+
+    ![20190603_034134](img/20190603_034134.png)
+
+#### 向社群平台 (eg: Facebook) 註冊
+
+註冊後，透過 key 和 secret 就能讓它認得我們，以下述操作為例
+
+1. 註冊/登入 [Facebook for Developers](https://developers.facebook.com/)
+2. 建立 app 後，可以得到 key 和 secret
+
+    ![20190603_035031](img/20190603_035031.png)
+
+3. 回到專案，開啟「App_Start\Startup.Auth.cs」，這裡已經內建了許多 OAuth 的程式
+4. 承上，找到 ```app.UseFacebookAuthentication``` 將步驟 2 的 key 和 secret 填上
+5. 建置後瀏覽登入頁，便會看到 Facebook 登入的選項
+
+    ![20190603_040002](img/20190603_040002.png)
+
+#### 社群登入並添加額外欄位資訊
+
+以下述操作為例
+
+1. 目前的「Facebook 登入」按鈕在取得授權後，僅會要求你提供 email
+
+    ![20190603_040349](img/20190603_040349.png)
+
+    在送出 email 後，其實會發生錯誤
+
+    ![20190603_040436](img/20190603_040436.png)
+
+    因為我們先前在 ```IdentityModels``` 中有額外定義要提供駕照號碼，而目前經由社群登入的確認表單並沒有這個欄位
+
+    ![20190602_200603](img/20190602_200603.png)
+
+2. 開啟「Views\Account\ExternalLoginConfirmation.cshtml」，加上「駕照號碼」欄位的程式碼
+
+    ![20190603_041439](img/20190603_041439.png)
+
+3. 承上，從檔案開頭可以看出 ViewModel 來源，在 ```ExternalLoginConfirmationViewModel``` 中，添加「駕照號碼」屬性
+
+    ![20190603_041602](img/20190603_041602.png)
+
+4. 在步驟 2 中，也能看出表單會 POST 到 ```AccountController``` 的 ```ExternalLoginConfirmation()``` Action，在這邊也要修改程式碼，讓表單 POST 後會將「駕照號碼」存至 DB
+
+    ![20190603_042120](img/20190603_042120.png)
+
+5. 再次用「Facebook 登入」驗證
