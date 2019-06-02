@@ -1917,3 +1917,9 @@ user 點擊任何連結或發出 request 時
     ![20190603_042120](img/20190603_042120.png)
 
 5. 再次用「Facebook 登入」驗證
+
+### Exercise in section 8
+
+1. 在登入頁添加「電話」欄位，設為必填且最大 50 字元
+2. 將 Movie 在 CUD 相關的 Action 和 API 都套用 admin 才能操作的權限
+3. 將 ```ExternalLoginConfirmationViewModel``` 類別獨立成一支檔案
