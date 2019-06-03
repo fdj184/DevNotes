@@ -1923,3 +1923,212 @@ user 點擊任何連結或發出 request 時
 1. 在登入頁添加「電話」欄位，設為必填且最大 50 字元
 2. 將 Movie 在 CUD 相關的 Action 和 API 都套用 admin 才能操作的權限
 3. 將 ```ExternalLoginConfirmationViewModel``` 類別獨立成一支檔案
+
+## Performance Optimization
+
+效能調校可以從三個層級下手，越下層的效能調校會越有感，效益也越大
+
+- Data Tier: DB 或 I/O 端，例如 schema, query .. 等等
+- Application Tier: Server-side 程式，例如 output cache, data cache, release builds, disabling session .. 等等
+- Client Tier: Client-side 程式
+
+    <table>
+    <tr>
+    <td>
+
+    ![20190603_160358](img/20190603_160358.png)
+
+    </td>
+    <td>
+
+    ![20190603_160618](img/20190603_160618.png)
+
+    </td>
+    </tr>
+    </table>
+
+作效能調校時應遵守幾點原則
+
+- 避免過度調校，而犧牲了程式的可維護性
+- 可以得到顯著的效益才付出相對應的心力和時間作調校
+
+### Data Tier
+
+- Schema
+    - Primary Key: table 應該要有 PK
+    - Relationship
+    - Indexes: 過濾用的欄位應該加上索引
+- Queries
+    - EF 有時候會建出太複雜的查詢，此時可以改成自己刻一個 stored procedure 來跑
+    - 透過 SQL Server 的「執行計畫 (Execution Plan)」功能來檢查查詢慢在哪
+    - 透過 cache 暫存查詢結果
+
+### Glimpse
+
+監控所有 request 的套件，安裝與啟用方式，以下述操作為例
+
+1. 透過 NuGet 安裝「Glimpse.Mvc5」和「Glimpse.EF6」
+2. 瀏覽「https://localhost:{portNumber}/glimpse.axd」，將 Glimpse 開啟，Glimpse 便會開始監控
+
+    ![20190603_164211](img/20190603_164211.png)
+
+3. 試著瀏覽「https://localhost:{portNumber}/customers」，便會在網頁下方看到 Glimpse 面板，可以用來觀察連線時間、Action 來源、Ajax 呼叫過程、SQL 連線過程 .. 等等資訊
+
+    ![20190603_171800](img/20190603_171800.gif)
+
+### Output Cache
+
+如果資料的異動頻率不高，可以透過 cache 的方式，其原理如下
+
+1. 第一個使用者發出 request
+2. application 向 DB 要資料
+3. application 將 View 回傳給 client，並儲存 View 在 cache 中
+4. 後續使用者發出 request
+5. application 檢查 cache 若還沒過期，直接回傳 View 給 client
+
+    ![20190603_173300](img/20190603_173300.gif)
+
+#### 開啟 Output Cache
+
+在 Controller 或 Action 上方加入 ```[OutputCache]``` 即可開啟 cache 功能
+
+> ※ 千萬不要濫用 Output Cache，無法取得即時的正確資料恐會導致很多問題
+
+``` csharp
+// Duration 設定 cache 壽命，單位為秒
+// Location 設定 cache 儲存於 Server-side 或 Client-side
+// VaryByParam 設定要依哪個參數判斷是否使用 cache，可使用萬用字元 (*)
+[OutputCache(Duration = 60, Location = System.Web.UI.OutputCacheLocation.Server, VaryByParam = "*")]
+public ActionResult Index()
+{
+    // 可以透過回傳 DateTime.Now 來確認頁面是否有 cache 功能
+    return View();
+}
+```
+
+#### 強制關閉 Output Cache
+
+``` csharp
+// Duration 設為 0 秒
+// VaryByParam 設定要依哪個參數判斷是否使用 cache，可使用萬用字元 (*)
+// NoStore 告知瀏覽器不要從 cache 讀取資料
+[OutputCache(Duration = 0, VaryByParam = "*", NoStore = true)]
+public ActionResult Index()
+{
+    // 可以透過回傳 DateTime.Now 來確認頁面是否有 cache 功能
+    return View();
+}
+```
+
+### Data Caching
+
+透過 ```MemoryCache.Default[key] = value``` 即可用 key/value 的方式儲存 Data Caching
+
+> ※ 同樣地，不要濫用 Data Cache，無法取得即時的正確資料恐會導致很多問題
+
+``` csharp
+using System.Runtime.Caching;
+
+public ActionResult Index()
+{
+    if (MemoryCache.Default["membershipTypes"] == null)
+        MemoryCache.Default["membershipTypes"] = _context.MembershipTypes.ToList();
+
+    var membershipTypes = (IEnumerable)MemoryCache.Default["membershipTypes"];
+
+    return View(membershipTypes);
+}
+```
+
+### Async
+
+[非同步處理 (Async)](C%23%20Advanced.md#非同步處理-asyncawait) 簡單的概念如下
+
+1. 未使用非同步處理時，使用者發出 request 後，由 thread 去 I/O 端取資料一定都會有延遲，thread 會一直等到 I/O 端回傳資料後，才繼續執行後續動作
+
+    ![20190603_213408](img/20190603_213408.png)
+
+2. 承上，想像如果同時有多個使用者都發出一樣的 request，每個人都會占用一條 thread，而且每個人都在等 thread 回應，當 thread pool 中的 thread 用盡時，後續的使用者就必須等待更久的時間
+
+    ![20190603_213610](img/20190603_213610.png)
+
+3. 使用非同步處理時，每條 thread 發現在 I/O 端取資料需要等待，就會改成先服務其它 request，等其它 request 處理完且原本 I/O 端也回傳資料了，再回頭處理第一個 request 的後續動作
+
+    ![20190603_214019](img/20190603_214019.png)
+
+#### Async 不會增進效能
+
+想像下圖為水管，request 為由上往下流的水，Async 的確能同時處理更多 request，但在 I/O 端仍然需要等待一樣長的時間
+
+![20190603_214500](img/20190603_214500.gif)
+
+Async 增進的是可擴充性，如果在 I/O 端也一同透過 SQL Cluster, NoSQL, Azure 等方式作擴展，這樣才是徹底的增進效能
+
+![20190603_214957](img/20190603_214957.png)
+
+### Release Builds
+
+我們預設是用 Debug 模式建置專案，檔案會產生許多 assembly 是 debug 才會用到的，如果是正式環境的建置，可以改採用 Release 模式建置，產出的檔案會較為輕量
+
+![20190603_215512](img/20190603_215512.png)
+
+### Disabling Session
+
+Session 為 web server 分配給每個使用者的記憶體，用來暫存資料，而現今的 app 講求「**無狀態 (Stateless)**」，也就是每個 request 都是獨立且唯一的，處理完就結束，不會去記住他這次處理了什麼，以下述操作為例
+
+1. 開啟「Web.config」，在 ```system.web``` 區塊加入以下程式
+
+    ``` xml
+    <system.web>
+        <sessionState mode="Off"></sessionState>
+        ...
+    </system.web>
+    ```
+
+### Client Tier
+
+在 Client Tier 調校效能有兩個原則
+
+- 減少 request 的數量
+- 減少 Server-side 回傳資料的 size
+
+舉幾個例子來說
+
+- DTO: 透過 DTO 僅回傳必要的屬性，也就減少回傳資料的 size
+- images: 作適度的壓縮
+- JS/CSS
+    - 透過 bundle 可以減少 request 數量
+    - 透過 compress 則可以減少 JS/CSS 的檔案大小
+    - 將 js 放在 ```<body>``` tag 結尾前才載入，讓使用者可以先看到 Html 元素，避免 js 載入過久而導致畫面凍結
+
+        ``` html
+        <body>
+            ...
+            ...
+            ...
+
+            // Loading JS files here.
+        </body>
+        ```
+
+#### 開啟 JS/CSS bundle
+
+在「方案總管」可以看到「Web.config」底下還有兩個檔案，分別對應在 Debug 或 Release 模式下要如何改寫「Web.config」
+
+![20190603_222454](img/20190603_222454.png)
+
+在「Web.Release.config」可以看到，Release 模式時，下述程式碼的 ```debug``` 屬性會被移除
+
+``` xml
+<system.web>
+    <compilation debug="true" targetFramework="4.7.2" />
+</system.web>
+```
+
+以相同頁面載入 JS 為例
+
+|                  無 bundle                  |                  有 bundle                  |
+|:-------------------------------------------:|:-------------------------------------------:|
+| ![20190603_223345](img/20190603_223345.png) | ![20190603_223628](img/20190603_223628.png) |
+
+> ※ bundle 檔案後面那段亂碼是根據 bundle 的內容作的 hash，一旦檔案內容有異動 hash 就會跟著變動，目的是避免檔案修改後因瀏覽器 cache 住而未重新載入
