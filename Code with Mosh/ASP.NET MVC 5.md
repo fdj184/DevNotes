@@ -2132,3 +2132,512 @@ Session 為 web server 分配給每個使用者的記憶體，用來暫存資料
 | ![20190603_223345](img/20190603_223345.png) | ![20190603_223628](img/20190603_223628.png) |
 
 > ※ bundle 檔案後面那段亂碼是根據 bundle 的內容作的 hash，一旦檔案內容有異動 hash 就會跟著變動，目的是避免檔案修改後因瀏覽器 cache 住而未重新載入
+
+## Building a Feature End-to-End Systematically
+
+此章節仿造設計一個新功能時，應如何依序下手
+
+### 設計新功能 - 選擇 Controller 形式
+
+以設計「租借電影」的表單為例，可以先思考其使用情境、input、output、Controller 形式
+
+- 使用情境：租借電影
+- input: Customer and Movies
+- output: none
+- Controller 形式：因為會用到 JS 來修飾頁面，採 API Controller (僅回傳 data) 比 MVC Controller (回傳 html markup) 更合適
+
+### 設計新功能 - 建立 Action
+
+一開始先建立空的 Action 即可，傳入的物件應作成 DTO
+
+``` csharp
+// Path: Dtos\RentalDto.cs
+
+public class RentalDto
+{
+    public int CustomerId { get; set; }
+    public IEnumerable<int> MovieIds { get; set; }
+}
+```
+
+``` csharp
+// Path: Controllers\Api\RentalController.cs
+
+public class RentalController : ApiController
+{
+    // POST /api/rental
+    [HttpPost]
+    public IHttpActionResult New(RentalDto rentalDto)
+    {
+        throw new NotImplementedException();
+    }
+}
+```
+
+### 設計新功能 - 建立 Model
+
+根據下圖 UML 建立相關 Model 和 Migration 並更新至 DB
+
+![20190604_175911](img/20190604_175911.png)
+
+``` csharp
+// Path: Models\Rentals.cs
+
+public class Rental
+{
+    public int Id { get; set; }
+
+    [Required]
+    public Customer Customer { get; set; }
+
+    [Required]
+    public Movie Movie { get; set; }
+
+    public DateTime DateRented { get; set; }
+
+    public DateTime? DateReturned { get; set; }
+}
+```
+
+``` csharp
+// Path: Models\IdentityModels.cs
+
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+{
+    ...
+
+    public DbSet<Rental> Rentals { get; set; }
+
+    ...
+}
+```
+
+### 設計新功能 - 實作簡易 Action
+
+先不管資料驗證，透過 Postman 打 API 看 Action 是否能正確儲存資料
+
+``` csharp
+// Path: Controllers\Api\RentalController.cs
+
+// POST /api/rental
+[HttpPost]
+public IHttpActionResult AddRental(RentalDto rentalDto)
+{
+    var customer = _context.Customers.SingleOrDefault(c => c.Id == rentalDto.CustomerId);
+
+    foreach (var movieId in rentalDto.MovieIds)
+    {
+        var movie = _context.Movies.SingleOrDefault(m => m.Id == movieId);
+
+        var rental = new Rental
+        {
+            Customer = customer,
+            Movie = movie,
+            DateRented = DateTime.Now
+        };
+
+        _context.Rentals.Add(rental);
+    }
+
+    _context.SaveChanges();
+
+    return Ok();
+}
+```
+
+### 設計新功能 - 實作 Action 細節
+
+例如去 \[Movies] table 檢查電影庫存量足夠才算成功租借
+
+### 設計新功能 - Edge Cases
+
+考量 Action 中有哪些地方可能會有例外 (Exception) 發生，加以防範並揭露錯誤資訊
+
+### 設計新功能 - 前端畫面
+
+建立前端用的 MVC Controller 和 View
+
+<table>
+<tr>
+<th></th>
+<th>傳統 Html Form</th>
+<th>Ajax Form</th>
+</tr>
+<tr>
+<td align="center">Razor 語法</td>
+<td>
+
+``` csharp
+@using (Html.BeginForm("action", "controller"))
+{
+    ...
+}
+```
+
+</td>
+<td>
+
+``` csharp
+@using (Ajax.BeginForm("action", "controller",
+    new AjaxOptions { HttpMethod = "POST" }))
+{
+
+}
+```
+
+</td>
+</tr>
+<tr>
+<td align="center">Html 原始碼</td>
+<td>
+
+``` html
+<form action="/controller/action" method="post">
+    ...
+</form>
+```
+
+</td>
+<td>
+
+``` html
+<form action="/controller/action" data-ajax="true"
+data-ajax-method="POST" id="form0" method="post">
+    ...
+</form>
+```
+
+</td>
+</tr>
+<tr>
+<td align="center">差異</td>
+<td>
+
+submit 後到 Server-side 回傳的這段期間，網頁會變空白且無法操作
+
+![20190605_005700](img/20190605_005700.gif)
+
+</td>
+<td>
+
+submit 後到 Server-side 回傳的這段期間，網頁仍能繼續操作
+
+![20190605_010200](img/20190605_010200.gif)
+
+</td>
+</tr>
+</table>
+
+如果 Form 是要 POST 到 Web API 的話，也可以考慮透過 Html + JS 就好
+
+``` html
+<form>
+    ...
+    <button type="submit">OK</button>
+</form>
+
+<script>
+    $("form").submit(function (e) {
+        ...
+    });
+</script>
+```
+
+### 設計新功能 - typeahead.js
+
+文字欄位顯示建議的套件，安裝與使用方式，以下述操作為例
+
+1. 透過 NuGet 安裝「Twitter.Typeahead」
+2. 建立「Content\typeahead.css」，內容去複製 [example page](http://twitter.github.io/typeahead.js/examples/#remote) 的 css (class name 為 ```tt-*``` 開頭)
+3. 在 bundle 加入此套件
+
+    ``` csharp
+    // js bundle
+    bundles.Add(new ScriptBundle("~/bundles/lib").Include(
+        ...,
+        "~/Scripts/typeahead.bundle.js"));
+
+    // css bundle
+    bundles.Add(new StyleBundle("~/Content/css").Include(
+        ...,
+        "~/Content/typeahead.css",
+        "~/Content/site.css"));
+    ```
+
+4. 模仿 [example page](https://twitter.github.io/typeahead.js/examples/#remote)，套用 typeahead.js 到欄位上
+
+    ``` html
+    <form>
+        ...
+        <input id="movie" type="text" class="form-control" />
+        ...
+    </form>
+
+    @section scripts
+    {
+        <script>
+            $(document).ready(function () {
+                // customer field is similar as below code
+                ...
+
+                // for movie field
+                var movies = new Bloodhound({
+                    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    remote: {
+                        url: '/api/movies?query=%QUERY',
+                        wildcard: '%QUERY'
+                    }
+                });
+
+                $('#movie').typeahead({
+                    minLength: 2,
+                    highlight: true
+                }, {
+                    name: 'movies',
+                    display: 'name',
+                    source: movies
+                });
+            });
+        </script>
+    }
+    ```
+
+5. 加上 event handler，在選擇文字後儲存在物件中，並顯示在列表
+
+    ``` html
+    <form>
+        ...
+        <input id="movie" type="text" class="form-control" />
+        <div class="row">
+            <div class="col-md-4">
+                <ul id="movieList" class="list-group"></ul>
+            </div>
+        </div>
+        ...
+    </form>
+
+    @section scripts
+    {
+        <script>
+            $(document).ready(function () {
+
+                ...
+
+                let vm = {
+                    movieIds: []
+                };
+
+                $('#movie').typeahead({
+                    // initial options
+                }).on("typeahead:select", function (e, movie) {
+                    vm.movieIds.push(movie.id);
+                    $("#movieList").append(`<li class="list-group-item">${movie.name}</li>`)
+                    $('#movie').typeahead("val", "");
+                });
+            });
+        </script>
+    }
+    ```
+
+6. 調整 API，根據 query 給的字串去過濾結果
+
+    ![20190605_182505](img/20190605_182505.png)
+
+### 設計新功能 - 提交表單
+
+用 Ajax 將儲存的物件送到 API
+
+``` html
+<form id="addRental">
+    ...
+    <button type="submit">OK</button>
+</form>
+
+<script>
+
+    ...
+
+    $("#AddRental").submit(function (e) {
+        // 避免 Html submit 的動作出現
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "/api/rental",
+            data: vm
+        })
+        .done(function (e) {
+            console.log("done");
+        })
+        .fail(function (e) {
+            console.log("fail");
+        });
+    });
+</script>
+```
+
+### 設計新功能 - toastr.js
+
+顯示通知視窗的套件，安裝與使用方式，以下述操作為例
+
+1. 透過 NuGet 安裝「toastr」
+2. 在 bundle 加入此套件
+
+    ``` csharp
+    // js bundle
+    bundles.Add(new ScriptBundle("~/bundles/lib").Include(
+        ...,
+        "~/Scripts/toastr.js"));
+
+    // css bundle
+    bundles.Add(new StyleBundle("~/Content/css").Include(
+        ...,
+        "~/Content/toastr.css",
+        "~/Content/site.css"));
+    ```
+
+3. 實作
+
+    ``` javascript
+    ...
+
+    $("#AddRental").submit(function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "/api/rental",
+            data: vm
+        })
+        .done(function (e) {
+            toastr.success("Rentals successfully recorded.");
+        })
+        .fail(function (e) {
+            toastr.error("Unexpected error.");
+        });
+    });
+    ```
+
+### 設計新功能 - Client-side Validation
+
+使用內建的 jQuery Validation 套件作表單驗證
+
+1. 在頁面載入
+
+    ``` csharp
+    @section scripts
+    {
+        @Scripts.Render("~/bundles/jqueryval")
+
+        ...
+    }
+    ```
+
+2. 欄位加入 ```name``` 和 驗證屬性且 submit 事件改成在 ```validate()``` 中處理
+
+    ``` html
+    <form id="AddRental">
+        ...
+        <!-- 沒加 name 屬性的話，jQuery Validation 有時候不會生效 -->
+        <input id="customer" name="customer" type="text" class="form-control" required />
+        ...
+    </form>
+
+    @section scripts
+    {
+        <script>
+            $(document).ready(function () {
+                ...
+
+                $("#AddRental").validate({
+                    submitHandler: function (form) {
+                        event.preventDefault();
+
+                        $.ajax({
+                            method: "POST",
+                            url: "/api/rental",
+                            data: vm
+                        })
+                        .done(function (e) {
+                            toastr.success("Rentals successfully recorded.");
+                        })
+                        .fail(function (e) {
+                            toastr.error("Unexpected error.");
+                        });
+                    }
+                });
+            });
+        </script>
+    }
+    ```
+
+3. 加上自定義規則
+
+    ``` html
+    <form id="AddRental">
+        ...
+        <input id="customer" name="customer" type="text" class="form-control" required data-rule-validCustomer="true" />
+        ...
+    </form>
+
+    @section scripts
+    {
+        <script>
+            $(document).ready(function () {
+                ...
+
+                // add custom rules
+                $.validator.addMethod("validCustomer", function (value, element) {
+                    return vm.customerId && vm.customerId > 0;
+                }, "Select a valid customer.");
+
+                $("#AddRental").validate({
+                    submitHandler: function (form) {
+                        event.preventDefault();
+
+                        $.ajax({
+                            method: "POST",
+                            url: "/api/rental",
+                            data: vm
+                        })
+                        .done(function (e) {
+                            toastr.success("Rentals successfully recorded.");
+                        })
+                        .fail(function (e) {
+                            toastr.error("Unexpected error.");
+                        });
+                    }
+                });
+            });
+        </script>
+    }
+    ```
+
+4. 調整錯誤訊息的 css
+
+### 設計新功能 - 表單初始化
+
+在 Ajax 成功後，要清空欄位、初始化物件、重置 Validation 狀態
+
+``` javascript
+$.ajax({
+    method: "POST",
+    url: "/api/rental",
+    data: vm
+})
+.done(function (e) {
+    toastr.success("Rentals successfully recorded.");
+
+    $("#customer").typeahead("val", "");
+    $("#movie").typeahead("val", "");
+    $("#movieList").empty();
+
+    vm = { movieIds: [] };
+
+    validator.resetForm();
+})
+.fail(function (e) {
+    toastr.error("Unexpected error.");
+});
+```
