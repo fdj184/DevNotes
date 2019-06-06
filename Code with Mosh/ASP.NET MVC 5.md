@@ -2641,3 +2641,241 @@ $.ajax({
     toastr.error("Unexpected error.");
 });
 ```
+
+## Deployment
+
+### Deploying the Application
+
+發行應用程式，以下述操作為例
+
+1. 在「方案總管」對著專案檔右鍵，選擇「發行...」
+
+    ![20190606_153750](img/20190606_153750.png)
+
+2. 挑選發佈目標
+
+    ![20190606_153948](img/20190606_153948.png)
+
+3. 發佈或建立設定檔 (供其他專案發佈使用)
+4. Visual Studio 也會建立「Properties\PublishProfiles\\*{設定檔名稱}*.pubxml」，如果將此檔案加到版控，就可以讓其它工程師也使用相同的發佈設定
+5. 發佈後可以在目標資料夾看到以下資料夾和檔案，其內容可參考[預設專案結構](#預設專案結構)
+
+    ![20190606_154432](img/20190606_154432.png)
+
+### Deploying the Database
+
+如果是採用 Code First 策略的 EF
+
+1. 在套件管理器主控台 (Package Manager Console) 輸入「Update-Database -Script \[-SourceMigration:*{migrationName}*]」產生 Migration script，例如 ```Update-Database -Script -SourceMigration:InitialModel```
+2. 將產生的 script 交給 DBA 或在目標 DB 執行
+
+> ※ 可以在 \[__MigrationHistory] table 看到所有執行過的 Migration 紀錄
+>
+> ![20190606_155829](img/20190606_155829.png)
+
+### Build Configurations
+
+在不同環境或 Server 中的發佈設定可能有所差異，例如 DB 連線字串不同，以下述操作為例建立不同的「Web.config」
+
+1. 在「方案組態」選擇「組態管理員」
+
+    ![20190606_160626](img/20190606_160626.png)
+
+2. 新增方案組態，例如「SIT」
+
+    ![20190606_160725](img/20190606_160725.png)
+
+    除非是在開發環境，否則設定值建議複製自「Release」設定檔
+
+    ![20190606_160854](img/20190606_160854.png)
+
+3. 接著在「方案總管」對著「Web.config」右鍵，選擇「新增設定轉換」
+
+    ![20190606_161109](img/20190606_161109.png)
+
+    就會長出「Web.SIT.config」
+
+    ![20190606_161212](img/20190606_161212.png)
+
+4. 承上，在發佈專案時，如果選擇這個組態，就會用這個「Web.SIT.config」去覆寫原本的「Web.config」
+
+### Application Settings
+
+在不同環境或 Server 中的應用程式設定可能有所差異，例如 API 金鑰、Mail Server 網址，以下述操作為例建立不同的「Web.config」
+
+1. 在「Web.config」的 ```<appSettings></appSettings>``` 區塊，用 key/value 的方式加入設定值
+
+    ``` xml
+    <!-- Web.config -->
+
+    ...
+    <appSettings>
+        ...
+        <add key="FacebookApiId" value="12345" />
+        <add key="FacebookApiKey" value="abcde" />
+        <add key="MailServer" value="dev-smtp.vidly.com" />
+    </appSettings>
+    ...
+    ```
+
+2. 在程式中叫用的方式為 ```ConfigurationManager.AppSettings[{key}]```，例如
+
+    ``` csharp
+    ...
+    app.UseFacebookAuthentication(
+        appId: ConfigurationManager.AppSettings["FacebookApiId"],
+        appSecret: ConfigurationManager.AppSettings["FacebookApiKey"]);
+    ...
+    ```
+
+3. 也可以在其它組態設定檔，例如「Web.SIT.config」，來作覆寫
+
+    ``` xml
+    <!-- Web.SIT.config -->
+
+    ...
+    <appSettings>
+        ...
+        <add key="MailServer" value="sit-smtp.vidly.com"
+            xdt:Transform="SetAttributes" xdt:Locator="Match(key)"/>
+    </appSettings>
+    ...
+    ```
+
+4. 在「方案總管」對著「Web.SIT.config」右鍵，選擇「預覽和轉換」就可以預覽覆寫後的「Web.config」
+
+    ![20190606_163712](img/20190606_163712.png)
+
+### Securing Configuration Settings
+
+在現實案例中，如果你的 repo 會發佈到公開的版控 Server (例如 GitHub)，將連線字串跟 API Key 直接寫在 xml 中是很危險的，以下述操作為例示範如何加密設定檔
+
+1. 在專案新增一個組態設定檔，例如「AppSettings.config」
+
+    ![20190606_164915](img/20190606_164915.png)
+
+2. 將原本「Web.config」的 ```<appSettings></appSettings>``` 區塊移到「AppSettings.config」中，並用 ```configSource``` 屬性指定來源
+
+    ``` xml
+    <!-- Web.config -->
+
+    ...
+    <appSettings configSource="AppSettings.config"></appSettings>
+    ...
+    ```
+
+    ``` xml
+    <!-- AppSettings.config -->
+
+    ...
+    <appSettings>
+        ...
+        <add key="FacebookApiId" value="12345" />
+        <add key="FacebookApiKey" value="abcde" />
+        <add key="MailServer" value="dev-smtp.vidly.com" />
+    </appSettings>
+    ...
+    ```
+
+3. 在發佈專案後，對「AppSettings.config」作加密再部署檔案至 Server
+
+    > ※ 因為加密方式會依情況不同而異，這邊僅提供概念
+
+### Custom Error Pages
+
+如果採用內建的 error page 會嚇到使用者，而且也揭露過多程式資訊，導致容易被攻擊，常見的錯誤畫面有以下幾種
+
+|          錯誤來源          |                  範例畫面                   |
+|:--------------------------:|:-------------------------------------------:|
+|   ASP&#46;NET exception    | ![20190606_170954](img/20190606_170954.png) |
+| ASP&#46;NET 回傳 404 error | ![20190606_173412](img/20190606_173412.png) |
+|     IIS 回傳 404 error     | ![20190606_171729](img/20190606_171729.png) |
+
+#### Custom Error Pages - ASP&#46;NET exception
+
+替換 error page，以下述操作為例
+
+1. 在「Web.config」的 ```<system.web></system.web>``` 區塊，加上 ```<customErrors>``` 標籤
+
+    ``` xml
+    <!-- Web.config -->
+
+    ...
+    <system.web>
+        <!-- mode="On" 為永遠開啟，
+             mode="RemoteOnly" 為在非 localhost 環境才開啟 -->
+        <customErrors mode="On"></customErrors>
+    </system.web>
+    ...
+    ```
+
+2. ASP&#46;NET MVC 預設的錯誤畫面來自「Views\Shared\Error.cshtml」，其 Controller 為在「App_Start\FilterConfig.cs」的 ```HandleErrorAttribute()```
+
+    ![20190606_172749](img/20190606_172749.png)
+
+#### Custom Error Pages - ASP&#46;NET 回傳 404 error
+
+替換 error page，以下述操作為例
+
+1. 在「Web.config」的 ```<system.web></system.web>``` 區塊，其 ```<customErrors>``` 標籤中，再寫明錯誤代碼和自定義錯誤頁的路徑
+
+    ``` xml
+    <!-- Web.config -->
+
+    ...
+    <system.web>
+        <customErrors mode="On">
+            <error statusCode="404" redirect="~/404.html"/>
+        </customErrors>
+    </system.web>
+    ...
+    ```
+
+2. 建立「404.html」
+
+    ![20190606_173700](img/20190606_173700.png)
+
+#### Custom Error Pages - IIS 回傳 404 error
+
+替換 error page，以下述操作為例
+
+1. 在「Web.config」的 ```<system.webServer></system.webServer>``` 區塊，加上 ```<httpErrors>``` 標籤，並寫明錯誤代碼和自定義錯誤頁的路徑
+
+    ``` xml
+    <!-- Web.config -->
+
+    ...
+    <system.webServer>
+        <!-- errorMode="Custom" 為永遠開啟，
+             errorMode="DetailedLocalOnly" 為在非 localhost 環境才開啟 -->
+        <httpErrors errorMode="Custom">
+            <remove statusCode="404"/>
+            <error statusCode="404" path="404.html" responseMode="File"/>
+        </httpErrors>
+    </system.webServer>
+    ...
+    ```
+
+2. 建立「404.html」
+3. 在瀏覽器瀏覽靜態檔案，會出現自定義錯誤頁，但是「Network」紀錄仍是 404，這樣才容易 debug
+
+    ![20190606_174549](img/20190606_174549.png)
+
+### Logging Unhandled Exceptions
+
+[ELMAH (Error Logging Modules and Handlers)](https://elmah.github.io/) 是紀錄所有 exception 的套件，安裝與啟用方式，以下述操作為例
+
+1. 透過 NuGet 安裝「Elmah」
+2. 瀏覽「https://localhost:{portNumber}/elmah.axd」，即可看到過去的錯誤訊息
+
+    ![20190606_175914](img/20190606_175914.png)
+
+3. Elmah 預設只有 localhost 才能存取，欲釋放權限可以在「Web.config」的 ```<elmah></elmah>``` 區塊調整
+
+    ![20190606_180139](img/20190606_180139.png)
+
+4. 另外，Elmah 預設僅會將錯誤訊息存在記憶體，欲寫至 DB 或寄信等功能須自行參考官方文件
+
+## 主題顏色設計
+
+可以到 <https://color.adobe.com> 設計網頁的配色
