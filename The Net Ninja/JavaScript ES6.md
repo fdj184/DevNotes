@@ -49,11 +49,11 @@ calcArea(10);
 - 在 { ... } 外宣告則視為全域變數
 - let 和 var 的差別
 
-  |                    |           var           |         let          |
-  |:------------------:|:-----------------------:|:--------------------:|
-  | 有效範圍(全域變數) |          全部           |    宣告之後的行數    |
-  | 有效範圍(區域變數) | 最靠近的 function block |   最靠近的 { ... }   |
-  |   for 迴圈的宣告   | 只能存取最後一個迴圈值  | 每次迴圈值都會被儲存 |
+    |                     |           var           |         let          |
+    |:-------------------:|:-----------------------:|:--------------------:|
+    | 有效範圍 (全域變數) |          全部           |    宣告之後的行數    |
+    | 有效範圍 (區域變數) | 最靠近的 function block |   最靠近的 { ... }   |
+    |   for 迴圈的宣告    | 只能存取最後一個迴圈值  | 每次迴圈值都會被儲存 |
 
 example 1:
 
@@ -215,12 +215,12 @@ console.log(person.sayHi());
 
 ## New String Methods
 
-|            Methods             |          Description           |
-|:------------------------------:|:------------------------------:|
-|        repeat(_times_)         |            重複字串            |
-| startWith(_value_, _position_) | 檢查字串(在特定位置的)起始文字 |
-|  endWith(_value_, _position_)  | 檢查字串(在特定位置的)後推文字 |
-|       includes(_value_)        |     檢查字串中是否包含文字     |
+|            Methods             |           Description            |
+|:------------------------------:|:--------------------------------:|
+|        repeat(_times_)         |             重複字串             |
+| startWith(_value_, _position_) | 檢查字串 (在特定位置的) 起始文字 |
+|  endWith(_value_, _position_)  | 檢查字串 (在特定位置的) 後推文字 |
+|       includes(_value_)        |      檢查字串中是否包含文字      |
 
 ``` javascript
 const str = "good ";
@@ -291,7 +291,7 @@ const person = {
         // 改採箭頭函式
         window.setInterval(() => {
             if (x > 0) {
-                // 若用箭頭函式，this 會指向物件本身(即person)
+                // 若用箭頭函式，this 會指向物件本身 (即person)
                 console.log(this.name + " jumped");
                 x--;
             }

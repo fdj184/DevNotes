@@ -11,12 +11,12 @@ Course Link: <https://codewithmosh.com/p/csharp-basics-for-beginners>
 |      |      C#      |               .NET                |
 |:----:|:------------:|:---------------------------------:|
 | 定義 | 一種程式語言 | 一種軟體框架，並不限於用 C# 撰寫  |
-| 組成 |              | 包含 CLR 和函式庫(Class Library) |
+| 組成 |              | 包含 CLR 和函式庫 (Class Library) |
 
 ## CLR
 
-- 透過編譯器(compiler) 把 C# 轉成中介語言(IL)，再透過 JIT 編譯器轉成原生機器語言
-- 提供記憶體管理、例外處理、垃圾回收機制(GC)、執行緒管理等服務
+- 透過編譯器 (compiler) 把 C# 轉成中介語言 (IL)，再透過 JIT 編譯器轉成原生機器語言
+- 提供記憶體管理、例外處理、垃圾回收機制 (GC)、執行緒管理等服務
 
   ![CLR](img/20190427_230508.png)
 
@@ -24,12 +24,12 @@ Course Link: <https://codewithmosh.com/p/csharp-basics-for-beginners>
 
 ## Architecture of .NET Applications
 
-|                       |                        描述                        |                  概念                   |
-|:---------------------:|:--------------------------------------------------:|:---------------------------------------:|
-|      類別(Class)      | 每個 Class 都有自己的屬性(Property)和方法(Method) |    ![Class](img/20190427_232513.png)    |
-|  命名空間(Namespace)  |       相似的 Class 會放在同一個 Namespace 中       |  ![Namespace](img/20190427_232918.png)  |
-|    組件(Assembly)     |     相似的 Namespace 會放在同一個 Assembly 中      |  ![Assembly](img/20190427_233207.png)   |
-| 應用程式(Application) |               由很多的 Assembly 組成               | ![Application](img/20190427_233938.png) |
+|                        |                         描述                         |                  概念                   |
+|:----------------------:|:----------------------------------------------------:|:---------------------------------------:|
+|      類別 (Class)      | 每個 Class 都有自己的屬性 (Property) 和方法 (Method) |    ![Class](img/20190427_232513.png)    |
+|  命名空間 (Namespace)  |        相似的 Class 會放在同一個 Namespace 中        |  ![Namespace](img/20190427_232918.png)  |
+|    組件 (Assembly)     |      相似的 Namespace 會放在同一個 Assembly 中       |  ![Assembly](img/20190427_233207.png)   |
+| 應用程式 (Application) |                由很多的 Assembly 組成                | ![Application](img/20190427_233938.png) |
 
 ## Visual Studio 基本介紹 (以 Console 為例)
 
@@ -37,7 +37,7 @@ Course Link: <https://codewithmosh.com/p/csharp-basics-for-beginners>
 
 ![20190428_002347](img/20190428_002347.png)
 
-- 一個方案(Solution)可以有很多個專案(Project)
+- 一個方案 (Solution) 可以有很多個專案 (Project)
 - 專案中的「Properties\AssemblyInfo.cs」用來描述建立出來的 Assembly 有什麼資訊，例如版本號
 - 專案中的「參考」是系統預設你可能會用到的 Assembly，實際上不一定會全用到
 - 專案中的「App.config」是這個應用程式的設定檔，例如 DB 連線字串
@@ -55,19 +55,19 @@ Course Link: <https://codewithmosh.com/p/csharp-basics-for-beginners>
 
 ### 變數與常數宣告
 
-|                |                  描述                  |
-|:--------------:|:--------------------------------------:|
-| 變數(Variable) |      在記憶體中的儲存位置給予命名      |
-| 常數(Constant) | 在應用程式中不會被更動的值，例如圓周率 |
+|                 |                  描述                  |
+|:---------------:|:--------------------------------------:|
+| 變數 (Variable) |      在記憶體中的儲存位置給予命名      |
+| 常數 (Constant) | 在應用程式中不會被更動的值，例如圓周率 |
 
 - 命名首字不能是數字
 - 命名中間不能有空格
 - 命名不能是關鍵字，例如「int」
 - 命名要用有意義的名稱，例如使用「firstName」而不用「fn」
 - 命名慣例
-    - 駝峰式(Camel Case)，例如「firstName」
-    - 帕斯卡命名法(Pascal Case)，例如「FirstName」
-    - 匈牙利命名法(Hungarian Notation)，例如「strFirstName」
+    - 駝峰式 (Camel Case)，例如「firstName」
+    - 帕斯卡命名法 (Pascal Case)，例如「FirstName」
+    - 匈牙利命名法 (Hungarian Notation)，例如「strFirstName」
 
 ``` csharp
 // 變數宣告，可選擇是否給予初始值
@@ -78,7 +78,7 @@ int num2 = 10;
 const float pi = 3.14f;
 ```
 
-### 資料型別(Data Type)
+### 資料型別 (Data Type)
 
 ![20190428_091938](img/20190428_091938.png)
 
@@ -93,11 +93,11 @@ float b = 1.5f;
 decimal c = 1.5m;
 ```
 
-### 溢位(Overflow)
+### 溢位 (Overflow)
 
 超出範圍時會產生溢位，實際應用上，會用較大的資料型別去宣告以避免溢位
 
-### 變數有效範圍(Scope)
+### 變數有效範圍 (Scope)
 
 變數只有在自己的大括號以內才能被存取
 
@@ -107,11 +107,11 @@ decimal c = 1.5m;
 
 |                                                      |                                               描述                                               |                    範例                     |
 |:----------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:-------------------------------------------:|
-|      隱含型別轉換<br>(Implicit Type Convention)      | 編譯器確定目標型別可轉換且資料不會遺失(原型別 range 小於目標型別)才轉換，否則會有 compiler error | ![20190428_095756](img/20190428_095756.png) |
+|      隱含型別轉換<br>(Implicit Type Convention)      | 編譯器確定目標型別可轉換且資料不會遺失 (原型別 range 小於目標型別) 才轉換，否則會有 compiler error | ![20190428_095756](img/20190428_095756.png) |
 | 明確型別轉換<br>(Explicit Type Convention = Casting) |                                     明確指定指定欲轉換的型別                                     | ![20190428_100125](img/20190428_100125.png) |
 |                 Non-compatible Type                  |                    當兩個型別不相容時，需使用 Convert 或 Parse 關鍵字來作轉換                    | ![20190428_100827](img/20190428_100827.png) |
 
-### 運算子(Operator)
+### 運算子 (Operator)
 
 #### 數學運算
 
@@ -147,7 +147,7 @@ int b = ++a;
 
 ![20190428_103135](img/20190428_103135.png)
 
-### 註解(Comment)
+### 註解 (Comment)
 
 - 增加程式可讀性、易維護性
 - 盡量用來解釋 why & how，而不是說明 what
@@ -167,8 +167,8 @@ int b = 2;
 
 ### Class
 
-- 有自己的屬性(Property/Field)和方法(Method)
-- 物件(Object)是從類別(Class)建立出來的實體(Instance)
+- 有自己的屬性 (Property/Field) 和方法 (Method)
+- 物件 (Object) 是從類別 (Class) 建立出來的實體 (Instance)
 - 不同 Class 最好寫在獨立的 .cs 檔
 
 ![20190428_105344](img/20190428_105344.png)
@@ -406,7 +406,7 @@ public enum Fruit
 #### Value Types
 
 - 以 Structure 方式建立
-- 用堆疊(Stack)方式存放於記憶體
+- 用堆疊 (Stack) 方式存放於記憶體
 - Primitive types 和 custom structures 屬於此類
 - 宣告時會自動分配記憶體空間
 - 生命周期較短，在有效範圍外就會立刻被釋放資源
@@ -420,7 +420,7 @@ public enum Fruit
 #### Reference Types
 
 - 以 Class 方式建立
-- 用堆積(Heap)方式存放於記憶體
+- 用堆積 (Heap) 方式存放於記憶體
 - Non-primitive types、custom classes 和其它不屬於 Value Types 的都屬於此類
 - 宣告時需手動分配記憶體空間
 - 生命周期較長，會由 GC 機制決定何時釋放資源
@@ -769,16 +769,16 @@ do
 
 #### Break & Continue
 
-| 迴圈中的關鍵字 |        描述        |
-|:--------------:|:------------------:|
-|     break      | 離開迴圈(不再執行) |
-|    continue    |    跳至下次迴圈    |
+| 迴圈中的關鍵字 |        描述         |
+|:--------------:|:-------------------:|
+|     break      | 離開迴圈 (不再執行) |
+|    continue    |    跳至下次迴圈     |
 
 ## Procedural Programming
 
 - 一種程式設計方法
 - 將與本身無關的邏輯/計算獨立到其它 function 中
-- 承上，這些 function 在其它非 Console 的程式中(例如：Web App)也能直接運用
+- 承上，這些 function 在其它非 Console 的程式中 (例如：Web App) 也能直接運用
 
 以下述程式碼為例，可分為三個部分
 
@@ -837,9 +837,9 @@ public static string ReverseName(string name)
 ### Debugging Tools in Visual Studio
 
 1. 在程式中設定一或多個中斷點
-2. 進入偵錯模式(Debug Mode)
+2. 進入偵錯模式 (Debug Mode)
 3. 偵錯模式執行到中斷點時會暫停，此時去檢查變數值是否與預期相符
-4. 偵錯時，開啟「偵錯(Debug) -> 視窗(Windows) -> 監看式(Watch)」，並自行輸入變數名稱，可以監看其值變化
+4. 偵錯時，開啟「偵錯 (Debug) -> 視窗 (Windows) -> 監看式 (Watch)」，並自行輸入變數名稱，可以監看其值變化
 
 |   快捷鍵    |                 功能                 |
 |:-----------:|:------------------------------------:|
@@ -951,14 +951,14 @@ Console.WriteLine(100 / number);
 
 ### Call Stack Window
 
-偵錯時，開啟「偵錯(Debug) -> 視窗(Windows) -> 呼叫堆疊(Call Stack)」，可以了解進入函式的歷程，每一行為一個函式進入點
+偵錯時，開啟「偵錯 (Debug) -> 視窗 (Windows) -> 呼叫堆疊 (Call Stack)」，可以了解進入函式的歷程，每一行為一個函式進入點
 
 ![20190430_215006](img/20190430_215006.png)
 
 ### Autos Window
 
-偵錯時，開啟「偵錯(Debug) -> 視窗(Windows) -> 自動變數(Autos)」，可以看到所有經歷過的變數
+偵錯時，開啟「偵錯 (Debug) -> 視窗 (Windows) -> 自動變數 (Autos)」，可以看到所有經歷過的變數
 
 ### Locals Window
 
-或是「偵錯(Debug) -> 視窗(Windows) -> 區域變數(Locals)」，可以看到目前 Scope 中的變數
+或是「偵錯 (Debug) -> 視窗 (Windows) -> 區域變數 (Locals)」，可以看到目前 Scope 中的變數
