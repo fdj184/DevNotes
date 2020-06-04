@@ -225,3 +225,89 @@ public class MathTests
 #### [Ignore]
 
 透過 `[Ignore]("reason")` 屬性可以暫時略過該測試函式
+
+## Core Unit Testing Techniques
+
+### NUnit 常用的 Assertion
+
+``` csharp
+// 忽略大小寫的 EqualTo
+Assert.That(result, Is.EqualTo("abc").IgnoreCase);
+
+// 驗證 result 的起始文字
+Assert.That(result, Does.StartWith("<strong>"));
+
+// 驗證 result 的結尾文字
+Assert.That(result, Does.EndWith("</strong>"));
+
+// 驗證 result 是否包含元素 - 寫法1
+Assert.That(result, Does.Contain(1));
+Assert.That(result, Does.Contain(3));
+
+// 驗證 result 是否包含元素 - 寫法2 (不在乎元素順序)
+Assert.That(result, Is.EquivalentTo(new [] {1, 3}));
+
+// 驗證 result 的元素是否依序排列
+Assert.That(result, Is.Ordered);
+
+// 驗證 result 的元素是否無重複
+Assert.That(result, Is.Unique);
+
+// 驗證 result 是否為 NotFound 類別
+Assert.That(result, Is.TypeOf<NotFound>());
+
+// 驗證 result 是否為 NotFound 類別或其衍生類別
+Assert.That(result, Is.InstanceOf<NotFound>());
+```
+
+### 測試 Exception
+
+透過委派 (Delegate)
+
+``` csharp
+public void Log_InvalidError_ThrowArgumentNullException(string error)
+{
+    var logger = new ErrorLogger();
+
+    // 直接呼叫會回傳 exception，造成驗證失敗
+    //logger.Log(error);
+
+    // 透過匿名委派驗證 exception 類別
+    Assert.That(() => logger.Log(error), Throws.ArgumentNullException);
+}
+```
+
+### 測試事件 (Event)
+
+``` csharp
+public class ErrorLogger
+{
+    public event EventHandler<Guid> ErrorLogged;
+
+    public void Log(string error)
+    {
+        ErrorLogged?.Invoke(this, Guid.NewGuid());
+    }
+}
+
+[TestFixture]
+public class ErrorLoggerTests
+{
+    [Test]
+    public void Log_ValidError_RaiseErrorLoggedEvent(string error)
+    {
+        var logger = new ErrorLogger();
+
+        var id = Guid.Empty;
+        logger.ErrorLogged += (sender, args) => { id = args; };
+
+        logger.Log("a");
+
+        Assert.That(id, Is.Not.EqualTo(Guid.Empty));
+    }
+}
+```
+
+### 測試 private 或 protected 方法
+
+永遠不要測試 private 或 protected 方法，而是測試公開的 API 或方法
