@@ -310,4 +310,462 @@ public class ErrorLoggerTests
 
 ### 測試 private 或 protected 方法
 
-永遠不要測試 private 或 protected 方法，而是測試公開的 API 或方法
+不需要也不應該測試 private 或 protected 方法，
+因為在測試公開的 API 或方法時，便會包含到所有的 private 或 protected 方法
+
+## Breaking the External Dependencies
+
+在測試外部相依資源時，會使用 Fake Object (或稱為 Test Double) 取代原本的外部 class，
+透過 Dependency Injection 抽取出 Interface，
+既可在 production code 裡使用外部相依資源，也可在 testing code 中作測試
+
+![20200607_000430](img/20200607_000430.png)
+
+### 透過 DI 重構出可測試的程式碼
+
+例如有一 production code 如下
+
+``` csharp
+public class VideoService
+{
+    public string ReadVideoTitle()
+    {
+        var str = File.ReadAllText("video.txt");
+        var video = JsonConvert.DeserializeObject<Video>(str);
+        if (video == null)
+            return "Error parsing the video.";
+        return video.Title;
+    }
+}
+
+// production code 主程式
+public class Program
+{
+    public static void Main()
+    {
+        var service = new VideoService();
+        var result = service.ReadVideoTitle();
+    }
+}
+```
+
+由於 `VideoService` class 和 `File` class 為高耦合關係，無法作測試，
+所以可以先將此相依關係拆到另一個獨立的 class
+
+``` csharp
+public class FileReader
+{
+    public string Read(string path)
+    {
+        return File.ReadAllText(path);
+    }
+}
+
+public class VideoService
+{
+    public string ReadVideoTitle()
+    {
+        //var str = File.ReadAllText("video.txt");
+        var str = new FileReader().Read("video.txt");
+        var video = JsonConvert.DeserializeObject<Video>(str);
+        if (video == null)
+            return "Error parsing the video.";
+        return video.Title;
+    }
+}
+
+// production code 主程式
+public class Program
+{
+    public static void Main()
+    {
+        var service = new VideoService();
+        var result = service.ReadVideoTitle();
+    }
+}
+```
+
+至此，程式邏輯和耦合性皆未有改變，
+所以更進一步，將獨立出來的 `FileReader` 抽出 Interface，
+並透過 DI 達成低耦合且可測試的程式
+
+``` csharp
+public interface IFileReader
+{
+    string Read(string path);
+}
+
+public class FileReader : IFileReader
+{
+    public string Read(string path)
+    {
+        return File.ReadAllText(path);
+    }
+}
+
+public class VideoService
+{
+    // 以方法參數作 DI 為例
+    public string ReadVideoTitle(IFileReader fileReader)
+    {
+        // 相依 Interface，而非 Class
+        var str = fileReader.Read("video.txt");
+        var video = JsonConvert.DeserializeObject<Video>(str);
+        if (video == null)
+            return "Error parsing the video.";
+        return video.Title;
+    }
+}
+
+// production code 主程式
+public class Program
+{
+    public static void Main()
+    {
+        var service = new VideoService();
+        // 使用 production code 的實際 class
+        var result = service.ReadVideoTitle(new FileReader());
+    }
+}
+
+// === 以下為 testing code ===
+public class FakeFileReader : IFileReader
+{
+    // testing code 不再需要相依 File class
+    public string Read(string path)
+    {
+        return "";
+    }
+}
+
+[TestFixture()]
+public class VideoServiceTests
+{
+    [Test()]
+    public void ReadVideoTitle_EmptyFile_ReturnError()
+    {
+        var service = new VideoService();
+
+        // 直接使用 FakeFileReader
+        var result = service.ReadVideoTitle(new FakeFileReader());
+
+        Assert.That(result, Does.Contain("error").IgnoreCase);
+    }
+}
+```
+
+承上例，以下示範透過以屬性作 DI
+
+``` csharp
+public interface IFileReader
+{
+    string Read(string path);
+}
+
+public class FileReader : IFileReader
+{
+    public string Read(string path)
+    {
+        return File.ReadAllText(path);
+    }
+}
+
+public class VideoService
+{
+    // 以屬性作 DI 為例
+    public IFileReader FileReader { get; set; }
+
+    public VideoService()
+    {
+        FileReader = new FileReader();
+    }
+
+    public string ReadVideoTitle()
+    {
+        var str = FileReader.Read("video.txt");
+        var video = JsonConvert.DeserializeObject<Video>(str);
+        if (video == null)
+            return "Error parsing the video.";
+        return video.Title;
+    }
+}
+
+// production code 主程式
+public class Program
+{
+    public static void Main()
+    {
+        // 設定 FileReader 屬性
+        var service = new VideoService();
+        service.FileReader = new FileReader();
+        var result = service.ReadVideoTitle();
+    }
+}
+
+// === 以下為 testing code ===
+public class FakeFileReader : IFileReader
+{
+    public string Read(string path)
+    {
+        return "";
+    }
+}
+
+[TestFixture()]
+public class VideoServiceTests
+{
+    [Test()]
+    public void ReadVideoTitle_EmptyFile_ReturnError()
+    {
+        // 設定 FileReader 屬性
+        var service = new VideoService();
+        service.FileReader = new FakeFileReader();
+
+        var result = service.ReadVideoTitle();
+
+        Assert.That(result, Does.Contain("error").IgnoreCase);
+    }
+}
+```
+
+承上例，以下示範透過以建構子作 DI
+
+``` csharp
+public interface IFileReader
+{
+    string Read(string path);
+}
+
+public class FileReader : IFileReader
+{
+    public string Read(string path)
+    {
+        return File.ReadAllText(path);
+    }
+}
+
+public class VideoService
+{
+    // 使用 private field
+    private IFileReader _fileReader;
+
+    // 以建構子作 DI 為例
+    public VideoService(IFileReader fileReader = null)
+    {
+        _fileReader = fileReader ?? new FileReader();
+    }
+
+    public string ReadVideoTitle()
+    {
+        var str = _fileReader.Read("video.txt");
+        var video = JsonConvert.DeserializeObject<Video>(str);
+        if (video == null)
+            return "Error parsing the video.";
+        return video.Title;
+    }
+}
+
+// production code 主程式
+public class Program
+{
+    public static void Main()
+    {
+        var service = new VideoService();
+        var result = service.ReadVideoTitle();
+    }
+}
+
+// === 以下為 testing code ===
+public class FakeFileReader : IFileReader
+{
+    public string Read(string path)
+    {
+        return "";
+    }
+}
+
+[TestFixture()]
+public class VideoServiceTests
+{
+    [Test()]
+    public void ReadVideoTitle_EmptyFile_ReturnError()
+    {
+        // 使用 FakeFileReader 為建構子參數
+        var service = new VideoService(new FakeFileReader());
+
+        var result = service.ReadVideoTitle();
+
+        Assert.That(result, Does.Contain("error").IgnoreCase);
+    }
+}
+```
+
+※ 在現實世界，會透過 DI Framework 的容器去集中管理所有的 DI 註冊和注入
+
+### Mocking Framework
+
+透過 Mocking Framework 產生 Fake Object，可以簡化每個測試都要實作不同行為的 Interface 的困擾，
+例如原本有兩種 test case 便需要實作兩個不同行為的 `IFileReader`
+
+``` csharp
+public class FakeEmptyFileReader : IFileReader
+{
+    public string Read(string path)
+    {
+        return "";
+    }
+}
+
+public class FakeAbcFileReader : IFileReader
+{
+    public string Read(string path)
+    {
+        return "ABC";
+    }
+}
+
+[TestFixture()]
+public class VideoServiceTests
+{
+    [Test()]
+    public void ReadVideoTitle_EmptyFile_ReturnError()
+    {
+        var service = new VideoService(new FakeEmptyFileReader());
+
+        var result = service.ReadVideoTitle();
+
+        Assert.That(result, Does.Contain("error").IgnoreCase);
+    }
+
+    [Test()]
+    public void ReadVideoTitle_AbcFile_ReturnTitle()
+    {
+        var service = new VideoService(new FakeAbcFileReader());
+
+        var result = service.ReadVideoTitle();
+
+        Assert.That(result, Is.EqualTo("ABC"));
+    }
+}
+```
+
+如果透過 Mocking Framework，便不需要實作那麼多次 Interface，以 Moq 為例
+
+``` csharp
+[TestFixture()]
+public class VideoServiceTests
+{
+    [Test()]
+    public void ReadVideoTitle_EmptyFile_ReturnError()
+    {
+        // 直接建立一個 Fake Object，並指定其行為
+        var fileReader = new Mock<IFileReader>();
+        fileReader.Setup(fr => fr.Read("video.txt")).Returns("");
+        // 要使用 Mock<T>.Object 將物件轉回原本介面的實作
+        var service = new VideoService(fileReader.Object);
+
+        var result = service.ReadVideoTitle();
+
+        Assert.That(result, Does.Contain("error").IgnoreCase);
+    }
+
+    [Test()]
+    public void ReadVideoTitle_AbcFile_ReturnTitle()
+    {
+        // 直接建立一個 Fake Object，並指定其行為
+        var fileReader = new Mock<IFileReader>();
+        fileReader.Setup(fr => fr.Read("video.txt")).Returns("ABC");
+        // 要使用 Mock<T>.Object 將物件轉回原本介面的實作
+        var service = new VideoService(fileReader.Object);
+
+        var result = service.ReadVideoTitle();
+
+        Assert.That(result, Is.EqualTo("ABC"));
+    }
+}
+```
+
+#### 在 Mocking Framework 驗證 Fake Object
+
+``` csharp
+// === Production Code ===
+public class OrderService
+{
+    private readonly IStorage _storage;
+
+    public OrderService(IStorage storage)
+    {
+        _storage = storage;
+    }
+
+    public int PlaceOrder(Order order)
+    {
+        var orderId = _storage.Store(order);
+
+        // Some other work
+
+        return orderId;
+    }
+}
+
+public class Order
+{
+}
+
+public interface IStorage
+{
+    int Store(object obj);
+}
+
+// === Testing Code ===
+[TestFixture]
+public class OrderServiceTests
+{
+    [Test]
+    public void PlaceOrder_WhenCalled_StoreTheObject()
+    {
+        var storage = new Mock<IStorage>();
+        var service = new OrderService(storage.Object);
+
+        var order = new Order();
+        service.PlaceOrder(order);
+
+        // 透過 "Verify" 去驗證是否有執行此方法
+        storage.Verify(s => s.Store(order));
+    }
+}
+```
+
+#### 不要濫用 Mocking Framework
+
+只有在測試外部相依資源時才考慮使用，如下例
+
+``` csharp
+[TestFixture]
+public class ProductTests
+{
+    // 不必要的濫用 Mocking Framework 會造成閱讀困難
+    [Test]
+    public void GetPriceTest_GoldCustomer_Apply30PercentDiscount_2()
+    {
+        var customer = new Mock<ICustomer>();
+        customer.Setup(c => c.IsGold).Returns(true);
+        var product = new Product() { ListPrice = 100 };
+
+        var result = product.GetPrice(customer.Object);
+
+        Assert.That(result, Is.EqualTo(70));
+    }
+
+    // 不使用 Mocking Framework 就能做到一樣的事
+    [Test]
+    public void GetPriceTest_GoldCustomer_Apply30PercentDiscount_1()
+    {
+        var product = new Product() { ListPrice = 100 };
+
+        var result = product.GetPrice(new Customer() { IsGold = true });
+
+        Assert.That(result, Is.EqualTo(70));
+    }
+}
+```
