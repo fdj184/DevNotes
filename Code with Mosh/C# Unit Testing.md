@@ -738,7 +738,7 @@ public class OrderServiceTests
 
 #### 不要濫用 Mocking Framework
 
-只有在測試外部相依資源時才考慮使用，如下例
+__只有在測試外部相依資源時才考慮使用__，如下例
 
 ``` csharp
 [TestFixture]
@@ -769,3 +769,566 @@ public class ProductTests
     }
 }
 ```
+
+## Exercises
+
+### VideoService
+
+有一 production code 如下
+
+``` csharp
+public class VideoService
+{
+    public string GetUnprocessedVideosAsCsv()
+    {
+        var videoIds = new List<int>();
+
+        using (var context = new VideoContext())
+        {
+            var videos =
+                (from video in context.Videos
+                where !video.IsProcessed
+                select video).ToList();
+
+            foreach (var v in videos)
+                videoIds.Add(v.Id);
+
+            return String.Join(",", videoIds);
+        }
+    }
+}
+
+public class Video
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public bool IsProcessed { get; set; }
+}
+
+public class VideoContext : DbContext
+{
+    public DbSet<Video> Videos { get; set; }
+}
+```
+
+撰寫 testing code 步驟如下
+
+1. 先將碰觸到外部相依資源的部分獨立成一個 class
+
+    ``` csharp
+    // 將查詢 VideoContext 的程式獨立
+    public class VideoRepository
+    {
+        public IEnumerable<Video> GetUnprocessedVideos()
+        {
+            using (var context = new VideoContext())
+            {
+                var videos =
+                    (from video in context.Videos
+                    where !video.IsProcessed
+                    select video).ToList();
+
+                return videos;
+            }
+        }
+    }
+
+    public class VideoService
+    {
+        public string GetUnprocessedVideosAsCsv()
+        {
+            var videoIds = new List<int>();
+
+            // 建立 VideoRepository 實體，並使用其方法取得 videos
+            var videos = new VideoRepository().GetUnprocessedVideos();
+            foreach (var v in videos)
+                videoIds.Add(v.Id);
+
+            return String.Join(",", videoIds);
+        }
+    }
+
+    public class Video
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public bool IsProcessed { get; set; }
+    }
+
+    public class VideoContext : DbContext
+    {
+        public DbSet<Video> Videos { get; set; }
+    }
+    ```
+
+2. 將獨立出來的 class 抽出介面
+
+    ``` csharp
+    // 抽出 VideoRepository 的介面
+    public interface IVideoRepository
+    {
+        IEnumerable<Video> GetUnprocessedVideos();
+    }
+
+    // 實作自 IVideoRepository
+    public class VideoRepository : IVideoRepository
+    {
+        public IEnumerable<Video> GetUnprocessedVideos()
+        {
+            using (var context = new VideoContext())
+            {
+                var videos =
+                    (from video in context.Videos
+                    where !video.IsProcessed
+                    select video).ToList();
+
+                return videos;
+            }
+        }
+    }
+
+    public class VideoService
+    {
+        private IVideoRepository _videoRepository;
+
+        // 透過建構子作 DI
+        public VideoService(IVideoRepository videoRepository = null)
+        {
+            _videoRepository = videoRepository ?? new VideoRepository();
+        }
+
+        public string GetUnprocessedVideosAsCsv()
+        {
+            var videoIds = new List<int>();
+
+            // 透過 DI，VideoService 不再和 VideoRepository 緊密耦合
+            var videos = _videoRepository.GetUnprocessedVideos();
+            foreach (var v in videos)
+                videoIds.Add(v.Id);
+
+            return String.Join(",", videoIds);
+        }
+    }
+
+    public class Video
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public bool IsProcessed { get; set; }
+    }
+
+    public class VideoContext : DbContext
+    {
+        public DbSet<Video> Videos { get; set; }
+    }
+    ```
+
+3. 可以寫 testing code 了
+
+    ``` csharp
+    [TestFixture]
+    public class VideoServiceTests
+    {
+        private Mock<IVideoRepository> _videoRepository;
+        private VideoService _service;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _videoRepository = new Mock<IVideoRepository>();
+            _service = new VideoService(_videoRepository.Object);
+        }
+
+        [Test]
+        public void GetUnprocessedVideosAsCsv_NoUnprocessedVideo_ReturnEmptyString()
+        {
+            // 透過 Mocking Framework 實作 IVideoRepository 介面，並指定其行為
+            _videoRepository.Setup(v => v.GetUnprocessedVideos()).Returns(new List<Video>());
+
+            var result = _service.GetUnprocessedVideosAsCsv();
+
+            Assert.That(result, Is.EqualTo(""));
+        }
+
+        [Test]
+        public void GetUnprocessedVideosAsCsv_FewUnprocessedVideos_ReturnAStringWithIds()
+        {
+            // 透過 Mocking Framework 實作 IVideoRepository 介面，並指定其行為
+            _videoRepository.Setup(v => v.GetUnprocessedVideos()).Returns(new List<Video>() 
+            {
+                new Video { Id = 1 },
+                new Video { Id = 5 },
+                new Video { Id = 3 }
+            });
+
+            var result = _service.GetUnprocessedVideosAsCsv();
+
+            Assert.That(result, Is.EqualTo("1,5,3"));
+        }
+    }
+    ```
+
+### InstallerHelper
+
+有一 production code 如下
+
+``` csharp
+public class InstallerHelper
+{
+    private string _setupDestinationFile;
+
+    public bool DownloadInstaller(string customerName, string installerName)
+    {
+        var client = new WebClient();
+        try
+        {
+            client.DownloadFile(
+                string.Format("http://example.com/{0}/{1}",
+                    customerName,
+                    installerName),
+                _setupDestinationFile);
+
+            return true;
+        }
+        catch (WebException)
+        {
+            return false;
+        }
+    }
+}
+```
+
+撰寫 testing code 步驟如下
+
+1. 先將碰觸到外部相依資源的部分獨立成一個 class
+
+    ``` csharp
+    // 將 WebClient 的程式獨立
+    public class FileDownloader
+    {
+        // 不傳 customerName 跟 installerName 進來，
+        // 因為 WebClient 只在乎最終的 url 是什麼
+        public void DownloadFile(string url, string path)
+        {
+            var client = new WebClient();
+            client.DownloadFile(url, path);
+        }
+    }
+
+    public class InstallerHelper
+    {
+        private string _setupDestinationFile;
+
+        public bool DownloadInstaller(string customerName, string installerName)
+        {
+            try
+            {
+                // 建立 FileDownloader 實體，並使用其方法
+                new FileDownloader().DownloadFile(
+                    string.Format("http://example.com/{0}/{1}",
+                        customerName,
+                        installerName),
+                    _setupDestinationFile);
+
+                return true;
+            }
+            catch (WebException)
+            {
+                return false;
+            }
+        }
+    }
+    ```
+
+2. 將獨立出來的 class 抽出介面
+
+    ``` csharp
+    // 抽出 FileDownloader 的介面
+    public interface IFileDownloader
+    {
+        void DownloadFile(string url, string path);
+    }
+
+    // 實作自 IFileDownloader
+    public class FileDownloader : IFileDownloader
+    {
+        public void DownloadFile(string url, string path)
+        {
+            var client = new WebClient();
+            client.DownloadFile(url, path);
+        }
+    }
+
+    public class InstallerHelper
+    {
+        private string _setupDestinationFile;
+        private IFileDownloader _fileDownloader;
+
+        // 透過建構子作 DI
+        public InstallerHelper(IFileDownloader fileDownloader)
+        {
+            _fileDownloader = fileDownloader;
+        }
+
+        public bool DownloadInstaller(string customerName, string installerName)
+        {
+            try
+            {
+                // 透過 DI，DownloadInstaller 不再和 FileDownloader 緊密耦合
+                _fileDownloader.DownloadFile(
+                    string.Format("http://example.com/{0}/{1}",
+                        customerName,
+                        installerName),
+                    _setupDestinationFile);
+
+                return true;
+            }
+            catch (WebException)
+            {
+                return false;
+            }
+        }
+    }
+    ```
+
+3. 可以寫 testing code 了
+
+    ``` csharp
+    [TestFixture]
+    public class InstallerHelperTests
+    {
+        private Mock<IFileDownloader> _fileDownloader;
+        private InstallerHelper _installHelper;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _fileDownloader = new Mock<IFileDownloader>();
+            _installHelper = new InstallerHelper(_fileDownloader.Object);
+        }
+
+        [Test]
+        public void DownloadInstaller_DownloadFail_ReturnFalse()
+        {
+            // 如果用下行寫法，會只有在 url 跟 path 都是傳入空字串時才 throw WebException
+            //_fileDownloader.Setup(f => f.DownloadFile("", "")).Throws<WebException>();
+
+            // 改用 Moq 提供的 It.IsAny<string>() 寫法，可以保證無論傳入什麼字串，都會 throw WebException
+            _fileDownloader.Setup(f => f.DownloadFile(It.IsAny<string>(), It.IsAny<string>())).Throws<WebException>();
+
+            var result = _installHelper.DownloadInstaller("customer", "installer");
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void DownloadInstaller_DownloadSuccess_ReturnTrue()
+        {
+            // 不需要 Setup mocking object，反正都會回傳 true
+            var result = _installHelper.DownloadInstaller("customer", "installer");
+
+            Assert.That(result, Is.True);
+        }
+    }
+    ```
+
+### EmployeeController
+
+有一 production code 如下
+
+``` csharp
+public class EmployeeController
+{
+    private EmployeeContext _db;
+
+    public EmployeeController()
+    {
+        _db = new EmployeeContext();
+    }
+
+    public ActionResult DeleteEmployee(int id)
+    {
+        var employee = _db.Employees.Find(id);
+        _db.Employees.Remove(employee);
+        _db.SaveChanges();
+        return RedirectToAction("Employees");
+    }
+
+    private ActionResult RedirectToAction(string employees)
+    {
+        return new RedirectResult();
+    }
+}
+
+public class ActionResult { }
+
+public class RedirectResult : ActionResult { }
+
+public class EmployeeContext
+{
+    public DbSet<Employee> Employees { get; set; }
+
+    public void SaveChanges() { }
+}
+
+public class Employee { }
+```
+
+撰寫 testing code 步驟如下
+
+1. 先將碰觸到外部相依資源的部分獨立成一個 class
+
+    ``` csharp
+    // 將 Entity Framework 的程式獨立，
+    // 不取名為 EmployeeRepository 是因為在 Repository Pattern 中不應該有 SaveChanges() 的動作
+    public class EmployeeStorage
+    {
+        // EmployeeContext 欄位和建構子也得一起搬過來
+        private EmployeeContext _db;
+
+        public EmployeeStorage()
+        {
+            _db = new EmployeeContext();
+        }
+
+        public void DeleteEmployee(int id)
+        {
+            var employee = _db.Employees.Find(id);
+            // 加上判斷，避免 employee 為 null 時產生 exception
+            if (employee == null)
+                return;
+            _db.Employees.Remove(employee);
+            _db.SaveChanges();
+        }
+    }
+
+    public class EmployeeController
+    {
+        public ActionResult DeleteEmployee(int id)
+        {
+            // 建立 EmployeeStorage 實體，並使用其方法
+            new EmployeeStorage().DeleteEmployee(id);
+            return RedirectToAction("Employees");
+        }
+
+        private ActionResult RedirectToAction(string employees)
+        {
+            return new RedirectResult();
+        }
+    }
+
+    public class ActionResult { }
+
+    public class RedirectResult : ActionResult { }
+
+    public class EmployeeContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+
+        public void SaveChanges() { }
+    }
+
+    public class Employee { }
+    ```
+
+2. 將獨立出來的 class 抽出介面
+
+    ``` csharp
+    // 抽出 EmployeeStorage 的介面
+    public interface IEmployeeStorage
+    {
+        void DeleteEmployee(int id);
+    }
+
+    // 實作自 IEmployeeStorage
+    public class EmployeeStorage : IEmployeeStorage
+    {
+        private EmployeeContext _db;
+
+        public EmployeeStorage()
+        {
+            _db = new EmployeeContext();
+        }
+
+        public void DeleteEmployee(int id)
+        {
+            var employee = _db.Employees.Find(id);
+            if (employee == null)
+                return;
+            _db.Employees.Remove(employee);
+            _db.SaveChanges();
+        }
+    }
+
+    public class EmployeeController
+    {
+        private readonly IEmployeeStorage _employeeStorage;
+
+        // 透過建構子作 DI
+        public EmployeeController(IEmployeeStorage employeeStorage)
+        {
+            _employeeStorage = employeeStorage;
+        }
+
+        public ActionResult DeleteEmployee(int id)
+        {
+            // 透過 EmployeeController 不再和 EmployeeStorage 緊密耦合
+            _employeeStorage.DeleteEmployee(id);
+            return RedirectToAction("Employees");
+        }
+
+        private ActionResult RedirectToAction(string employees)
+        {
+            return new RedirectResult();
+        }
+    }
+
+    public class ActionResult { }
+
+    public class RedirectResult : ActionResult { }
+
+    public class EmployeeContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+
+        public void SaveChanges() { }
+    }
+
+    public class Employee { }
+    ```
+
+3. 可以寫 testing code 了
+
+    ``` csharp
+    [TestFixture]
+    public class EmployeeControllerTests
+    {
+        private Mock<IEmployeeStorage> _employeeStorage;
+        private EmployeeController _employeeController;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _employeeStorage = new Mock<IEmployeeStorage>();
+            _employeeController = new EmployeeController(_employeeStorage.Object);
+        }
+
+        [Test]
+        public void DeleteEmployee_WhenCalled_DeleteTheEmployeeFromDb()
+        {
+            _employeeController.DeleteEmployee(1);
+
+            // 驗證 _employeeStorage 的狀態
+            _employeeStorage.Verify(e => e.DeleteEmployee(1));
+        }
+
+        [Test]
+        public void DeleteEmployee_WhenCalled_ReturnRedirectResult()
+        {
+            var result = _employeeController.DeleteEmployee(1);
+
+            // 驗證 DeleteEmployee() 的回傳結果
+            Assert.That(result, Is.TypeOf<RedirectResult>());
+        }
+    }
+    ```
