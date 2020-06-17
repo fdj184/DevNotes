@@ -1332,3 +1332,318 @@ public class Employee { }
         }
     }
     ```
+
+## Project - BookingHelper
+
+有一 production code 如下
+
+``` csharp
+public static class BookingHelper
+{
+    public static string OverlappingBookingsExist(Booking booking)
+    {
+        if (booking.Status == "Cancelled")
+            return string.Empty;
+
+        var unitOfWork = new UnitOfWork();
+        var bookings =
+            unitOfWork.Query<Booking>()
+                .Where(
+                    b => b.Id != booking.Id && b.Status != "Cancelled");
+
+        var overlappingBooking =
+            bookings.FirstOrDefault(
+                b =>
+                    booking.ArrivalDate >= b.ArrivalDate
+                    && booking.ArrivalDate < b.DepartureDate
+                    || booking.DepartureDate > b.ArrivalDate
+                    && booking.DepartureDate <= b.DepartureDate);
+
+        return overlappingBooking == null ? string.Empty : overlappingBooking.Reference;
+    }
+}
+
+public class UnitOfWork
+{
+    public IQueryable<T> Query<T>()
+    {
+        return new List<T>().AsQueryable();
+    }
+}
+
+public class Booking
+{
+    public string Status { get; set; }
+    public int Id { get; set; }
+    public DateTime ArrivalDate { get; set; }
+    public DateTime DepartureDate { get; set; }
+    public string Reference { get; set; }
+}
+```
+
+撰寫 testing code 步驟如下
+
+1. 思考可能會發生的案例
+    (1) 訂票起訖日皆在已訂票期間之前 => 未重疊
+    (2) 訂票起始日在已訂票期間之前，訂票結束日在已訂票期間之中 => 重疊
+    (3) 訂票起始日在已訂票期間之前，訂票結束日在已訂票期間之後 => 重疊
+    (4) 訂票起始日在已訂票期間之中，訂票結束日在已訂票期間之中 => 重疊
+    (5) 訂票起始日在已訂票期間之中，訂票結束日在已訂票期間之後 => 重疊
+    (6) 訂票起訖日皆在已訂票期間之後 => 未重疊
+    (7) 任何重疊的情況下，新訂票的狀態為「取消」
+2. 先將碰觸到外部相依資源的部分獨立成一個 class，並抽出介面
+
+    ``` csharp
+    // 抽出 BookingRepository 的介面
+    public interface IBookingRepository
+    {
+        IQueryable<Booking> GetActiveBookings(int? excludedBookingId = null);
+    }
+
+    // 實作自 IBookingRepository
+    public class BookingRepository : IBookingRepository
+    {
+        // 這裡改傳 nullable int，是假設其他地方也會需要使用這個 method，所以設計的比較通用
+        public IQueryable<Booking> GetActiveBookings(int? excludedBookingId = null)
+        {
+            var unitOfWork = new UnitOfWork();
+            var bookings =
+                unitOfWork.Query<Booking>()
+                    .Where(
+                        b => b.Status != "Cancelled");
+
+            // 原本的 lambda expression，改成 excludedBookingId 有值才作第二次篩選
+            if (excludedBookingId.HasValue)
+                bookings = bookings.Where(b => b.Id != excludedBookingId.Value);
+
+            return bookings;
+        }
+    }
+
+    public static class BookingHelper
+    {
+        // 因為 static 修飾詞無法使用建構子，所以只能使用參數的方式作 DI
+        public static string OverlappingBookingsExist(Booking booking, IBookingRepository bookingRepository)
+        {
+            if (booking.Status == "Cancelled")
+                return string.Empty;
+
+            var bookings = bookingRepository.GetActiveBookings(booking.Id);
+            var overlappingBooking =
+                bookings.FirstOrDefault(
+                    b =>
+                        booking.ArrivalDate >= b.ArrivalDate
+                        && booking.ArrivalDate < b.DepartureDate
+                        || booking.DepartureDate > b.ArrivalDate
+                        && booking.DepartureDate <= b.DepartureDate);
+
+            return overlappingBooking == null ? string.Empty : overlappingBooking.Reference;
+        }
+    }
+
+    public class UnitOfWork
+    {
+        public IQueryable<T> Query<T>()
+        {
+            return new List<T>().AsQueryable();
+        }
+    }
+
+    public class Booking
+    {
+        public string Status { get; set; }
+        public int Id { get; set; }
+        public DateTime ArrivalDate { get; set; }
+        public DateTime DepartureDate { get; set; }
+        public string Reference { get; set; }
+    }
+    ```
+
+3. 撰寫 testing code，先從第一個案例下手
+
+    ``` csharp
+    [TestFixture]
+    public class BookingHelperTests
+    {
+        private Mock<IBookingRepository> _bookingRepository;
+        private Booking _existingBooking;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _bookingRepository = new Mock<IBookingRepository>();
+
+            // 每個測試方法都需要有「已訂票期間」，所以作成 private field，並在 SetUp() 給值
+            _existingBooking = new Booking
+            {
+                Id = 2,
+                ArrivalDate = ArriveOn(2020, 1, 15),
+                DepartureDate = DepartOn(2020, 1, 20),
+                Reference = "A"
+            };
+
+            _bookingRepository.Setup(b => b.GetActiveBookings(1)).Returns(new List<Booking>
+            {
+                _existingBooking
+            }.AsQueryable());
+        }
+
+        [Test]
+        public void OverlappingBookingsExist_BookingStartsAndFinishesBeforeAnExistingBooking_ReturnEmptyString()
+        {
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                ArrivalDate = Before(_existingBooking.ArrivalDate, days: 2),
+                DepartureDate = Before(_existingBooking.ArrivalDate)
+            }, _bookingRepository.Object);
+
+            Assert.That(result, Is.Empty);
+        }
+
+        private DateTime ArriveOn(int year, int month, int day)
+        {
+            return new DateTime(year, month, day, 14, 0, 0);
+        }
+
+        private DateTime DepartOn(int year, int month, int day)
+        {
+            return new DateTime(year, month, day, 10, 0, 0);
+        }
+
+        private DateTime Before(DateTime dateTime, int days = 1)
+        {
+            return dateTime.AddDays(-days);
+        }
+
+        private DateTime After(DateTime dateTime, int days = 1)
+        {
+            return dateTime.AddDays(days);
+        }
+    }
+    ```
+
+4. 撰寫第二和第三個案例
+
+    ``` csharp
+    [TestFixture]
+    public class BookingHelperTests
+    {
+        // .. 前略 ..
+
+        [Test]
+        public void OverlappingBookingsExist_BookingStartsBeforeAndFinishesInTheMiddleOfAnExistingBooking_ReturnExistingBookingReference()
+        {
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                ArrivalDate = Before(_existingBooking.ArrivalDate, days: 2),
+                DepartureDate = After(_existingBooking.ArrivalDate)
+            }, _bookingRepository.Object);
+
+            // 使用 _existingBooking.Reference，避免 hard code 字串
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
+        }
+
+        [Test]
+        public void OverlappingBookingsExist_BookingStartsBeforeAndFinishesAfterAnExistingBooking_ReturnExistingBookingReference()
+        {
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                ArrivalDate = Before(_existingBooking.ArrivalDate, days: 2),
+                DepartureDate = After(_existingBooking.DepartureDate)
+            }, _bookingRepository.Object);
+
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
+        }
+
+        // .. 後略 ..
+    }
+    ```
+
+5. 在測試第三個案例時，發現測試結果跟預想的不同，
+代表 production code 的重疊時間判斷有 bug，所以回去修改 production code
+
+    ``` csharp
+    public static class BookingHelper
+    {
+        public static string OverlappingBookingsExist(Booking booking, IBookingRepository bookingRepository)
+        {
+            // .. 前略 ..
+
+            var overlappingBooking =
+                bookings.FirstOrDefault(
+                    b =>
+                        booking.ArrivalDate < b.DepartureDate &&
+                        b.ArrivalDate < booking.DepartureDate);
+
+            // .. 後略 ..
+        }
+    }
+    ```
+
+6. 撰寫剩下的案例
+
+    ``` csharp
+    [TestFixture]
+    public class BookingHelperTests
+    {
+        // .. 前略 ..
+
+        [Test]
+        public void OverlappingBookingsExist_BookingStartsAndFinishesInTheMiddleOfAnExistingBooking_ReturnExistingBookingReference()
+        {
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                ArrivalDate = After(_existingBooking.ArrivalDate),
+                DepartureDate = Before(_existingBooking.DepartureDate)
+            }, _bookingRepository.Object);
+
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
+        }
+
+        [Test]
+        public void OverlappingBookingsExist_BookingStartsInTheMiddleOfAnExistingBookingAndFinishesAfter_ReturnExistingBookingReference()
+        {
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                ArrivalDate = After(_existingBooking.ArrivalDate),
+                DepartureDate = After(_existingBooking.DepartureDate)
+            }, _bookingRepository.Object);
+
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
+        }
+
+        [Test]
+        public void OverlappingBookingsExist_BookingStartsAndFinishesAfterAnExistingBooking_ReturnExistingBookingReference()
+        {
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                ArrivalDate = After(_existingBooking.DepartureDate),
+                DepartureDate = After(_existingBooking.DepartureDate, days: 2)
+            }, _bookingRepository.Object);
+
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public void OverlappingBookingsExist_BookingsOverlapButNewBookingIsCancellled_ReturnExistingBookingReference()
+        {
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                ArrivalDate = After(_existingBooking.ArrivalDate),
+                DepartureDate = After(_existingBooking.DepartureDate),
+                Status = "Cancelled"
+            }, _bookingRepository.Object);
+
+            Assert.That(result, Is.Empty);
+        }
+
+        // .. 後略 ..
+    }
+    ```
