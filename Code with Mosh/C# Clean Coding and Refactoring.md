@@ -457,3 +457,135 @@ public class MagicNumbers
     }
 }
 ```
+
+## 簡化巢狀式條件
+
+### 利用條件運算符
+
+例如
+
+``` csharp
+if (a)
+    b = someValue;
+else
+    b = anotherValue;
+```
+
+可以改寫成
+
+``` csharp
+b = (a) ? someValue : anotherValue;
+```
+
+但是千萬不要累加使用，例如
+
+``` csharp
+a = b ? : c ? : d ? e : f;
+```
+
+### 簡化 true/false
+
+例如
+
+``` csharp
+if (a)
+    b = true;
+else
+    b = false;
+```
+
+可以改寫成
+
+``` csharp
+b = (a);
+```
+
+### 合併 if
+
+例如
+
+``` csharp
+if (a)
+{
+    if (b)
+    {
+        statement
+    }
+}
+```
+
+可以改寫成
+
+``` csharp
+if (a && b)
+{
+    statement
+}
+```
+
+或是採用 Defensive Programming 的策略
+
+``` csharp
+if (!a || !b)
+    return;
+
+statement
+```
+
+### 交換判斷的順序
+
+例如
+
+``` csharp
+if (a)
+{
+    if (b)
+    {
+        isValid = true;
+    }
+}
+if (c)
+{
+    if (b)
+    {
+        isValid = true;
+    }
+}
+```
+
+可以改寫成
+
+``` csharp
+if (b)
+{
+    if (a)
+    {
+        isValid = true;
+    }
+    if (c)
+    {
+        isValid = true;
+    }
+}
+```
+
+再更進一步合併成
+
+``` csharp
+if (b)
+{
+    if (a || c)
+    {
+        isValid = true;
+    }
+}
+```
+
+或是
+
+``` csharp
+if (b && (a || c))
+{
+    isValid = true;
+}
+```
