@@ -70,7 +70,7 @@ List<Customer> listOfApprovedCustomers;
 
 以下使用 camelCase
 
-- 私有欄位 (Private Field)
+- 私用欄位 (Private Field)
 - 方法參數 (Parameter)
 - 區域變數 (Local Variable)
 
@@ -532,7 +532,7 @@ if (!a || !b)
 statement
 ```
 
-### 交換判斷的順序
+### 調整條件的順序
 
 例如
 
@@ -589,3 +589,239 @@ if (b && (a || c))
     isValid = true;
 }
 ```
+
+## 避免使用 Switch Statement
+
+例如下面的 `MonthlyStatement` 類別，有以下風險
+
+- 每次有新的 case，就需要重新建置 `MonthlyStatement`，並影響所有相依的程式
+- case 不斷增加，會讓 `MonthlyStatement` 越長越肥，難以維護
+
+``` csharp
+public class MonthlyStatement
+{
+    public float CallCost { get; set; }
+    public float SmsCost { get; set; }
+    public float TotalCost { get; set; }
+
+    public void Generate(MonthlyUsage usage)
+    {
+        switch (usage.Customer.Type)
+        {
+            case CustomerType.PayAsYouGo:
+                CallCost = 0.12f * usage.CallMinutes;
+                SmsCost = 0.12f * usage.SmsCount;
+                TotalCost = CallCost + SmsCost;
+                break;
+
+            case CustomerType.Unlimited:
+                TotalCost = 54.90f;
+                break;
+
+            default:
+                throw new NotSupportedException("The current customer type is not supported");
+        }
+    }
+}
+
+public class MonthlyUsage
+{
+    public Customer Customer { get; set; }
+    public int CallMinutes { get; set; }
+    public int SmsCount { get; set; }
+}
+
+public class Customer
+{
+    public CustomerType Type { get; set; }
+}
+
+public enum CustomerType
+{
+    PayAsYouGo = 1,
+    Unlimited
+}
+```
+
+### 利用多型 (Polymorphism) 取代 Switch Statement
+
+※ 此動作為影響範圍較大的重構，建議先寫好對應的單元測試才作此重構
+
+1. 先移動 `Generate()` 到 `MonthlyUsage`，藉此簡化 switch 的條件
+
+    ``` csharp
+    public class MonthlyStatement
+    {
+        public float CallCost { get; set; }
+        public float SmsCost { get; set; }
+        public float TotalCost { get; set; }
+    }
+
+    public class MonthlyUsage
+    {
+        public Customer Customer { get; set; }
+        public int CallMinutes { get; set; }
+        public int SmsCount { get; set; }
+
+        // 改成回傳 MonthlyStatement，且不需要傳入參數
+        public MonthlyStatement Generate()
+        {
+            var statement = new MonthlyStatement();
+
+            // 簡化 switch 的條件
+            switch (Customer.Type)
+            {
+                case CustomerType.PayAsYouGo:
+                    statement.CallCost = 0.12f * CallMinutes;
+                    statement.SmsCost = 0.12f * SmsCount;
+                    statement.TotalCost = statement.CallCost + statement.SmsCost;
+                    break;
+
+                case CustomerType.Unlimited:
+                    statement.TotalCost = 54.90f;
+                    break;
+
+                default:
+                    throw new NotSupportedException("The current customer type is not supported");
+            }
+
+            return statement;
+        }
+    }
+
+    public class Customer
+    {
+        public CustomerType Type { get; set; }
+    }
+
+    public enum CustomerType
+    {
+        PayAsYouGo = 1,
+        Unlimited
+    }
+    ```
+
+2. 再移動 `Generate()` 到 `Customer`，藉此簡化 switch 的條件
+
+    ``` csharp
+    public class MonthlyStatement
+    {
+        public float CallCost { get; set; }
+        public float SmsCost { get; set; }
+        public float TotalCost { get; set; }
+    }
+
+    public class MonthlyUsage
+    {
+        public Customer Customer { get; set; }
+        public int CallMinutes { get; set; }
+        public int SmsCount { get; set; }
+    }
+
+    public class Customer
+    {
+        public CustomerType Type { get; set; }
+
+        // 傳入 MonthlyUsage
+        public MonthlyStatement Generate(MonthlyUsage usage)
+        {
+            var statement = new MonthlyStatement();
+
+            // 簡化 switch 的條件成單一屬性後，便可以改寫成多型
+            switch (Type)
+            {
+                case CustomerType.PayAsYouGo:
+                    statement.CallCost = 0.12f * usage.CallMinutes;
+                    statement.SmsCost = 0.12f * usage.SmsCount;
+                    statement.TotalCost = statement.CallCost + statement.SmsCost;
+                    break;
+
+                case CustomerType.Unlimited:
+                    statement.TotalCost = 54.90f;
+                    break;
+
+                default:
+                    throw new NotSupportedException("The current customer type is not supported");
+            }
+
+            return statement;
+        }
+    }
+
+    public enum CustomerType
+    {
+        PayAsYouGo = 1,
+        Unlimited
+    }
+    ```
+
+3. 將 `switch(Type)` 改寫成多型
+
+    ``` csharp
+    public class MonthlyStatement
+    {
+        public float CallCost { get; set; }
+        public float SmsCost { get; set; }
+        public float TotalCost { get; set; }
+    }
+
+    public class MonthlyUsage
+    {
+        public Customer Customer { get; set; }
+        public int CallMinutes { get; set; }
+        public int SmsCount { get; set; }
+    }
+
+    // 將 Customer 作成抽象類別
+    public abstract class Customer
+    {
+        // 不再需要
+        //public CustomerType Type { get; set; }
+
+        // 將 Generate 作成抽象方法
+        public abstract MonthlyStatement Generate(MonthlyUsage usage);
+    }
+
+    // 不再需要
+    //public enum CustomerType
+    //{
+    //    PayAsYouGo = 1,
+    //    Unlimited
+    //}
+
+    // 新增 PayAsYouGoCustomer 類別，並繼承自 Customer
+    public class PayAsYouGoCustomer : Customer
+    {
+        // 覆寫 Generate()
+        public override MonthlyStatement Generate(MonthlyUsage usage)
+        {
+            var statement = new MonthlyStatement();
+
+            // 取代原本的 switch，只保留此實作相關的邏輯
+            statement.CallCost = 0.12f * usage.CallMinutes;
+            statement.SmsCost = 0.12f * usage.SmsCount;
+            statement.TotalCost = statement.CallCost + statement.SmsCost;
+
+            return statement;
+        }
+    }
+
+    // 新增 UnlimitedCustomer 類別，並繼承自 Customer
+    public class UnlimitedCustomer : Customer
+    {
+        // 覆寫 Generate()
+        public override MonthlyStatement Generate(MonthlyUsage usage)
+        {
+            var statement = new MonthlyStatement();
+
+            // 取代原本的 switch，只保留此實作相關的邏輯
+            statement.TotalCost = 54.90f;
+
+            return statement;
+        }
+    }
+    ```
+
+## 重複的程式碼
+
+重複的程式碼戶造成維護困難，改一處、漏 N 處，應擷取成私用函式，或是獨立成公用類別的方法
