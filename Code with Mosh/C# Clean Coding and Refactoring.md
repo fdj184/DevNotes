@@ -822,6 +822,53 @@ public enum CustomerType
     }
     ```
 
-## 重複的程式碼
+## 避免重複的程式碼
 
 重複的程式碼戶造成維護困難，改一處、漏 N 處，應擷取成私用函式，或是獨立成公用類別的方法
+
+## 避免濫用註解
+
+### 顯而易見的解釋
+
+``` csharp
+// Return the list of customers
+public List<Customer> GetCustomers()
+{
+}
+```
+
+=> 不需要
+
+### 版本歷史
+
+``` csharp
+// Before v1.3
+public List<Customer> GetCustomers()
+{
+}
+```
+
+=> 交給版控軟體即可
+
+### 澄清程式碼
+
+``` csharp
+var pf = 10; // Pay Frequency
+```
+
+=> 直接用明確的名字命名該變數即可
+
+### 無用的程式碼
+
+``` csharp
+//public List<Customer> GetCustomers()
+//{
+//}
+```
+
+=> 直接刪除即可
+
+## 避免使用過長的方法
+
+- 超過 10 行就可以說是過長了
+- 一個類別或一個方法應該只專心負責一件工作
